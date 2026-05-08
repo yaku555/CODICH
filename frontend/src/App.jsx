@@ -6,11 +6,12 @@ function Inicio() {
   return (
     <main className="page hero-page">
       <section className="hero-content">
-        <p className="eyebrow">Sistema de gestión CODICH</p>
-        <h1>Gestión inteligente de membresías</h1>
+        <p className="eyebrow">CODICH</p>
+        <h1>Colegio de Diseñadores Instruccionales Chile
+
+        </h1>
         <p>
-          Centraliza socios, planes, pagos, reportes y administración en una
-          plataforma simple, moderna y segura.
+          Centraliza la gestión de socios, membresías, pagos y reportes en una plataforma moderna, segura y eficiente.
         </p>
 
         <div className="hero-actions">
@@ -38,68 +39,59 @@ function Inicio() {
   );
 }
 
-function Membresias() {
-  return (
-    <main className="page">
-      <h1>Membresías</h1>
-      <p>
-        En esta sección se podrán registrar, revisar, editar y administrar las
-        membresías de los usuarios de CODICH.
-      </p>
-
-      <div className="cards-grid">
-        <div className="info-card">
-          <h3>Membresía Básica</h3>
-          <p>Acceso general a beneficios y seguimiento de estado.</p>
-        </div>
-
-        <div className="info-card">
-          <h3>Membresía Premium</h3>
-          <p>Mayor nivel de beneficios, reportes y soporte personalizado.</p>
-        </div>
-
-        <div className="info-card">
-          <h3>Membresía Institucional</h3>
-          <p>Gestión pensada para grupos, empresas u organizaciones.</p>
-        </div>
-      </div>
-    </main>
-  );
-}
-
-function Reportes() {
-  return (
-    <main className="page">
-      <h1>Reportes</h1>
-      <p>
-        Aquí se visualizarán reportes de membresías activas, vencidas, pagos,
-        crecimiento de usuarios y actividad general del sistema.
-      </p>
-
-      <div className="report-box">
-        <h3>Reporte mensual de ejemplo</h3>
-        <p>Total de membresías activas: 193</p>
-        <p>Membresías vencidas: 21</p>
-        <p>Nuevos registros del mes: 34</p>
-      </div>
-    </main>
-  );
-}
-
-function QuienesSomos() {
+function Sobre() {
   return (
     <main className="page">
       <h1>Quiénes Somos</h1>
       <p>
-        CODICH es una plataforma orientada a simplificar la gestión de
-        membresías, facilitando la administración de usuarios, planes, pagos y
-        reportes desde un solo lugar.
+        El Colegio de Diseñadores Instruccionales de Chile (CODICH), es una organización que agrupa a profesionales encargados de diseñar experiencias de aprendizaje efectivas. CODICH se dedica a mejorar las habilidades de los diseñadores instruccionales mediante la colaboración, el apoyo mutuo y el impulso del reconocimiento de la profesión. El modelo de negocio de la organización se centra en brindar oportunidades de crecimiento profesional, promoviendo el aprendizaje colaborativo entre sus miembros.
       </p>
     </main>
   );
 }
 
-function Historia() {
+function Membresias() {
+  return (
+    <main className="page">
+      <h1>Impulsa tu desarrollo profesional junto a CODICH</h1>
+      <p>Forma parte de una comunidad de diseñadores instruccionales comprometidos con la innovación, colaboración y crecimiento profesional.</p>
+      <div className="hero-actions">
+        <button className="primary-btn">Postular ahora</button>
+        <button className="secondary-btn">Mas información</button>
+
+        <section className="hero-card">
+          <h3>BENEFICIOS</h3>
+          <div className="stat-row">
+            <strong>Gestión Centralizada</strong>
+            <span>Administra pagos, comprobantes y estado de membresía desde un solo lugar.</span>
+          </div>
+          <div className="stat-row">
+            <strong>Acceso Seguro</strong>
+            <span>Protección de datos y acceso personalizado según tu perfil.</span>
+          </div>
+                    <div className="stat-row">
+            <strong>Seguimiento de Pagos</strong>
+            <span>Consulta historial, vencimientos y comprobantes digitales.</span>
+          </div>
+                    <div className="stat-row">
+            <strong>Comunidad Profesional</strong>
+            <span>Forma parte de una red colaborativa de diseñadores instruccionales.</span>
+          </div>
+                    <div className="stat-row">
+            <strong>Reportes y Transparencia</strong>
+            <span>Información organizada y accesible para miembros y administración.</span>
+          </div>
+          <div className="stat-row">
+            <strong>Plataforma Moderna</strong>
+            <span>Interfaz intuitiva y adaptable a cualquier dispositivo.</span>
+          </div>
+        </section>
+      </div>
+    </main>
+  );
+}
+
+function Postulacion() {
   return (
     <main className="page">
       <h1>Historia</h1>
@@ -112,34 +104,10 @@ function Historia() {
   );
 }
 
-function Planes() {
+function Contacto() {
   return (
     <main className="page">
-      <h1>Planes</h1>
-      <p>
-        Revisa los distintos planes disponibles para adaptar CODICH a las
-        necesidades de cada organización.
-      </p>
 
-      <div className="cards-grid">
-        <div className="plan-card">
-          <h3>Plan Inicial</h3>
-          <p>Ideal para organizaciones pequeñas.</p>
-          <strong>$9.990 / mes</strong>
-        </div>
-
-        <div className="plan-card featured">
-          <h3>Plan Gestión</h3>
-          <p>Para organizaciones con mayor cantidad de miembros.</p>
-          <strong>$19.990 / mes</strong>
-        </div>
-
-        <div className="plan-card">
-          <h3>Plan Empresa</h3>
-          <p>Solución avanzada con reportes personalizados.</p>
-          <strong>Personalizado</strong>
-        </div>
-      </div>
     </main>
   );
 }
@@ -171,11 +139,10 @@ function App() {
       <div className="app-content">
         <Routes>
           <Route path="/" element={<Inicio />} />
+          <Route path="/sobre" element={<Sobre />} />
           <Route path="/membresias" element={<Membresias />} />
-          <Route path="/reportes" element={<Reportes />} />
-          <Route path="/quienes-somos" element={<QuienesSomos />} />
-          <Route path="/historia" element={<Historia />} />
-          <Route path="/planes" element={<Planes />} />
+          <Route path="/postulacion" element={<Postulacion />} />
+          <Route path="/contacto" element={<Contacto />} />
           <Route path="/acceder" element={<Acceder />} />
         </Routes>
       </div>
