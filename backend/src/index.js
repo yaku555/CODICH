@@ -1,11 +1,11 @@
-import dotenv from 'dotenv';
+const dotenv = require('dotenv');
 dotenv.config();
 
-import express from 'express';
-import mongoose from 'mongoose';
-import cors from 'cors';
+const express = require('express');
+const mongoose = require('mongoose');
+const cors = require('cors');
 
-
+const usuarioRoutes = require('./routes/usuario.routes');
 
 console.log("PORT leído:", process.env.PORT);
 console.log("MONGO_URI existe:", !!process.env.MONGO_URI);
@@ -19,7 +19,10 @@ app.get('/', (req, res) => {
   res.send('API de CODICH-Manager funcionando');
 });
 
-const PORT = process.env.PORT || 4000;
+// Rutas
+app.use('/api/usuarios', usuarioRoutes);
+
+const PORT = process.env.PORT || 6767;
 
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en el puerto ${PORT}`);

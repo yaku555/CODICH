@@ -1,16 +1,34 @@
+import { useEffect, useState } from "react";
 import { Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
-
+import { getUsuarios } from "./api/usuarios";
 import "./App.css";
 
 function Inicio() {
+  const [usuarioPrueba, setUsuarioPrueba] = useState(null);
+
+  useEffect(() => {
+    const cargarUsuario = async () => {
+      try {
+        const usuarios = await getUsuarios();
+
+        if (usuarios.length > 0) {
+          setUsuarioPrueba(usuarios[0]);
+        }
+      } catch (error) {
+        console.error("Error cargando usuario de prueba:", error);
+      }
+    };
+
+    cargarUsuario();
+  }, []);
+
   return (
     <main className="page hero-page">
       <section className="hero-content">
         <p className="eyebrow">CODICH</p>
-        <h1>Colegio de Diseñadores Instruccionales Chile
+        <h1>Colegio de Diseñadores Instruccionales Chile</h1>
 
-        </h1>
         <p>
           Centraliza la gestión de socios, membresías, pagos y reportes en una plataforma moderna, segura y eficiente.
         </p>
@@ -23,17 +41,27 @@ function Inicio() {
 
       <section className="hero-card">
         <h3>Resumen general</h3>
+
         <div className="stat-row">
           <span>Socios activos</span>
           <strong>248</strong>
         </div>
+
         <div className="stat-row">
           <span>Membresías vigentes</span>
           <strong>193</strong>
         </div>
+
         <div className="stat-row">
           <span>Reportes generados</span>
           <strong>32</strong>
+        </div>
+
+        <div className="stat-row">
+          <span>Usuario test</span>
+          <strong>
+            {usuarioPrueba ? usuarioPrueba.nombre : "Cargando..."}
+          </strong>
         </div>
       </section>
     </main>
