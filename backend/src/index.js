@@ -1,14 +1,12 @@
 const dotenv = require('dotenv');
 dotenv.config();
-
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 
+// Importa tus rutas
 const usuarioRoutes = require('./routes/usuario.routes');
-
-console.log("PORT leído:", process.env.PORT);
-console.log("MONGO_URI existe:", !!process.env.MONGO_URI);
+const postulacionRoutes = require('./routes/postulacion.routes'); // Cambié el nombre para consistencia
 
 const app = express();
 
@@ -21,19 +19,23 @@ app.get('/', (req, res) => {
 
 // Rutas
 app.use('/api/usuarios', usuarioRoutes);
+app.use('/api/postulaciones', postulacionRoutes); // Usar plural es estándar
 
 const PORT = process.env.PORT || 6767;
 
-app.listen(PORT, () => {
-  console.log(`Servidor corriendo en el puerto ${PORT}`);
-});
-
+// Función para conectar a la BD
 const conectarDB = async () => {
   try {
-    const connection = await mongoose.connect(process.env.MONGO_URI);
-    console.log(`MongoDB conectado: ${connection.connection.host}`);
+    await mongoose.connect(process.env.MONGO_URI);
+    console.log("MongoDB conectado exitosamente");
+    
+    // Iniciar servidor SOLO cuando la BD esté lista
+    app.listen(PORT, () => {
+      console.log(`Servidor corriendo en el puerto ${PORT}`);
+    });
   } catch (error) {
     console.error(`Error de conexión a la BD: ${error.message}`);
+    process.exit(1); // Detener el proceso si la BD falla
   }
 };
 

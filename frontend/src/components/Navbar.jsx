@@ -84,7 +84,7 @@ function Navbar() {
           Contacto
         </NavLink>
         <NavLink to="/acceder" className="side-access-btn" onClick={closeMenu}>
-          Accederr
+          Acceder
         </NavLink>
       </aside>
 

@@ -84,6 +84,28 @@ const borrarUsuario = async (req, res) => {
   }
 };
 
+const loginUsuario = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    
+    const usuario = await Usuario.findOne({ email });
+    if (!usuario) {
+      return res.status(401).json({ error: 'Credenciales inválidas' });
+    }
+    
+    // Aquí deberías comparar con contraseña hasheada (bcrypt)
+    if (usuario.password !== password) {
+      return res.status(401).json({ error: 'Credenciales inválidas' });
+    }
+    
+    res.status(200).json(usuario);
+  } catch (error) {
+    console.error('Error en login:', error);
+    res.status(500).json({ error: 'Error en el servidor' });
+  }
+};
+
+
 // Usamos el controlador base para las funciones CRUD si fuera necesario
 const { getById: getUsuarioPorRut} = require('./baseCrud.controller')(Usuario, getUsuarioData, 'rut', 'rut');
 
@@ -93,4 +115,8 @@ module.exports = {
   getUsuarioPorRut,     // Función para obtener un usuario por su RUT
   actualizarUsuario,    // Función para actualizar un usuario por su RUT
   borrarUsuario,        // Función para borrar un usuario por su RUT
+  loginUsuario           // Función para iniciar sesión
 };
+
+
+                                                        

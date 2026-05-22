@@ -45,3 +45,14 @@ export const borrarUsuario = (idUsuario) => {
       throw error;
     });
 };
+
+//login
+export const loginUsuario = (email, password) => {
+  return axios
+    .post('/usuarios/login', { email, password })
+    .then((response) => response.data)
+    .catch((error) => {
+      console.error('Error al iniciar sesión:', error);
+      throw error;
+    });
+};

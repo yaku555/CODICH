@@ -4,7 +4,8 @@ const {
   crearUsuario,
   getUsuarioPorRut,
   actualizarUsuario,
-  borrarUsuario
+  borrarUsuario,
+  loginUsuario
 } = require('../controllers/usuario.controller');
 
 const router = Router();
@@ -25,5 +26,8 @@ router.put('/:rut', actualizarUsuario);
 
 // Ruta para eliminar un usuario por RUT
 router.delete('/:rut', borrarUsuario); 
+
+// Ruta para iniciar sesión
+router.post('/login', loginUsuario);
 
 module.exports = router;
