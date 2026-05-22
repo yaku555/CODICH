@@ -2,11 +2,13 @@ import { useEffect, useState } from "react";
 import { Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import { getUsuarios } from "./api/usuarios";
-import { useUsuario } from "./context/usuario.context.jsx";  
+import { useUsuario } from "./context/usuario.context.jsx"; 
+import ProtectedRoute from './components/ProtectedRoute';  
 import Postulacion from "./pages/Postulacion.jsx";
 import Sobre from "./pages/Sobre.jsx";
 import Membresias from "./pages/Membresias.jsx";
 import Acceder from "./pages/Acceder.jsx";
+import PagMiembros from './pages/PagMiembros.jsx'; // Tu nueva página
 import "./styles/App.css";
 
 function Inicio() {
@@ -73,7 +75,6 @@ function App() {
   return (
     <>
       <Navbar />
-
       <div className="app-content">
         <Routes>
           <Route path="/" element={<Inicio />} />
@@ -82,6 +83,9 @@ function App() {
           <Route path="/postulacion" element={<Postulacion />} />
           <Route path="/contacto" element={<Contacto />} />
           <Route path="/acceder" element={<Acceder />} />
+          <Route element={<ProtectedRoute />}>
+            <Route path="/miembros" element={<PagMiembros />} />
+          </Route>
         </Routes>
       </div>
     </>

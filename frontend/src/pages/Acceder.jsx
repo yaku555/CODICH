@@ -11,22 +11,26 @@ function Acceder() {
   const navigate = useNavigate();
   const { setUsuario } = useUsuario(); // ← AGREGAR ESTO
 
-  const handleLogin = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setError(null);
+const handleLogin = async (e) => {
+  e.preventDefault();
+  setLoading(true);
+  setError(null);
 
-    try {
-      const usuario = await loginUsuario(email, password);
-      setUsuario(usuario); // ← AGREGAR ESTO
-      localStorage.setItem('usuario', JSON.stringify(usuario));
-      navigate('/'); // Redirigir a home
-    } catch (err) {
-      setError(err.response?.data?.error || 'Error al iniciar sesión');
-    } finally {
-      setLoading(false);
-    }
-  };
+  try {
+    const usuario = await loginUsuario(email, password);
+    setUsuario(usuario);
+    localStorage.setItem('usuario', JSON.stringify(usuario));
+
+    // --- AQUÍ ESTÁ EL CAMBIO ---
+    navigate('/miembros'); 
+    // ---------------------------
+
+  } catch (err) {
+    setError(err.response?.data?.error || 'Error al iniciar sesión');
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <main className="page login-page">
