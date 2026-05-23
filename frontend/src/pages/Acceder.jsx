@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { loginUsuario } from '../api/usuarios';
-import { useNavigate } from 'react-router-dom';
-import { useUsuario } from '../context/usuario.context'; // ← AGREGAR ESTO
+import { NavLink, useNavigate } from 'react-router-dom';
+import { useUsuario } from '../context/usuario.context'; 
+import Postulacion from './Postulacion.jsx';
 
 function Acceder() {
   const [email, setEmail] = useState('');
@@ -58,6 +59,11 @@ const handleLogin = async (e) => {
           <button type="submit" className="primary-btn" disabled={loading}>
             {loading ? 'Iniciando...' : 'Iniciar sesión'}
           </button>
+          
+          <p>¿No tienes cuenta?{" "}
+            <NavLink to="/postulacion">Postula aquí</NavLink>
+          </p>
+
         </form>
       </div>
     </main>

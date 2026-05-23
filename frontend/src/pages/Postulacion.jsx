@@ -23,9 +23,26 @@ function Postulacion() {
   };
 
   const handleFileChange = (e) => {
+    const archivoSeleccionado = e.target.files[0];
+
+    // Validar si el archivo existe y si NO es un PDF
+    if (archivoSeleccionado && archivoSeleccionado.type !== "application/pdf") {
+      setError('⚠️ Formato no válido. Por favor, selecciona un documento en formato PDF.');
+      
+      // Limpiamos el input visualmente y reseteamos el estado del documento
+      e.target.value = ""; 
+      setFormData(prev => ({
+        ...prev,
+        documento: null
+      }));
+      return;
+    }
+
+    // Si el archivo es correcto, limpiamos errores previos y guardamos el archivo
+    setError('');
     setFormData(prev => ({
       ...prev,
-      documento: e.target.files[0]
+      documento: archivoSeleccionado
     }));
   };
 
@@ -34,7 +51,7 @@ function Postulacion() {
     setError('');
     setSuccess('');
 
-    // Validaciones
+    // Validaciones de texto vacíos
     if (!formData.nombre.trim()) {
       setError('El nombre es requerido');
       return;
@@ -64,7 +81,7 @@ function Postulacion() {
       await createPostulacionRequest(form);
       setSuccess('Postulación creada correctamente');
 
-      // Limpiar formulario
+      // Limpiar formulario tras el éxito
       setFormData({ nombre: '', rut: '', email: '', documento: null });
     } catch (err) {
       setError('Error: ' + (err.response?.data?.message || err.message));
@@ -114,7 +131,7 @@ function Postulacion() {
         <div className="form-group">
           <label htmlFor="email">Email *</label>
           <input
-            type="email"
+            type="type"
             id="email"
             name="email"
             value={formData.email}
@@ -130,6 +147,7 @@ function Postulacion() {
             type="file"
             id="documento"
             name="documento"
+            accept=".pdf"
             onChange={handleFileChange}
             disabled={loading}
             required

@@ -105,11 +105,15 @@
 }
 
 .alert-error {
-  background-color: #fed7d7;
-  color: #c53030;
-  border-left: 4px solid #c53030;
+  background-color: #fff5f5;   
+  color: #c53030;            
+  border-left: 6px solid #e53e3e; 
+  padding: 14px 20px;
+  border-radius: 8px;         
+  font-weight: 500;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); 
 }
-
 .alert-success {
   background-color: #c6f6d5;
   color: #22543d;

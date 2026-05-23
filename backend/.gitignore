@@ -1,2 +1,7 @@
 node_modules/
 .env
+
+
+# Ignorar los archivos PDF
+backend/uploads/*.pdf
+backend/uploads/
