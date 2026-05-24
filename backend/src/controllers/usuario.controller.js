@@ -46,19 +46,22 @@ const getUsuarios = async (req, res) => {
 
 // Función para actualizar un usuario
 const actualizarUsuario = async (req, res) => {
-  const { rut } = req.params; // Deberías estar obteniendo el rut desde la URL
-  const { nombre, apellido, rol, password } = req.body;
+  const { rut } = req.params; 
+  // CORRECCIÓN: Agregamos 'email' aquí para que esté definido
+  const { nombre, apellido, email, rol, password } = req.body;
 
   try {
     const usuario = await Usuario.findOneAndUpdate(
       { rut },
-      { nombre, apellido,email, rol, password },
+      { nombre, apellido, email, rol, password }, // Ahora 'email' ya funciona perfectamente
       { new: true }
     );
+    
     if (!usuario) {
       return res.status(404).json({ error: 'Usuario no encontrado' });
     }
-    res.status(200).json(usuario); // Respondemos con el usuario actualizado
+    
+    res.status(200).json(usuario); 
   } catch (error) {
     console.error('Error al actualizar el usuario:', error);
     res.status(500).json({ error: 'Hubo un problema al actualizar el usuario' });

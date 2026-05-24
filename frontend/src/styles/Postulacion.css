@@ -1,71 +1,109 @@
-/* Formulario */
-.form-postulacion {
-  max-width: 600px;
-  margin: 2rem auto;
-  padding: 2rem;
+/* ==========================================================================
+   Contenedor del Formulario (Tu tarjeta bonita original ahora es vertical)
+   ========================================================================== */
+.form-postulacion-grid {
+  max-width: 750px; /* Aumentado para que quepan cómodamente las 2 columnas */
+  margin: 1.5rem auto 3rem auto;
+  padding: 2.2rem;
   background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
   border-radius: 12px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  box-sizing: border-box;
+  
+  /* CAMBIO CLAVE: De Flex vertical a Grid de 2 columnas */
+  display: grid !important;
+  grid-template-columns: repeat(2, 1fr); /* Divide el espacio en 2 columnas iguales */
+  gap: 1.2rem; /* Controla el espacio tanto horizontal como vertical entre campos */
 }
 
-.form-postulacion h2 {
+/* Título de la sección (Tu antiguo .form-postulacion h2 adaptado al banner) */
+.form-header-banner {
   text-align: center;
-  color: #2d3748;
-  margin-bottom: 1.5rem;
-  font-size: 1.5rem;
+  margin-top: 2rem;
+  margin-bottom: 0.5rem;
 }
 
-.form-group {
-  margin-bottom: 1.5rem;
+.form-header-banner h1 {
+  color: #2d3748; /* Tu color oscuro original */
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin: 0;
+  letter-spacing: -0.5px;
+}
+
+/* Asegura que las columnas intermedias del JSX se apilen de arriba a abajo */
+.form-column {
   display: flex;
   flex-direction: column;
+  width: 100%;
 }
 
-.form-group label {
+/* ==========================================================================
+   Campos e Inputs (Tu .form-group adaptado a .form-group-custom)
+   ========================================================================== */
+.form-group-custom {
+  margin-bottom: 1.2rem; /* Espaciado equilibrado entre filas */
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+}
+
+.form-group-custom label {
   font-weight: 600;
-  color: #2d3748;
-  margin-bottom: 0.5rem;
+  color: #2d3748; /* Tu color original */
+  margin-bottom: 0.4rem;
   font-size: 0.95rem;
 }
 
-.form-group input {
+.form-group-custom input {
   padding: 0.75rem;
   border: 2px solid #cbd5e0;
-  border-radius: 8px;
+  border-radius: 8px; /* Tus bordes de 8px originales */
   font-size: 1rem;
   transition: all 0.3s ease;
   font-family: inherit;
+  width: 100%;
+  box-sizing: border-box;
+  background-color: #ffffff;
+  color: #2d3748;
 }
 
-.form-group input:focus {
+/* Tus efectos dinámicos de Focus */
+.form-group-custom input:focus {
   outline: none;
-  border-color: #4299e1;
+  border-color: #4299e1; /* Tu azul original */
   box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
   background-color: #f0f8ff;
 }
 
-.form-group input:disabled {
+.form-group-custom input:disabled {
   background-color: #edf2f7;
   cursor: not-allowed;
 }
 
-.form-group input[type="file"] {
+/* Tu diseño del cargador de PDF original */
+.form-group-custom input[type="file"] {
   padding: 1rem;
   cursor: pointer;
   background-color: #ffffff;
 }
 
-.form-actions {
+/* ==========================================================================
+   Botón de Acción (Tu .primary-btn original adaptado a .btn-siguiente)
+   ========================================================================== */
+.form-actions-full {
+  grid-column: span 2; /* Ocupa las 2 columnas del grid */
   display: flex;
-  gap: 1rem;
   justify-content: center;
-  margin-top: 2rem;
+  margin-top: 1rem;
+  width: 100%;
 }
 
-.form-postulacion .primary-btn {
+
+.btn-siguiente {
   padding: 0.75rem 2rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); /* Tu degradado morado original */
+  color: white !important;
   border: none;
   border-radius: 8px;
   font-weight: 600;
@@ -73,23 +111,28 @@
   cursor: pointer;
   transition: all 0.3s ease;
   box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+  width: 100%; /* Hace que el botón abarque el ancho de la tarjeta compacta */
 }
 
-.form-postulacion .primary-btn:hover:not(:disabled) {
+.btn-siguiente:hover:not(:disabled) {
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
 }
 
-.form-postulacion .primary-btn:disabled {
+.btn-siguiente:disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }
 
-/* Alertas */
+/* ==========================================================================
+   Alertas (Alineadas simétricamente con el ancho de la tarjeta)
+   ========================================================================== */
 .alert {
+  max-width: 450px;
+  margin: 1rem auto 0 auto;
   padding: 1rem;
   border-radius: 8px;
-  margin-bottom: 1.5rem;
+  box-sizing: border-box;
   animation: slideIn 0.3s ease;
 }
 
@@ -105,15 +148,11 @@
 }
 
 .alert-error {
-  background-color: #fff5f5;   
-  color: #c53030;            
-  border-left: 6px solid #e53e3e; 
-  padding: 14px 20px;
-  border-radius: 8px;         
-  font-weight: 500;
-  margin-bottom: 20px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); 
+  background-color: #fed7d7;
+  color: #c53030;
+  border-left: 4px solid #c53030;
 }
+
 .alert-success {
   background-color: #c6f6d5;
   color: #22543d;

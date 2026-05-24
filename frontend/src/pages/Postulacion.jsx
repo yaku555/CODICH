@@ -7,10 +7,14 @@ function Postulacion() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
+  // 1. Estado unificado con todos los datos de texto + el archivo CV
   const [formData, setFormData] = useState({
-    nombre: '',
+    nombreCompleto: '',
     rut: '',
     email: '',
+    telefono: '',
+    profesion: '',
+    experiencia: '',
     documento: null
   });
 
@@ -29,7 +33,6 @@ function Postulacion() {
     if (archivoSeleccionado && archivoSeleccionado.type !== "application/pdf") {
       setError('⚠️ Formato no válido. Por favor, selecciona un documento en formato PDF.');
       
-      // Limpiamos el input visualmente y reseteamos el estado del documento
       e.target.value = ""; 
       setFormData(prev => ({
         ...prev,
@@ -38,7 +41,6 @@ function Postulacion() {
       return;
     }
 
-    // Si el archivo es correcto, limpiamos errores previos y guardamos el archivo
     setError('');
     setFormData(prev => ({
       ...prev,
@@ -51,38 +53,46 @@ function Postulacion() {
     setError('');
     setSuccess('');
 
-    // Validaciones de texto vacíos
-    if (!formData.nombre.trim()) {
-      setError('El nombre es requerido');
-      return;
-    }
-    if (!formData.rut.trim()) {
-      setError('El RUT es requerido');
-      return;
-    }
-    if (!formData.email.trim()) {
-      setError('El email es requerido');
-      return;
-    }
-    if (!formData.documento) {
-      setError('El documento es requerido');
-      return;
-    }
+    // 2. Validaciones de todos los campos obligatorios antes de enviar
+    if (!formData.nombreCompleto.trim()) return setError('El nombre completo es requerido');
+    if (!formData.rut.trim()) return setError('El RUT es requerido');
+    if (!formData.email.trim()) return setError('El correo electrónico es requerido');
+    if (!formData.telefono.trim()) return setError('El teléfono es requerido');
+    if (!formData.profesion.trim()) return setError('La profesión es requerida');
+    if (!formData.experiencia.trim()) return setError('La experiencia es requerida');
+    if (!formData.documento) return setError('El documento (CV) es requerido');
 
     try {
       setLoading(true);
 
+      // 3. Empaquetamos todo en FormData porque incluye un archivo (el PDF)
       const form = new FormData();
-      form.append('nombre', formData.nombre);
+      form.append('nombreCompleto', formData.nombreCompleto);
       form.append('rut', formData.rut);
       form.append('email', formData.email);
-      form.append('documento', formData.documento);
+      form.append('telefono', formData.telefono);
+      form.append('profesion', formData.profesion);
+      form.append('experiencia', formData.experiencia);
+      form.append('documento', formData.documento); // El archivo físico
 
       await createPostulacionRequest(form);
-      setSuccess('Postulación creada correctamente');
+      setSuccess('Postulación creada correctamente con su documento');
 
       // Limpiar formulario tras el éxito
-      setFormData({ nombre: '', rut: '', email: '', documento: null });
+      setFormData({ 
+        nombreCompleto: '', 
+        rut: '', 
+        email: '', 
+        telefono: '', 
+        profesion: '', 
+        experiencia: '', 
+        documento: null 
+      });
+      
+      // Limpiar visualmente el input file de HTML
+      const fileInput = document.getElementById('documento');
+      if (fileInput) fileInput.value = '';
+
     } catch (err) {
       setError('Error: ' + (err.response?.data?.message || err.message));
     } finally {
@@ -92,57 +102,107 @@ function Postulacion() {
 
   return (
     <main className="page">
-      <h1>Postulación</h1>
+      {/* Banner superior de pasos */}
+      <div className="form-header-banner">
+        <h1>Proceso de Postulación</h1>
+      </div>
 
-      {/* Mensajes */}
+      {/* Mensajes de feedback */}
       {error && <div className="alert alert-error">{error}</div>}
       {success && <div className="alert alert-success">{success}</div>}
 
-      {/* Formulario */}
-      <form onSubmit={handleSubmit} className="form-postulacion">
-        <h2>Nueva Postulación</h2>
+      {/* Formulario en Malla (Grid) */}
+      <form onSubmit={handleSubmit} className="form-postulacion-grid">
+        
+        {/* COLUMNA IZQUIERDA */}
+        <div className="form-column">
+          <div className="form-group-custom">
+            <label htmlFor="nombreCompleto">Nombre Completo</label>
+            <input
+              type="text"
+              id="nombreCompleto"
+              name="nombreCompleto"
+              value={formData.nombreCompleto}
+              onChange={handleInputChange}
+              disabled={loading}
+              required
+            />
+          </div>
 
-        <div className="form-group">
-          <label htmlFor="nombre">Nombre *</label>
-          <input
-            type="text"
-            id="nombre"
-            name="nombre"
-            value={formData.nombre}
-            onChange={handleInputChange}
-            disabled={loading}
-            required
-          />
+          <div className="form-group-custom">
+            <label htmlFor="rut">RUT</label>
+            <input
+              type="text"
+              id="rut"
+              name="rut"
+              placeholder="Ej: 11111111-0"
+              value={formData.rut}
+              onChange={handleInputChange}
+              disabled={loading}
+              required
+            />
+          </div>
+
+          <div className="form-group-custom">
+            <label htmlFor="email">Correo Electrónico</label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              value={formData.email}
+              onChange={handleInputChange}
+              disabled={loading}
+              required
+            />
+          </div>
         </div>
 
-        <div className="form-group">
-          <label htmlFor="rut">RUT *</label>
-          <input
-            type="text"
-            id="rut"
-            name="rut"
-            value={formData.rut}
-            onChange={handleInputChange}
-            disabled={loading}
-            required
-          />
+        {/* COLUMNA DERECHA */}
+        <div className="form-column">
+          <div className="form-group-custom">
+            <label htmlFor="telefono">Teléfono</label>
+            <input
+              type="tel"
+              id="telefono"
+              name="telefono"
+              value={formData.telefono}
+              onChange={handleInputChange}
+              disabled={loading}
+              required
+            />
+          </div>
+
+          <div className="form-group-custom">
+            <label htmlFor="profesion">Profesión</label>
+            <input
+              type="text"
+              id="profesion"
+              name="profesion"
+              value={formData.profesion}
+              onChange={handleInputChange}
+              disabled={loading}
+              required
+            />
+          </div>
+
+          <div className="form-group-custom">
+            <label htmlFor="experiencia">Experiencia</label>
+            <input
+              type="text"
+              id="experiencia"
+              name="experiencia"
+              placeholder="Ej: 5 años"
+              value={formData.experiencia}
+              onChange={handleInputChange}
+              disabled={loading}
+              required
+            />
+          </div>
         </div>
 
-        <div className="form-group">
-          <label htmlFor="email">Email *</label>
-          <input
-            type="type"
-            id="email"
-            name="email"
-            value={formData.email}
-            onChange={handleInputChange}
-            disabled={loading}
-            required
-          />
-        </div>
-
-        <div className="form-group">
-          <label htmlFor="documento">Documento *</label>
+        {/* CAMPO ADICIONAL: Documento CV (Abarca el ancho completo abajo de las columnas) */}
+        <div className="form-group-custom  " style={{ gridColumn: 'span 2', marginTop: '1rem' }}>
+          <label htmlFor="documento">Documento CV (PDF)</label>
           <input
             type="file"
             id="documento"
@@ -154,9 +214,10 @@ function Postulacion() {
           />
         </div>
 
-        <div className="form-actions">
-          <button type="submit" disabled={loading} className="primary-btn">
-            {loading ? 'Procesando...' : 'Crear'}
+        {/* Botón inferior centrado */}
+        <div className="form-actions-full">
+          <button type="submit" disabled={loading} className="btn-siguiente">
+            {loading ? 'Procesando...' : 'Enviar Postulación'}
           </button>
         </div>
       </form>
