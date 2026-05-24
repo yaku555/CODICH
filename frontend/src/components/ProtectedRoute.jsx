@@ -1,15 +1,19 @@
 import { Navigate, Outlet } from 'react-router-dom';
 import { useUsuario } from '../context/usuario.context';
 
-function ProtectedRoute() {
+function ProtectedRoute({ rolesPermitidos }) {
   const { usuario } = useUsuario();
 
-  // Si no hay usuario, mandamos al login
   if (!usuario) {
     return <Navigate to="/acceder" replace />;
   }
 
-  // Si hay usuario, permitimos ver la página (Outlet)
+  const rolUsuario = usuario.rol?.toLowerCase().trim();
+
+  if (rolesPermitidos && !rolesPermitidos.includes(rolUsuario)) {
+    return <Navigate to="/acceder" replace />;
+  }
+
   return <Outlet />;
 }
 

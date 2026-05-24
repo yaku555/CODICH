@@ -22,9 +22,15 @@ const handleLogin = async (e) => {
     setUsuario(usuario);
     localStorage.setItem('usuario', JSON.stringify(usuario));
 
-    // --- AQUÍ ESTÁ EL CAMBIO ---
-    navigate('/miembros'); 
-    // ---------------------------
+    const rol = usuario.rol?.toLowerCase().trim();
+
+    if (rol === 'admin' || rol === 'administrador') {
+      navigate('/admin');
+    } else if (rol === 'usuario') {
+      navigate('/miembros');
+    } else {
+      navigate('/');
+    }
 
   } catch (err) {
     setError(err.response?.data?.error || 'Error al iniciar sesión');
