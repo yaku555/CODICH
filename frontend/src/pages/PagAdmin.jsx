@@ -1,7 +1,9 @@
 // frontend/src/pages/PagAdmin.jsx
 
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useUsuario } from '../context/usuario.context';
+
 import { getUsuarios } from '../api/usuarios.js';
 import '../styles/AdminUsuarios.css';
 
@@ -10,6 +12,14 @@ function PagAdmin() {
   const [busqueda, setBusqueda] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+
+  const { logout } = useUsuario();
+  const navigate = useNavigate();
+  
+  const cerrarSesion = () => {
+    logout();
+    navigate('/acceder', { replace: true });
+  };
 
   useEffect(() => {
     cargarUsuarios();
@@ -29,7 +39,7 @@ function PagAdmin() {
   };
 
   const usuariosFiltrados = usuarios.filter((usuario) => {
-    const texto = `${usuario.nombre} ${usuario.apellido} ${usuario.rut} ${usuario.email} ${usuario.rol}`;
+    const texto = `${usuario.nombre} ${usuario.apellido} ${usuario.rut} ${usuario.email} ${usuario.profesion || ''} ${usuario.rol}`;
     return texto.toLowerCase().includes(busqueda.toLowerCase());
   });
 
@@ -49,8 +59,14 @@ function PagAdmin() {
           <h1>Usuarios registrados</h1>
         </div>
 
-        <div className="admin-contador">
-          {usuarios.length} usuarios
+        <div className="admin-acciones">
+          <button className="btn-cerrar-sesion" onClick={cerrarSesion}>
+            Cerrar sesión
+          </button>
+
+          <div className="admin-contador">
+            {usuarios.length} usuarios
+          </div>
         </div>
       </section>
 
@@ -77,6 +93,7 @@ function PagAdmin() {
                   <th>Nombre</th>
                   <th>RUT</th>
                   <th>Email</th>
+                  <th>Profesión</th>
                   <th>Rol</th>
                   <th>Acción</th>
                 </tr>
@@ -93,6 +110,7 @@ function PagAdmin() {
 
                     <td>{usuario.rut}</td>
                     <td>{usuario.email}</td>
+                    <td>{usuario.profesion || 'Sin profesión'}</td>
 
                     <td>
                       <span className={`rol-badge rol-${usuario.rol?.toLowerCase()}`}>

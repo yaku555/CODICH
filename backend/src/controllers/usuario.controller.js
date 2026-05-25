@@ -3,7 +3,7 @@ const Usuario = require('../models/Usuario');
 // Función para crear un nuevo usuario
 const crearUsuario = async (req, res) => {
   try {
-    const { nombre, apellido, rut, email, rol, password } = req.body;
+    const { nombre, apellido, rut, email, profesion, rol, password } = req.body;
 
     const usuarioExistente = await Usuario.findOne({ rut });
 
@@ -16,6 +16,7 @@ const crearUsuario = async (req, res) => {
       apellido,
       rut,
       email,
+      profesion,
       rol,
       password,
     });
@@ -71,22 +72,19 @@ const actualizarUsuario = async (req, res) => {
   try {
     const { rut } = req.params;
 
-    const { nombre, apellido, email, rol, password } = req.body;
+    const { nombre, apellido, email, profesion, rol, password } = req.body;
 
-    const datosActualizados = {
-      nombre,
-      apellido,
-      email,
-      rol,
-    };
+    const datosActualizados = {};
 
-    // Solo cambia la contraseña si el admin escribió una nueva
+    if (nombre !== undefined) datosActualizados.nombre = nombre;
+    if (apellido !== undefined) datosActualizados.apellido = apellido;
+    if (email !== undefined) datosActualizados.email = email;
+    if (profesion !== undefined) datosActualizados.profesion = profesion;
+    if (rol !== undefined) datosActualizados.rol = rol;
+
     if (password && password.trim() !== '') {
       datosActualizados.password = password;
     }
-
-    // Seguridad extra: aunque manden rut desde el frontend, no se actualiza
-    delete datosActualizados.rut;
 
     const usuarioActualizado = await Usuario.findOneAndUpdate(
       { rut },

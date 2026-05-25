@@ -12,13 +12,15 @@ function AdminUsuarioDetalle() {
   const { rut } = useParams();
 
   const [usuario, setUsuario] = useState(null);
+
   const [form, setForm] = useState({
     nombre: '',
     apellido: '',
     rut: '',
     email: '',
+    profesion: '',
     rol: '',
-    password: ''
+    password: '',
   });
 
   const [loading, setLoading] = useState(true);
@@ -44,8 +46,9 @@ function AdminUsuarioDetalle() {
         apellido: usuarioEncontrado.apellido || '',
         rut: usuarioEncontrado.rut || '',
         email: usuarioEncontrado.email || '',
+        profesion: usuarioEncontrado.profesion || '',
         rol: usuarioEncontrado.rol || '',
-        password: ''
+        password: '',
       });
     } catch (error) {
       console.error(error);
@@ -62,7 +65,7 @@ function AdminUsuarioDetalle() {
 
     setForm({
       ...form,
-      [name]: value
+      [name]: value,
     });
   };
 
@@ -78,13 +81,19 @@ function AdminUsuarioDetalle() {
         nombre: form.nombre,
         apellido: form.apellido,
         email: form.email,
-        rol: form.rol
+        profesion: form.profesion,
+        rol: form.rol,
       };
 
       if (form.password.trim() !== '') {
         datosActualizados.password = form.password;
       }
-      const usuarioActualizado = await actualizarUsuario(form.rut, datosActualizados);
+
+      const usuarioActualizado = await actualizarUsuario(
+        form.rut,
+        datosActualizados
+      );
+
       setUsuario(usuarioActualizado);
 
       setForm({
@@ -92,8 +101,9 @@ function AdminUsuarioDetalle() {
         apellido: usuarioActualizado.apellido || '',
         rut: usuarioActualizado.rut || '',
         email: usuarioActualizado.email || '',
+        profesion: usuarioActualizado.profesion || '',
         rol: usuarioActualizado.rol || '',
-        password: ''
+        password: '',
       });
 
       setMensaje('Usuario actualizado correctamente.');
@@ -176,6 +186,18 @@ function AdminUsuarioDetalle() {
               name="email"
               value={form.email}
               onChange={handleChange}
+              required
+            />
+          </div>
+
+          <div className="form-grupo">
+            <label>Profesión</label>
+            <input
+              type="text"
+              name="profesion"
+              value={form.profesion}
+              onChange={handleChange}
+              placeholder="Ej: Enfermero, Médico, TENS, Administrativo"
               required
             />
           </div>
