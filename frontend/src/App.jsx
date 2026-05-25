@@ -8,10 +8,11 @@ import Postulacion from "./pages/Postulacion.jsx";
 import Sobre from "./pages/Sobre.jsx";
 import Membresias from "./pages/Membresias.jsx";
 import Acceder from "./pages/Acceder.jsx";
-import PagMiembros from './pages/PagMiembros.jsx'; 
+import PagMiembros from './pages/PagUsuario.jsx'; 
 import PagAdmin from "./pages/PagAdmin.jsx";
 import Inicio from "./pages/Inicio.jsx";
 import Contacto from "./pages/Contacto.jsx";
+import AdminUsuarioDetalle from './pages/AdminUsuarioDetalle';
 import "./styles/App.css";
 
 
@@ -31,7 +32,9 @@ function App() {
           </Route>
           <Route element={<ProtectedRoute rolesPermitidos={["admin", "administrador"]} />}>
             <Route path="/admin" element={<PagAdmin />} />
+            <Route path="/admin/usuarios/:rut" element={<AdminUsuarioDetalle />} />
           </Route>
+          <Route path="/contacto" element={<Contacto />} />
         </Routes>
       </div>
     </>

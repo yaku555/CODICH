@@ -1,16 +1,32 @@
 import { Navigate, Outlet } from 'react-router-dom';
 import { useUsuario } from '../context/usuario.context';
 
-function ProtectedRoute({ rolesPermitidos }) {
-  const { usuario } = useUsuario();
+function normalizarRol(rol) {
+  return rol?.toString().toLowerCase().trim();
+}
+
+function ProtectedRoute({ rolesPermitidos = [] }) {
+  const { usuario, loading } = useUsuario();
+
+  if (loading) {
+    return <p>Cargando...</p>;
+  }
 
   if (!usuario) {
     return <Navigate to="/acceder" replace />;
   }
 
-  const rolUsuario = usuario.rol?.toLowerCase().trim();
+  const rolUsuario = normalizarRol(usuario.rol);
 
-  if (rolesPermitidos && !rolesPermitidos.includes(rolUsuario)) {
+  const rolesNormalizados = rolesPermitidos.map((rol) =>
+    normalizarRol(rol)
+  );
+
+  const tienePermiso =
+    rolesNormalizados.length === 0 ||
+    rolesNormalizados.includes(rolUsuario);
+
+  if (!tienePermiso) {
     return <Navigate to="/acceder" replace />;
   }
 
