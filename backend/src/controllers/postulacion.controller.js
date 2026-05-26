@@ -3,7 +3,7 @@ const createCrudController = require('./baseCrud.controller');
 const fs = require('fs').promises;
 const path = require('path');
 
-// FUNCIÓN ACTUALIZADA: Ahora mapea todos los campos del Paso 1
+// FUNCIÓN ACTUALIZADA: Ahora mapea todos los campos del Paso 1 test
 const getPostulacionData = (body) => {
   return {
     nombreCompleto: body.nombreCompleto,
