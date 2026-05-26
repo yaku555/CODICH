@@ -42,6 +42,11 @@ function Navbar() {
                 Contacto
               </NavLink>
             </li>
+            <li>
+              <NavLink to="/admin/postulaciones" className="nav-btn">
+                Postulación adm
+              </NavLink>
+            </li>
 
           </ul>
 

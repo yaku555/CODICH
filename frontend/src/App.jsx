@@ -13,6 +13,7 @@ import Inicio from "./pages/Inicio.jsx";
 import Contacto from "./pages/Contacto.jsx";
 import AdminUsuarioDetalle from './pages/AdminUsuarioDetalle';
 import AdminCrear from './pages/AdminCrear.jsx';
+import PagePostulacionAdmin from './pages/PageAdminPostulaciones.jsx';
 
 import { useUsuario } from "./context/usuario.context";
 
@@ -32,7 +33,6 @@ function App() {
           <Route path="/sobre" element={<Sobre />} />
           <Route path="/membresias" element={<Membresias />} />
           <Route path="/postulacion" element={<Postulacion />} />
-
           <Route element={<ProtectedRoute rolesPermitidos={["usuario"]} />}>
             <Route path="/miembros" element={<PagMiembros />} />
           </Route>
@@ -41,6 +41,7 @@ function App() {
             <Route path="/admin" element={<PagAdmin />} />
             <Route path="/admin/usuarios/:rut" element={<AdminUsuarioDetalle />} />
             <Route path="/admin/crear" element={<AdminCrear />} />
+            <Route path="/admin/postulaciones" element={<PagePostulacionAdmin />} />
           </Route>
 
           <Route path="/contacto" element={<Contacto />} />
