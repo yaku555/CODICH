@@ -1,15 +1,35 @@
+// backend/src/controllers/usuario.controller.js
+
 const Usuario = require('../models/Usuario');
+const bcrypt = require('bcrypt'); // 1. IMPORTAR BCRYPT
 
 // Función para crear un nuevo usuario
 const crearUsuario = async (req, res) => {
   try {
     const { nombre, apellido, rut, email, profesion, rol, password } = req.body;
 
+    // Validar que venga contraseña
+    if (!password || password.trim() === '') {
+      return res.status(400).json({ error: 'La contraseña es obligatoria' });
+    }
+
+    // Verificar si el RUT ya existe
     const usuarioExistente = await Usuario.findOne({ rut });
 
     if (usuarioExistente) {
       return res.status(400).json({ error: 'El RUT ya está registrado' });
     }
+
+    // Verificar si el email ya existe
+    const emailExistente = await Usuario.findOne({ email });
+
+    if (emailExistente) {
+      return res.status(400).json({ error: 'El email ya está registrado' });
+    }
+
+    // Hashear la contraseña antes de guardar
+    const salt = await bcrypt.genSalt(10);
+    const passwordHasheada = await bcrypt.hash(password, salt);
 
     const nuevoUsuario = new Usuario({
       nombre,
@@ -18,7 +38,7 @@ const crearUsuario = async (req, res) => {
       email,
       profesion,
       rol,
-      password,
+      password: passwordHasheada,
     });
 
     const usuarioGuardado = await nuevoUsuario.save();
@@ -33,13 +53,12 @@ const crearUsuario = async (req, res) => {
   }
 };
 
-// Función para obtener todos los usuarios
+// Función para obtener todos los usuarios (Se mantiene igual)
 const getUsuarios = async (req, res) => {
   try {
     const usuarios = await Usuario.find()
       .select('-password')
       .lean();
-
     res.status(200).json(usuarios);
   } catch (error) {
     console.error('Error al obtener los usuarios:', error);
@@ -47,11 +66,10 @@ const getUsuarios = async (req, res) => {
   }
 };
 
-// Función para obtener un usuario por RUT
+// Función para obtener un usuario por RUT (Se mantiene igual)
 const getUsuarioPorRut = async (req, res) => {
   try {
     const { rut } = req.params;
-
     const usuario = await Usuario.findOne({ rut })
       .select('-password')
       .lean();
@@ -59,7 +77,6 @@ const getUsuarioPorRut = async (req, res) => {
     if (!usuario) {
       return res.status(404).json({ error: 'Usuario no encontrado' });
     }
-
     res.status(200).json(usuario);
   } catch (error) {
     console.error('Error al obtener el usuario:', error);
@@ -67,11 +84,10 @@ const getUsuarioPorRut = async (req, res) => {
   }
 };
 
-// Función para actualizar un usuario
+// Función para actualizar un usuario (Modificada opcionalmente para hashear si cambia clave)
 const actualizarUsuario = async (req, res) => {
   try {
     const { rut } = req.params;
-
     const { nombre, apellido, email, profesion, rol, password } = req.body;
 
     const datosActualizados = {};
@@ -82,8 +98,10 @@ const actualizarUsuario = async (req, res) => {
     if (profesion !== undefined) datosActualizados.profesion = profesion;
     if (rol !== undefined) datosActualizados.rol = rol;
 
+    // Si el usuario envía una nueva contraseña para actualizar, también la hasheamos
     if (password && password.trim() !== '') {
-      datosActualizados.password = password;
+      const salt = await bcrypt.genSalt(10);
+      datosActualizados.password = await bcrypt.hash(password, salt);
     }
 
     const usuarioActualizado = await Usuario.findOneAndUpdate(
@@ -106,17 +124,15 @@ const actualizarUsuario = async (req, res) => {
   }
 };
 
-// Función para eliminar un usuario
+// Función para eliminar un usuario (Se mantiene igual)
 const borrarUsuario = async (req, res) => {
   try {
     const { rut } = req.params;
-
     const usuario = await Usuario.findOneAndDelete({ rut });
 
     if (!usuario) {
       return res.status(404).json({ error: 'Usuario no encontrado' });
     }
-
     res.status(200).json({ message: 'Usuario eliminado correctamente' });
   } catch (error) {
     console.error('Error al eliminar el usuario:', error);
@@ -124,18 +140,23 @@ const borrarUsuario = async (req, res) => {
   }
 };
 
-// Función para iniciar sesión
+// Función para iniciar sesión (Login)
 const loginUsuario = async (req, res) => {
   try {
     const { email, password } = req.body;
 
+    // Buscamos al usuario por su email
     const usuario = await Usuario.findOne({ email });
 
     if (!usuario) {
       return res.status(401).json({ error: 'Credenciales inválidas' });
     }
 
-    if (usuario.password !== password) {
+    // 3. COMPARAR LA CONTRASEÑA ENTRANTE CON EL HASH ALMACENADO
+    // bcrypt descifra internamente cómo se generó el hash para comprobar si coinciden
+    const passwordCoincide = await bcrypt.compare(password, usuario.password);
+
+    if (!passwordCoincide) {
       return res.status(401).json({ error: 'Credenciales inválidas' });
     }
 
