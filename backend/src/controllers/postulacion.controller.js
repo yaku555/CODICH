@@ -12,7 +12,8 @@ const getPostulacionData = (body) => {
     telefono: body.telefono,
     profesion: body.profesion,
     experiencia: body.experiencia,
-    documentoPath: body.documentoPath
+    documentoPath: body.documentoPath,
+    estado: body.estado || 'Pendiente' // Por defecto, el estado es "Pendiente"
   };
 };
 
