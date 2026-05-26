@@ -3,3 +3,4 @@ node_modules/
 
 # Ignorar PDFs subidos
 uploads/*.pdf
+!uploads/.gitkeep
