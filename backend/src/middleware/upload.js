@@ -1,25 +1,23 @@
-const multer = require('multer');
-const path = require('path'); // <-- Corrección: debe ser 'path'
+const multer = require("multer");
+const path = require("path");
+const fs = require("fs");
+
+const uploadDir = path.join(__dirname, "../../uploads");
+
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, 'uploads/'); // Asegúrate de tener la carpeta 'uploads' creada en la raíz del backend
+    cb(null, uploadDir);
   },
   filename: (req, file, cb) => {
-    cb(null, `${Date.now()}-${file.originalname}`);
-  }
+    const cleanName = file.originalname.replace(/\s+/g, "_");
+    cb(null, `${Date.now()}-${cleanName}`);
+  },
 });
 
-const upload = multer({
-  storage: storage,
-  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB max
-  fileFilter: (req, file, cb) => {
-    const filetypes = /pdf|png|jpg|jpeg/;
-    const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
-    if (extname) return cb(null, true);
-    cb(new Error('Formato no permitido'));
-  }
-});
+const upload = multer({ storage });
 
-// Cambia tu exportación a estilo CommonJS:
 module.exports = upload;
