@@ -20,6 +20,11 @@ const userSchema = new Schema(
             required: true,
             lowercase: true,
         },
+        profesion: {
+            type: String,
+            required: true,
+            trim: true,
+        },
         rol: {
             type: String,
             required: true,

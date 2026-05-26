@@ -38,13 +38,13 @@ function Navbar() {
               </NavLink>
             </li>
             <li>
-              <NavLink to="/postulacion" className="nav-btn">
-                Postulación
+              <NavLink to="/contacto" className="nav-btn">
+                Contacto
               </NavLink>
             </li>
             <li>
-              <NavLink to="/contacto" className="nav-btn">
-                Contacto
+              <NavLink to="/admin/postulaciones" className="nav-btn">
+                Postulación adm
               </NavLink>
             </li>
 
@@ -76,15 +76,12 @@ function Navbar() {
         <NavLink to="/membresias" className="side-link" onClick={closeMenu}>
           Membresías
         </NavLink>
-        <NavLink to="/postulacion" className="side-link" onClick={closeMenu}>
-          Postulación
 
-        </NavLink>
         <NavLink to="/contacto" className="side-link" onClick={closeMenu}>
           Contacto
         </NavLink>
         <NavLink to="/acceder" className="side-access-btn" onClick={closeMenu}>
-          Accederr
+          Acceder
         </NavLink>
       </aside>
 

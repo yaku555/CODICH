@@ -1,96 +1,180 @@
-const Usuario = require('../models/Usuario');  // Importa el modelo Usuario
-const { getUsuarioData } = require('../utils/getDatas.js'); // Función para obtener los datos del usuario
+// backend/src/controllers/usuario.controller.js
+
+const Usuario = require('../models/Usuario');
+const bcrypt = require('bcrypt'); // 1. IMPORTAR BCRYPT
 
 // Función para crear un nuevo usuario
 const crearUsuario = async (req, res) => {
   try {
-    const { nombre, apellido, rut, email, rol, password } = req.body;
+    const { nombre, apellido, rut, email, profesion, rol, password } = req.body;
 
-    // Verificar si el usuario ya existe por RUT
+    // Validar que venga contraseña
+    if (!password || password.trim() === '') {
+      return res.status(400).json({ error: 'La contraseña es obligatoria' });
+    }
+
+    // Verificar si el RUT ya existe
     const usuarioExistente = await Usuario.findOne({ rut });
+
     if (usuarioExistente) {
       return res.status(400).json({ error: 'El RUT ya está registrado' });
     }
 
-    // Crear un nuevo usuario
+    // Verificar si el email ya existe
+    const emailExistente = await Usuario.findOne({ email });
+
+    if (emailExistente) {
+      return res.status(400).json({ error: 'El email ya está registrado' });
+    }
+
+    // Hashear la contraseña antes de guardar
+    const salt = await bcrypt.genSalt(10);
+    const passwordHasheada = await bcrypt.hash(password, salt);
+
     const nuevoUsuario = new Usuario({
       nombre,
       apellido,
       rut,
       email,
+      profesion,
       rol,
-      password,
+      password: passwordHasheada,
     });
 
-    // Guardar el usuario en la base de datos
     const usuarioGuardado = await nuevoUsuario.save();
 
-    res.status(201).json(usuarioGuardado); // Devuelve el usuario creado
+    const usuarioSinPassword = usuarioGuardado.toObject();
+    delete usuarioSinPassword.password;
+
+    res.status(201).json(usuarioSinPassword);
   } catch (error) {
     console.error('Error al crear el usuario:', error);
     res.status(500).json({ error: 'Hubo un problema al crear el usuario' });
   }
 };
 
-// Función para obtener todos los usuarios
+// Función para obtener todos los usuarios (Se mantiene igual)
 const getUsuarios = async (req, res) => {
   try {
-    const usuarios = await Usuario.find().lean(); // Obtener todos los usuarios
-    res.status(200).json(usuarios); // Devuelve la lista de usuarios
+    const usuarios = await Usuario.find()
+      .select('-password')
+      .lean();
+    res.status(200).json(usuarios);
   } catch (error) {
     console.error('Error al obtener los usuarios:', error);
     res.status(500).json({ error: 'Hubo un problema al obtener los usuarios' });
   }
 };
 
-
-// Función para actualizar un usuario
-const actualizarUsuario = async (req, res) => {
-  const { rut } = req.params; // Deberías estar obteniendo el rut desde la URL
-  const { nombre, apellido, rol, password } = req.body;
-
+// Función para obtener un usuario por RUT (Se mantiene igual)
+const getUsuarioPorRut = async (req, res) => {
   try {
-    const usuario = await Usuario.findOneAndUpdate(
-      { rut },
-      { nombre, apellido,email, rol, password },
-      { new: true }
-    );
+    const { rut } = req.params;
+    const usuario = await Usuario.findOne({ rut })
+      .select('-password')
+      .lean();
+
     if (!usuario) {
       return res.status(404).json({ error: 'Usuario no encontrado' });
     }
-    res.status(200).json(usuario); // Respondemos con el usuario actualizado
+    res.status(200).json(usuario);
+  } catch (error) {
+    console.error('Error al obtener el usuario:', error);
+    res.status(500).json({ error: 'Hubo un problema al obtener el usuario' });
+  }
+};
+
+// Función para actualizar un usuario (Modificada opcionalmente para hashear si cambia clave)
+const actualizarUsuario = async (req, res) => {
+  try {
+    const { rut } = req.params;
+    const { nombre, apellido, email, profesion, rol, password } = req.body;
+
+    const datosActualizados = {};
+
+    if (nombre !== undefined) datosActualizados.nombre = nombre;
+    if (apellido !== undefined) datosActualizados.apellido = apellido;
+    if (email !== undefined) datosActualizados.email = email;
+    if (profesion !== undefined) datosActualizados.profesion = profesion;
+    if (rol !== undefined) datosActualizados.rol = rol;
+
+    // Si el usuario envía una nueva contraseña para actualizar, también la hasheamos
+    if (password && password.trim() !== '') {
+      const salt = await bcrypt.genSalt(10);
+      datosActualizados.password = await bcrypt.hash(password, salt);
+    }
+
+    const usuarioActualizado = await Usuario.findOneAndUpdate(
+      { rut },
+      datosActualizados,
+      {
+        new: true,
+        runValidators: true,
+      }
+    ).select('-password');
+
+    if (!usuarioActualizado) {
+      return res.status(404).json({ error: 'Usuario no encontrado' });
+    }
+
+    res.status(200).json(usuarioActualizado);
   } catch (error) {
     console.error('Error al actualizar el usuario:', error);
     res.status(500).json({ error: 'Hubo un problema al actualizar el usuario' });
   }
 };
 
-// Función para eliminar un usuario
+// Función para eliminar un usuario (Se mantiene igual)
 const borrarUsuario = async (req, res) => {
-  const { rut } = req.params;  // Obtener el RUT desde los parámetros de la URL
-
   try {
-    // Buscar y eliminar el usuario por RUT
+    const { rut } = req.params;
     const usuario = await Usuario.findOneAndDelete({ rut });
 
     if (!usuario) {
       return res.status(404).json({ error: 'Usuario no encontrado' });
     }
-
-    res.status(200).json({ message: 'Usuario eliminado correctamente' });  // Confirmación de eliminación
+    res.status(200).json({ message: 'Usuario eliminado correctamente' });
   } catch (error) {
     console.error('Error al eliminar el usuario:', error);
     res.status(500).json({ error: 'Hubo un problema al eliminar el usuario' });
   }
 };
 
-// Usamos el controlador base para las funciones CRUD si fuera necesario
-const { getById: getUsuarioPorRut} = require('./baseCrud.controller')(Usuario, getUsuarioData, 'rut', 'rut');
+// Función para iniciar sesión (Login)
+const loginUsuario = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    // Buscamos al usuario por su email
+    const usuario = await Usuario.findOne({ email });
+
+    if (!usuario) {
+      return res.status(401).json({ error: 'Credenciales inválidas' });
+    }
+
+    // 3. COMPARAR LA CONTRASEÑA ENTRANTE CON EL HASH ALMACENADO
+    // bcrypt descifra internamente cómo se generó el hash para comprobar si coinciden
+    const passwordCoincide = await bcrypt.compare(password, usuario.password);
+
+    if (!passwordCoincide) {
+      return res.status(401).json({ error: 'Credenciales inválidas' });
+    }
+
+    const usuarioSinPassword = usuario.toObject();
+    delete usuarioSinPassword.password;
+
+    res.status(200).json(usuarioSinPassword);
+  } catch (error) {
+    console.error('Error en login:', error);
+    res.status(500).json({ error: 'Error en el servidor' });
+  }
+};
 
 module.exports = {
-  getUsuarios,          // Función para obtener todos los usuarios
-  crearUsuario,         // Función para crear un nuevo usuario
-  getUsuarioPorRut,     // Función para obtener un usuario por su RUT
-  actualizarUsuario,    // Función para actualizar un usuario por su RUT
-  borrarUsuario,        // Función para borrar un usuario por su RUT
+  getUsuarios,
+  crearUsuario,
+  getUsuarioPorRut,
+  actualizarUsuario,
+  borrarUsuario,
+  loginUsuario,
 };
