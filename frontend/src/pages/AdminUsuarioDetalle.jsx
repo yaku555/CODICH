@@ -1,15 +1,11 @@
-// frontend/src/pages/AdminUsuarioDetalle.jsx
-
 import React, { useEffect, useState } from 'react';
-import { Link, Navigate, useParams } from 'react-router-dom';
-import {
-  getUsuarioPorRut,
-  actualizarUsuario
-} from '../api/usuarios.js';
+import { Link, Navigate, useNavigate, useParams } from 'react-router-dom';
+import { getUsuarioPorRut, actualizarUsuario, borrarUsuario } from '../api/usuarios.js';
 import '../styles/AdminUsuarios.css';
 
 function AdminUsuarioDetalle() {
   const { rut } = useParams();
+  const navigate = useNavigate();
 
   const [usuario, setUsuario] = useState(null);
 
@@ -25,6 +21,7 @@ function AdminUsuarioDetalle() {
 
   const [loading, setLoading] = useState(true);
   const [guardando, setGuardando] = useState(false);
+  const [eliminando, setEliminando] = useState(false);
   const [mensaje, setMensaje] = useState('');
   const [error, setError] = useState('');
 
@@ -80,6 +77,7 @@ function AdminUsuarioDetalle() {
       const datosActualizados = {
         nombre: form.nombre,
         apellido: form.apellido,
+        rut: form.rut,
         email: form.email,
         profesion: form.profesion,
         rol: form.rol,
@@ -112,6 +110,34 @@ function AdminUsuarioDetalle() {
       setError('No se pudo actualizar el usuario.');
     } finally {
       setGuardando(false);
+    }
+  };
+
+  const handleEliminar = async () => {
+    const confirmar = window.confirm(
+      `¿Seguro que quieres eliminar al usuario ${form.nombre} ${form.apellido} con RUT ${form.rut}?`
+    );
+
+    if (!confirmar) return;
+
+    try {
+      setEliminando(true);
+      setMensaje('');
+      setError('');
+
+      await borrarUsuario(form.rut);
+
+      sessionStorage.setItem('adminMensaje', 'Usuario eliminado correctamente.');
+
+      navigate('/admin', {
+        replace: true,
+      });
+      
+    } catch (error) {
+      console.error(error);
+      setError('No se pudo eliminar el usuario.');
+    } finally {
+      setEliminando(false);
     }
   };
 
@@ -173,10 +199,9 @@ function AdminUsuarioDetalle() {
               type="text"
               name="rut"
               value={form.rut}
-              disabled
-              className="input-bloqueado"
+              onChange={handleChange}
+              required
             />
-            <small>El RUT no se puede modificar.</small>
           </div>
 
           <div className="form-grupo">
@@ -237,13 +262,24 @@ function AdminUsuarioDetalle() {
             </p>
           </div>
 
-          <button
-            type="submit"
-            className="btn-guardar"
-            disabled={guardando}
-          >
-            {guardando ? 'Guardando...' : 'Guardar cambios'}
-          </button>
+          <div className="form-acciones">
+            <button
+              type="submit"
+              className="btn-guardar"
+              disabled={guardando || eliminando}
+            >
+              {guardando ? 'Guardando...' : 'Guardar cambios'}
+            </button>
+
+            <button
+              type="button"
+              className="btn-eliminar"
+              onClick={handleEliminar}
+              disabled={guardando || eliminando}
+            >
+              {eliminando ? 'Eliminando...' : 'Eliminar usuario'}
+            </button>
+          </div>
         </form>
       </section>
     </main>

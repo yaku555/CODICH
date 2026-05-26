@@ -12,14 +12,19 @@ function PagAdmin() {
   const [busqueda, setBusqueda] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [mensaje, setMensaje] = useState('');
 
   const { logout } = useUsuario();
   const navigate = useNavigate();
-  
-  const cerrarSesion = () => {
-    logout();
-    navigate('/acceder', { replace: true });
-  };
+
+  useEffect(() => {
+    const mensajeGuardado = sessionStorage.getItem('adminMensaje');
+
+    if (mensajeGuardado) {
+      setMensaje(mensajeGuardado);
+      sessionStorage.removeItem('adminMensaje');
+    }
+  }, []);
 
   useEffect(() => {
     cargarUsuarios();
@@ -28,6 +33,8 @@ function PagAdmin() {
   const cargarUsuarios = async () => {
     try {
       setLoading(true);
+      setError('');
+
       const data = await getUsuarios();
       setUsuarios(data);
     } catch (error) {
@@ -36,6 +43,11 @@ function PagAdmin() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const cerrarSesion = () => {
+    logout();
+    navigate('/acceder', { replace: true });
   };
 
   const usuariosFiltrados = usuarios.filter((usuario) => {
@@ -60,13 +72,15 @@ function PagAdmin() {
         </div>
 
         <div className="admin-acciones">
+          <span className="admin-contador">{usuarios.length} usuarios</span>
+
+          <Link to="/admin/crear" className="btn-crear">
+            Crear usuario
+          </Link>
+
           <button className="btn-cerrar-sesion" onClick={cerrarSesion}>
             Cerrar sesión
           </button>
-
-          <div className="admin-contador">
-            {usuarios.length} usuarios
-          </div>
         </div>
       </section>
 
@@ -80,6 +94,8 @@ function PagAdmin() {
             className="admin-buscador"
           />
         </div>
+
+        {mensaje && <p className="admin-exito">{mensaje}</p>}
 
         {error && <p className="admin-error">{error}</p>}
 

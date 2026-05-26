@@ -12,6 +12,7 @@ import PagAdmin from "./pages/PagAdmin.jsx";
 import Inicio from "./pages/Inicio.jsx";
 import Contacto from "./pages/Contacto.jsx";
 import AdminUsuarioDetalle from './pages/AdminUsuarioDetalle';
+import AdminCrear from './pages/AdminCrear.jsx';
 
 import { useUsuario } from "./context/usuario.context";
 
@@ -39,6 +40,7 @@ function App() {
           <Route element={<ProtectedRoute rolesPermitidos={["admin", "administrador"]} />}>
             <Route path="/admin" element={<PagAdmin />} />
             <Route path="/admin/usuarios/:rut" element={<AdminUsuarioDetalle />} />
+            <Route path="/admin/crear" element={<AdminCrear />} />
           </Route>
 
           <Route path="/contacto" element={<Contacto />} />
