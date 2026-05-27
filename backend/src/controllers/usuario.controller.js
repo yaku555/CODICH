@@ -6,7 +6,7 @@ const bcrypt = require('bcrypt'); // 1. IMPORTAR BCRYPT
 // Función para crear un nuevo usuario
 const crearUsuario = async (req, res) => {
   try {
-    const { nombre, apellido, rut, email, profesion, rol, password } = req.body;
+    const { nombre, apellido, rut, email, telefono, profesion, rol, password } = req.body;
 
     // Validar que venga contraseña
     if (!password || password.trim() === '') {
@@ -36,6 +36,7 @@ const crearUsuario = async (req, res) => {
       apellido,
       rut,
       email,
+      telefono,
       profesion,
       rol,
       password: passwordHasheada,
@@ -88,13 +89,14 @@ const getUsuarioPorRut = async (req, res) => {
 const actualizarUsuario = async (req, res) => {
   try {
     const { rut } = req.params;
-    const { nombre, apellido, email, profesion, rol, password } = req.body;
+    const { nombre, apellido, email, telefono, profesion, rol, password } = req.body;
 
     const datosActualizados = {};
 
     if (nombre !== undefined) datosActualizados.nombre = nombre;
     if (apellido !== undefined) datosActualizados.apellido = apellido;
     if (email !== undefined) datosActualizados.email = email;
+    if (telefono !== undefined) datosActualizados.telefono = telefono;
     if (profesion !== undefined) datosActualizados.profesion = profesion;
     if (rol !== undefined) datosActualizados.rol = rol;
 

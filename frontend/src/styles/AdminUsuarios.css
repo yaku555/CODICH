@@ -460,3 +460,9 @@
     grid-template-columns: 1fr;
   }
 }
+
+.nombre-postulante {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.3;
+}

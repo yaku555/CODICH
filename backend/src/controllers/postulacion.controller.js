@@ -1,87 +1,262 @@
+const crypto = require('crypto');
 const Postulacion = require('../models/Postulacion');
-const createCrudController = require('./baseCrud.controller');
-const fs = require('fs').promises;
-const path = require('path');
+const supabase = require('../config/supabase');
 
-// FUNCIÓN ACTUALIZADA: Ahora mapea todos los campos del Paso 1 test
-const getPostulacionData = (body) => {
-  return {
-    nombreCompleto: body.nombreCompleto,
-    rut: body.rut,
-    email: body.email,
-    telefono: body.telefono,
-    profesion: body.profesion,
-    experiencia: body.experiencia,
-    documentoPath: body.documentoPath,
-    estado: body.estado || 'Pendiente' // Por defecto, el estado es "Pendiente"
-  };
+const subirCVSupabase = async (archivo, rut) => {
+  if (!archivo) return null;
+
+  if (!archivo.buffer) {
+    throw new Error('El archivo no está en memoria. Revisa que multer use memoryStorage().');
+  }
+
+  const bucket = process.env.SUPABASE_BUCKET_CVS;
+
+  const nombreArchivo = `${Date.now()}-${crypto.randomUUID()}.pdf`;
+  const rutaArchivo = `postulantes/${rut}/${nombreArchivo}`;
+
+  const { error } = await supabase.storage
+    .from(bucket)
+    .upload(rutaArchivo, archivo.buffer, {
+      contentType: archivo.mimetype,
+      cacheControl: '3600',
+      upsert: false,
+    });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return rutaArchivo;
 };
 
-// Generar CRUD base
-const baseController = createCrudController(Postulacion, getPostulacionData, 'rut', 'rut');
-
-// Personalizar CREATE
-// NOTA: Si en el "Paso 1" NO se sube el archivo aún, quita la validación "if (!req.file)" 
-// de esta función para que no te rechace la petición en el primer formulario.
-// En tu controllers/postulacion.controller.js
-// Personalizar CREATE para manejar archivo y evitar RUTs duplicados
-const create = async (req, res, next) => {
+const create = async (req, res) => {
   try {
-    const data = getPostulacionData(req.body);
-    
-    // 1. Buscamos manualmente si el RUT ya existe antes de intentar guardar
-    const existePostulacion = await Postulacion.findOne({ rut: data.rut });
-    
-    if (existePostulacion) {
-      // Si ya existe, cortamos la ejecución y enviamos una respuesta clara
-      return res.status(400).json({ 
-        message: `El RUT ${data.rut} ya se encuentra registrado en el sistema.` 
+    const {
+      nombre,
+      apellido,
+      rut,
+      email,
+      telefono,
+      profesion,
+      experiencia,
+    } = req.body;
+
+    if (
+      !nombre ||
+      !apellido ||
+      !rut ||
+      !email ||
+      !telefono ||
+      !profesion ||
+      !experiencia
+    ) {
+      return res.status(400).json({
+        error: 'Debes completar todos los campos.',
       });
     }
 
-    // Si viene un archivo, agregamos la ruta
-    if (req.file) {
-      data.documentoPath = req.file.path;
+    if (!req.file) {
+      return res.status(400).json({
+        error: 'El documento CV es obligatorio.',
+      });
     }
-    
-    // 2. Si no existe, procedemos con la creación normal
-    const doc = new Postulacion(data);
-    const saved = await doc.save();
-    return res.status(201).json(saved);
 
+    const postulacionExistente = await Postulacion.findOne({ rut });
+
+    if (postulacionExistente) {
+      return res.status(400).json({
+        error: 'Ya existe una postulación con ese RUT.',
+      });
+    }
+
+    const documentoPath = await subirCVSupabase(req.file, rut);
+
+    const nuevaPostulacion = new Postulacion({
+      nombre,
+      apellido,
+      rut,
+      email,
+      telefono,
+      profesion,
+      experiencia,
+      documentoPath,
+      estado: 'Pendiente',
+    });
+
+    const postulacionGuardada = await nuevaPostulacion.save();
+
+    return res.status(201).json(postulacionGuardada);
   } catch (error) {
-    // 3. Atrapamos el error por si acaso (por ejemplo, si dos peticiones entran al mismo milisegundo)
-    if (error.code === 11000) {
-      return res.status(400).json({ 
-        message: "El RUT ingresado ya está registrado." 
-      });
-    }
-    next(error);
+    console.error(error);
+
+    return res.status(500).json({
+      error: 'Error al crear la postulación.',
+      detalle: error.message,
+    });
   }
 };
 
-// Personalizar REMOVE para borrar archivo también (Se mantiene igual)
-const remove = async (req, res, next) => {
+const getAll = async (req, res) => {
   try {
-    const value = req.params.rut;
+    const postulaciones = await Postulacion.find().sort({ createdAt: -1 });
 
-    const doc = await Postulacion.findOneAndDelete({ rut: value });
+    return res.json(postulaciones);
+  } catch (error) {
+    console.error(error);
 
-    if (!doc) return res.status(404).json({ message: 'Registro no encontrado' });
+    return res.status(500).json({
+      error: 'Error al obtener las postulaciones.',
+      detalle: error.message,
+    });
+  }
+};
 
-    // Borrar archivo si existe
-    if (doc.documentoPath) {
-      try {
-        await fs.unlink(path.resolve(doc.documentoPath));
-      } catch (err) {
-        console.error('Error al borrar archivo:', err);
+const getById = async (req, res) => {
+  try {
+    const { rut } = req.params;
+
+    const postulacion = await Postulacion.findOne({ rut });
+
+    if (!postulacion) {
+      return res.status(404).json({
+        error: 'Postulación no encontrada.',
+      });
+    }
+
+    return res.json(postulacion);
+  } catch (error) {
+    console.error(error);
+
+    return res.status(500).json({
+      error: 'Error al obtener la postulación.',
+      detalle: error.message,
+    });
+  }
+};
+
+const update = async (req, res) => {
+  try {
+    const { rut } = req.params;
+
+    const datosActualizados = {
+      nombre: req.body.nombre,
+      apellido: req.body.apellido,
+      rut: req.body.rut,
+      email: req.body.email,
+      telefono: req.body.telefono,
+      profesion: req.body.profesion,
+      experiencia: req.body.experiencia,
+      estado: req.body.estado,
+    };
+
+    Object.keys(datosActualizados).forEach((key) => {
+      if (datosActualizados[key] === undefined) {
+        delete datosActualizados[key];
       }
+    });
+
+    if (req.file) {
+      datosActualizados.documentoPath = await subirCVSupabase(req.file, rut);
     }
 
-    return res.json({ message: 'Registro eliminado' });
+    const postulacionActualizada = await Postulacion.findOneAndUpdate(
+      { rut },
+      datosActualizados,
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
+
+    if (!postulacionActualizada) {
+      return res.status(404).json({
+        error: 'Postulación no encontrada.',
+      });
+    }
+
+    return res.json(postulacionActualizada);
   } catch (error) {
-    next(error);
+    console.error(error);
+
+    return res.status(500).json({
+      error: 'Error al actualizar la postulación.',
+      detalle: error.message,
+    });
   }
 };
 
-module.exports = { ...baseController, create, remove };
+const remove = async (req, res) => {
+  try {
+    const { rut } = req.params;
+
+    const postulacionEliminada = await Postulacion.findOneAndDelete({ rut });
+
+    if (!postulacionEliminada) {
+      return res.status(404).json({
+        error: 'Postulación no encontrada.',
+      });
+    }
+
+    return res.json({
+      message: 'Postulación eliminada correctamente.',
+    });
+  } catch (error) {
+    console.error(error);
+
+    return res.status(500).json({
+      error: 'Error al eliminar la postulación.',
+      detalle: error.message,
+    });
+  }
+};
+
+const getCvUrl = async (req, res) => {
+  try {
+    const { rut } = req.params;
+
+    const postulacion = await Postulacion.findOne({ rut });
+
+    if (!postulacion) {
+      return res.status(404).json({
+        error: 'Postulación no encontrada.',
+      });
+    }
+
+    if (!postulacion.documentoPath) {
+      return res.status(404).json({
+        error: 'La postulación no tiene CV asociado.',
+      });
+    }
+
+    const { data, error } = await supabase.storage
+      .from(process.env.SUPABASE_BUCKET_CVS)
+      .createSignedUrl(postulacion.documentoPath, 60 * 5);
+
+    if (error) {
+      return res.status(500).json({
+        error: 'No se pudo generar la URL del CV.',
+        detalle: error.message,
+      });
+    }
+
+    return res.json({
+      url: data.signedUrl,
+    });
+  } catch (error) {
+    console.error(error);
+
+    return res.status(500).json({
+      error: 'Error al obtener el CV.',
+      detalle: error.message,
+    });
+  }
+};
+
+module.exports = {
+  create,
+  getAll,
+  getById,
+  update,
+  remove,
+  getCvUrl,
+};

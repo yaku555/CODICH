@@ -19,7 +19,7 @@ function PagMiembros() {
           <p className="perfil-loading">Cargando datos del perfil...</p>
         </section>
       </main>
-    );      
+    );
   }
 
   if (!usuario) {
@@ -73,6 +73,12 @@ function PagMiembros() {
             <span>Correo electrónico</span>
             <strong>{usuario.email || 'No especificado'}</strong>
           </div>
+
+          <div className="perfil-dato">
+            <span>Teléfono</span>
+            <strong>{usuario.telefono || 'No especificado'}</strong>
+          </div>
+
           <div className="perfil-dato">
             <span>Profesión</span>
             <strong>{usuario.profesion || 'No especificado'}</strong>

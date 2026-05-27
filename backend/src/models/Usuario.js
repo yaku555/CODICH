@@ -20,6 +20,10 @@ const userSchema = new Schema(
             required: true,
             lowercase: true,
         },
+        telefono: {
+            type: String,
+            required: true,
+        },
         profesion: {
             type: String,
             required: true,
@@ -37,7 +41,6 @@ const userSchema = new Schema(
     {
         timestamps: false,
         versionKey: false,
-        
     }
 );
 

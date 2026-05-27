@@ -5,6 +5,7 @@ import {
   getPostulacionesRequest,
   updatePostulacionRequest,
 } from '../api/postulacion.js';
+import { crearUsuario } from '../api/usuarios.js';
 import '../styles/AdminUsuarios.css';
 
 function PagAdminPostulaciones() {
@@ -33,14 +34,59 @@ function PagAdminPostulaciones() {
     }
   };
 
+  const generarPasswordProvisoria = () => {
+    const caracteres = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789';
+    let password = 'Codich-';
+
+    for (let i = 0; i < 8; i++) {
+      const indice = Math.floor(Math.random() * caracteres.length);
+      password += caracteres[indice];
+    }
+
+    return password;
+  };
+
   const aprobarPostulacion = async (postulacion) => {
     try {
       setMensaje('');
       setError('');
 
+      if (postulacion.estado === 'Aprobada') {
+        setError('Esta postulación ya fue aprobada.');
+        return;
+      }
+
+      if (
+        !postulacion.nombre ||
+        !postulacion.apellido ||
+        !postulacion.rut ||
+        !postulacion.email ||
+        !postulacion.telefono ||
+        !postulacion.profesion
+      ) {
+        setError('La postulación no tiene todos los datos necesarios para crear el usuario.');
+        return;
+      }
+
+      const passwordProvisoria = generarPasswordProvisoria();
+
+      const nuevoUsuario = {
+        nombre: postulacion.nombre,
+        apellido: postulacion.apellido,
+        rut: postulacion.rut,
+        email: postulacion.email,
+        telefono: postulacion.telefono,
+        profesion: postulacion.profesion,
+        rol: 'usuario',
+        password: passwordProvisoria,
+      };
+
+      await crearUsuario(nuevoUsuario);
+
       const formData = new FormData();
 
-      formData.append('nombreCompleto', postulacion.nombreCompleto);
+      formData.append('nombre', postulacion.nombre);
+      formData.append('apellido', postulacion.apellido);
       formData.append('rut', postulacion.rut);
       formData.append('email', postulacion.email);
       formData.append('telefono', postulacion.telefono);
@@ -50,15 +96,24 @@ function PagAdminPostulaciones() {
 
       await updatePostulacionRequest(postulacion.rut, formData);
 
-      setMensaje('Postulación aprobada correctamente.');
+
+      setMensaje(
+        `Postulación aprobada y usuario creado correctamente. Contraseña provisoria: ${passwordProvisoria}`
+      );
+
       cargarPostulaciones();
     } catch (error) {
       console.error(error);
-      setError('No se pudo aprobar la postulación.');
+
+      setError(
+        error.response?.data?.error ||
+        error.response?.data?.message ||
+        'No se pudo aprobar la postulación ni crear el usuario.'
+      );
     }
   };
 
-  const verCV = (documentoPath) => {
+  const ver = (documentoPath) => {
     if (!documentoPath) {
       alert('Esta postulación no tiene CV cargado.');
       return;
@@ -70,7 +125,8 @@ function PagAdminPostulaciones() {
 
   const postulacionesFiltradas = postulaciones.filter((postulacion) => {
     const texto = `
-      ${postulacion.nombreCompleto}
+      ${postulacion.nombre}
+      ${postulacion.apellido}
       ${postulacion.rut}
       ${postulacion.email}
       ${postulacion.telefono}
@@ -142,7 +198,10 @@ function PagAdminPostulaciones() {
                 {postulacionesFiltradas.map((postulacion) => (
                   <tr key={postulacion._id || postulacion.rut}>
                     <td>
-                      <strong>{postulacion.nombreCompleto}</strong>
+                      <strong className="nombre-postulante">
+                        <span>{postulacion.nombre}</span>
+                        <span>{postulacion.apellido}</span>
+                      </strong>
                     </td>
 
                     <td>{postulacion.rut}</td>

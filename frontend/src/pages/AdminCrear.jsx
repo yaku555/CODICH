@@ -4,12 +4,12 @@ import { crearUsuario } from '../api/usuarios.js';
 import '../styles/AdminUsuarios.css';
 
 function AdminCrear() {
-
   const [form, setForm] = useState({
     nombre: '',
     apellido: '',
     rut: '',
     email: '',
+    telefono: '',
     profesion: '',
     rol: 'usuario',
     password: '',
@@ -34,6 +34,7 @@ function AdminCrear() {
       !form.apellido.trim() ||
       !form.rut.trim() ||
       !form.email.trim() ||
+      !form.telefono.trim() ||
       !form.profesion.trim() ||
       !form.rol.trim() ||
       !form.password.trim()
@@ -45,7 +46,7 @@ function AdminCrear() {
     return true;
   };
 
-    const handleSubmit = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     setMensaje('');
@@ -54,40 +55,42 @@ function AdminCrear() {
     if (!validarFormulario()) return;
 
     try {
-        setGuardando(true);
+      setGuardando(true);
 
-        const nuevoUsuario = {
+      const nuevoUsuario = {
         nombre: form.nombre.trim(),
         apellido: form.apellido.trim(),
         rut: form.rut.trim(),
         email: form.email.trim().toLowerCase(),
+        telefono: form.telefono.trim(),
         profesion: form.profesion.trim(),
         rol: form.rol,
         password: form.password,
-        };
+      };
 
-        await crearUsuario(nuevoUsuario);
+      await crearUsuario(nuevoUsuario);
 
-        setMensaje('Usuario creado correctamente.');
+      setMensaje('Usuario creado correctamente.');
 
-        setForm({
+      setForm({
         nombre: '',
         apellido: '',
         rut: '',
         email: '',
+        telefono: '',
         profesion: '',
         rol: 'usuario',
         password: '',
-        });
+      });
     } catch (error) {
-        console.error(error);
+      console.error(error);
 
-        const mensajeServidor = error.response?.data?.error;
-        setError(mensajeServidor || 'No se pudo crear el usuario.');
+      const mensajeServidor = error.response?.data?.error;
+      setError(mensajeServidor || 'No se pudo crear el usuario.');
     } finally {
-        setGuardando(false);
+      setGuardando(false);
     }
-    };
+  };
 
   return (
     <main className="admin-page">
@@ -152,6 +155,19 @@ function AdminCrear() {
               type="email"
               value={form.email}
               onChange={handleChange}
+              required
+            />
+          </div>
+
+          <div className="form-grupo">
+            <label htmlFor="telefono">Teléfono</label>
+            <input
+              id="telefono"
+              name="telefono"
+              type="text"
+              value={form.telefono}
+              onChange={handleChange}
+              placeholder="Ej: +56 9 1234 5678"
               required
             />
           </div>

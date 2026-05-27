@@ -14,6 +14,7 @@ function AdminUsuarioDetalle() {
     apellido: '',
     rut: '',
     email: '',
+    telefono: '',
     profesion: '',
     rol: '',
     password: '',
@@ -43,6 +44,7 @@ function AdminUsuarioDetalle() {
         apellido: usuarioEncontrado.apellido || '',
         rut: usuarioEncontrado.rut || '',
         email: usuarioEncontrado.email || '',
+        telefono: usuarioEncontrado.telefono || '',
         profesion: usuarioEncontrado.profesion || '',
         rol: usuarioEncontrado.rol || '',
         password: '',
@@ -79,6 +81,7 @@ function AdminUsuarioDetalle() {
         apellido: form.apellido,
         rut: form.rut,
         email: form.email,
+        telefono: form.telefono,
         profesion: form.profesion,
         rol: form.rol,
       };
@@ -99,6 +102,7 @@ function AdminUsuarioDetalle() {
         apellido: usuarioActualizado.apellido || '',
         rut: usuarioActualizado.rut || '',
         email: usuarioActualizado.email || '',
+        telefono: usuarioActualizado.telefono || '',
         profesion: usuarioActualizado.profesion || '',
         rol: usuarioActualizado.rol || '',
         password: '',
@@ -252,6 +256,18 @@ function AdminUsuarioDetalle() {
               placeholder="Dejar vacío para no cambiarla"
             />
             <small>No se muestra la contraseña actual por seguridad.</small>
+          </div>
+
+          <div className="form-grupo">
+            <label htmlFor="Teléfono">Teléfono</label>
+            <input
+              type="text"
+              id="telefono"
+              name="telefono"
+              value={form.telefono}
+              onChange={handleChange}
+              required
+            />
           </div>
 
           <div className="datos-extra">
