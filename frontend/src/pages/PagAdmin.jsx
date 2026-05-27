@@ -1,4 +1,4 @@
-// frontend/src/pages/PagAdmin.jsx
+
 
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
@@ -78,9 +78,6 @@ function PagAdmin() {
             Crear usuario
           </Link>
 
-          <button className="btn-cerrar-sesion" onClick={cerrarSesion}>
-            Cerrar sesión
-          </button>
         </div>
       </section>
 

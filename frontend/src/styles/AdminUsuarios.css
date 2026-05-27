@@ -1,17 +1,17 @@
 .admin-page {
-  min-height: calc(100vh - 90px);
-  padding: 70px 10%;
-  background: #f5f7fb;
+  min-height: auto;
+  padding: 0;
+  background: transparent;
   color: #0f172a;
 }
 
+/* Header de las páginas admin */
 .admin-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 24px;
   margin-bottom: 32px;
-
 }
 
 .admin-subtitulo {
@@ -28,15 +28,12 @@
   letter-spacing: -1px;
 }
 
-
 .admin-acciones {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
   gap: 12px;
 }
-
-
 
 .admin-contador {
   background: #0f172a;
@@ -47,6 +44,7 @@
   box-shadow: 0 12px 24px rgba(15, 23, 42, 0.16);
 }
 
+/* Tarjeta blanca */
 .admin-card {
   background: #ffffff;
   border-radius: 24px;
@@ -66,19 +64,23 @@
   border: 1px solid #cbd5e1;
   font-size: 1rem;
   outline: none;
+  box-sizing: border-box;
 }
 
 .admin-buscador:focus {
   border-color: #0f172a;
 }
 
+/* Tablas generales */
 .tabla-contenedor {
   width: 100%;
   overflow-x: auto;
+  padding-bottom: 8px;
 }
 
 .usuarios-tabla {
   width: 100%;
+  min-width: 900px;
   border-collapse: collapse;
 }
 
@@ -101,6 +103,7 @@
   color: #0f172a;
 }
 
+/* Badges */
 .rol-badge {
   display: inline-flex;
   padding: 6px 12px;
@@ -122,11 +125,22 @@
   color: #1e40af;
 }
 
+.rol-por-hacer {
+  background: #e2e8f0;
+  color: #334155;
+}
+
+.rol-aprobada {
+  background: #dcfce7;
+  color: #166534;
+}
+
+/* Botones */
 .btn-ver,
 .btn-volver,
 .btn-guardar,
 .btn-cerrar-sesion,
-.btn-crear
+.btn-crear,
 .btn-eliminar {
   display: inline-flex;
   justify-content: center;
@@ -161,19 +175,7 @@
   margin-top: 10px;
 }
 
-.btn-cerrar-sesion {
-  background: #0f172a;
-  color: #ffffff;
-  border: none;
-  padding: 13px 25px;
-  border-radius: 999px;
-  font-weight: 700;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: 0.2s ease;
-  box-shadow: 0 12px 24px rgba(15, 23, 42, 0.18);
-}
-
+.btn-cerrar-sesion,
 .btn-crear {
   background: #0f172a;
   color: #ffffff;
@@ -183,9 +185,7 @@
   font-weight: 700;
   font-size: 1rem;
   cursor: pointer;
-  transition: 0.2s ease;
   box-shadow: 0 12px 24px rgba(15, 23, 42, 0.18);
-  text-decoration: none;  
 }
 
 .btn-eliminar {
@@ -193,40 +193,26 @@
   color: #ffffff;
   padding: 14px 22px;
   font-size: 1rem;
-  font-weight: 800;
-  border: none;
-  border-radius: 999px;
-  cursor: pointer;
   width: 100%;
-  transition: 0.2s ease;
 }
-
-
 
 .btn-ver:hover,
 .btn-volver:hover,
 .btn-guardar:hover,
-.btn-cerrar-sesion:hover
-.btn-crear:hover
+.btn-cerrar-sesion:hover,
+.btn-crear:hover,
 .btn-eliminar:hover {
   transform: translateY(-2px);
 }
 
-.btn-cerrar-sesion:hover {
-  transform: translateY(-2px);
-  background: #1e293b;
-}
-
+.btn-cerrar-sesion:hover,
 .btn-crear:hover {
-  transform: translateY(-2px);
   background: #1e293b;
 }
 
 .btn-eliminar:hover {
-  transform: translateY(-2px);
   background: #b91c1c;
 }
-
 
 .btn-guardar:disabled,
 .btn-eliminar:disabled {
@@ -235,6 +221,7 @@
   transform: none;
 }
 
+/* Formularios */
 .usuario-form {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -250,21 +237,6 @@
 .form-grupo label {
   font-weight: 800;
   color: #334155;
-}
-
-.form-acciones {
-  grid-column: 1 / -1;
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 16px;
-  margin-top: 10px;
-}
-
-.form-acciones .btn-guardar,
-.form-acciones .btn-eliminar {
-  width: 100%;
-  height: 56px;
-  margin-top: 0;
 }
 
 .form-grupo input,
@@ -292,6 +264,21 @@
   cursor: not-allowed;
 }
 
+.form-acciones {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  margin-top: 10px;
+}
+
+.form-acciones .btn-guardar,
+.form-acciones .btn-eliminar {
+  width: 100%;
+  height: 56px;
+  margin-top: 0;
+}
+
 .datos-extra {
   grid-column: 1 / -1;
   padding: 18px;
@@ -310,6 +297,7 @@
   color: #334155;
 }
 
+/* Estados y mensajes */
 .admin-loading,
 .admin-vacio,
 .admin-error,
@@ -334,11 +322,122 @@
   margin-bottom: 18px;
 }
 
-@media (max-width: 768px) {
-  .admin-page {
-    padding: 40px 20px;
+/* ========================= */
+/* Página de postulaciones */
+/* ========================= */
+
+.admin-page-postulaciones {
+  width: min(1500px, calc(100vw - 40px));
+  max-width: none;
+  margin-left: 50%;
+  transform: translateX(-50%);
+}
+
+.admin-card-postulaciones {
+  width: 100%;
+  max-width: none;
+  box-sizing: border-box;
+  overflow: visible;
+}
+
+.admin-card-postulaciones .tabla-contenedor {
+  width: 100%;
+  overflow-x: visible;
+  overflow-y: visible;
+  padding-bottom: 0;
+}
+
+.admin-card-postulaciones .postulaciones-tabla {
+  width: 100%;
+  min-width: 0;
+  table-layout: fixed;
+  border-collapse: collapse;
+}
+
+.admin-card-postulaciones .postulaciones-tabla th,
+.admin-card-postulaciones .postulaciones-tabla td {
+  padding: 16px 10px;
+  font-size: 14px;
+  white-space: normal;
+  word-break: normal;
+  overflow-wrap: anywhere;
+  vertical-align: middle;
+}
+
+/* Anchos de columnas de postulaciones */
+.admin-card-postulaciones .postulaciones-tabla th:nth-child(1),
+.admin-card-postulaciones .postulaciones-tabla td:nth-child(1) {
+  width: 9%;
+}
+
+.admin-card-postulaciones .postulaciones-tabla th:nth-child(2),
+.admin-card-postulaciones .postulaciones-tabla td:nth-child(2) {
+  width: 10%;
+}
+
+.admin-card-postulaciones .postulaciones-tabla th:nth-child(3),
+.admin-card-postulaciones .postulaciones-tabla td:nth-child(3) {
+  width: 22%;
+}
+
+.admin-card-postulaciones .postulaciones-tabla th:nth-child(4),
+.admin-card-postulaciones .postulaciones-tabla td:nth-child(4) {
+  width: 11%;
+}
+
+.admin-card-postulaciones .postulaciones-tabla th:nth-child(5),
+.admin-card-postulaciones .postulaciones-tabla td:nth-child(5) {
+  width: 10%;
+}
+
+.admin-card-postulaciones .postulaciones-tabla th:nth-child(6),
+.admin-card-postulaciones .postulaciones-tabla td:nth-child(6) {
+  width: 10%;
+}
+
+.admin-card-postulaciones .postulaciones-tabla th:nth-child(7),
+.admin-card-postulaciones .postulaciones-tabla td:nth-child(7) {
+  width: 10%;
+}
+
+.admin-card-postulaciones .postulaciones-tabla th:nth-child(8),
+.admin-card-postulaciones .postulaciones-tabla td:nth-child(8) {
+  width: 8%;
+}
+
+.admin-card-postulaciones .postulaciones-tabla th:nth-child(9),
+.admin-card-postulaciones .postulaciones-tabla td:nth-child(9) {
+  width: 12%;
+}
+
+.admin-card-postulaciones .btn-ver,
+.admin-card-postulaciones .btn-guardar {
+  padding: 10px 14px;
+  font-size: 13px;
+  margin-top: 0;
+  white-space: nowrap;
+}
+
+/* Responsive */
+@media (max-width: 1000px) {
+  .admin-page-postulaciones {
+    width: 100%;
+    margin-left: 0;
+    transform: none;
   }
 
+  .admin-card-postulaciones .tabla-contenedor {
+    overflow-x: auto;
+    padding-bottom: 8px;
+  }
+
+  .admin-card-postulaciones .postulaciones-tabla {
+    min-width: 1000px;
+    table-layout: auto;
+  }
+}
+
+@media (max-width: 768px) {
   .admin-header {
     flex-direction: column;
     align-items: flex-start;
@@ -358,6 +457,6 @@
   }
 
   .form-acciones {
-  grid-template-columns: 1fr;
-}
+    grid-template-columns: 1fr;
+  }
 }

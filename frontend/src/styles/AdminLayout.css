@@ -1,0 +1,126 @@
+.admin-layout {
+  min-height: 100vh;
+  background: #f5f7fb;
+  padding: 90px 10%;
+}
+
+.admin-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 24px;
+  margin-bottom: 28px;
+}
+
+.admin-header-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.admin-subtitle {
+  color: #64748b;
+  font-size: 16px;
+  font-weight: 700;
+  margin: 0 0 10px 0;
+}
+
+.admin-title {
+  color: #0f172a;
+  font-size: 52px;
+  font-weight: 800;
+  margin: 0;
+  line-height: 1.1;
+}
+
+.admin-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: flex-end;
+}
+
+.admin-logout {
+  background: #070d23;
+  color: #ffffff;
+  border: none;
+  border-radius: 18px;
+  padding: 14px 28px;
+  font-weight: 800;
+  font-size: 15px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.admin-logout:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 22px rgba(7, 13, 35, 0.22);
+}
+
+.admin-navbar {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-bottom: 34px;
+}
+
+.admin-nav-link {
+  text-decoration: none;
+  background: #ffffff;
+  color: #070d23;
+  border: 2px solid #070d23;
+  border-radius: 18px;
+  padding: 13px 28px;
+  font-size: 15px;
+  font-weight: 800;
+  transition: all 0.2s ease;
+}
+
+.admin-nav-link:hover,
+.admin-nav-link.active {
+  background: #070d23;
+  color: #ffffff;
+  transform: translateY(-2px);
+  box-shadow: 0 10px 22px rgba(7, 13, 35, 0.18);
+}
+
+.admin-content {
+  margin-top: 32px;
+  background: transparent;
+  border-radius: 0;
+  padding: 0;
+  box-shadow: none;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .admin-layout {
+    padding: 60px 6%;
+  }
+
+  .admin-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .admin-title {
+    font-size: 36px;
+  }
+
+  .admin-actions {
+    align-items: stretch;
+  }
+
+  .admin-logout,
+  .admin-nav-link {
+    width: 100%;
+    text-align: center;
+  }
+
+  .admin-navbar {
+    flex-direction: column;
+  }
+
+  .admin-content {
+    padding: 20px;
+  }
+}

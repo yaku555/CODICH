@@ -91,7 +91,7 @@ function PagAdminPostulaciones() {
   }
 
   return (
-    <main className="admin-page">
+    <main className="admin-page admin-page-postulaciones">
       <section className="admin-header">
         <div>
           <p className="admin-subtitulo">Panel de administración</p>
@@ -105,7 +105,7 @@ function PagAdminPostulaciones() {
         </div>
       </section>
 
-      <section className="admin-card">
+      <section className="admin-card admin-card-postulaciones">
         <div className="admin-toolbar">
           <input
             type="text"
@@ -123,7 +123,7 @@ function PagAdminPostulaciones() {
           <p className="admin-vacio">No se encontraron postulaciones.</p>
         ) : (
           <div className="tabla-contenedor">
-            <table className="usuarios-tabla">
+            <table className="usuarios-tabla postulaciones-tabla">
               <thead>
                 <tr>
                   <th>Nombre</th>
