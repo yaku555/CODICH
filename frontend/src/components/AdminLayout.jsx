@@ -41,6 +41,15 @@ function AdminLayout() {
         >
           Postulaciones
         </NavLink>
+
+        <NavLink
+          to="/admin/auditoria"
+          className={({ isActive }) =>
+            isActive ? 'admin-nav-link active' : 'admin-nav-link'
+          }
+        >
+          Auditoría
+        </NavLink>
       </nav>
 
       <section className="admin-content">

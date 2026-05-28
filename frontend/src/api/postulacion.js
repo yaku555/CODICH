@@ -27,3 +27,6 @@ export const updatePostulacionRequest = (rut, formData) =>
 // DELETE eliminar postulación
 export const deletePostulacionRequest = (rut) => 
     axios.delete(`/postulaciones/${rut}`);
+
+export const getCvPostulacionRequest = (rut) =>
+  axios.get(`/postulaciones/${rut}/cv`);

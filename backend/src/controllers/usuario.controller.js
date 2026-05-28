@@ -1,7 +1,5 @@
-// backend/src/controllers/usuario.controller.js
-
 const Usuario = require('../models/Usuario');
-const bcrypt = require('bcrypt'); // 1. IMPORTAR BCRYPT
+const bcrypt = require('bcrypt'); 
 
 // Función para crear un nuevo usuario
 const crearUsuario = async (req, res) => {
@@ -110,7 +108,7 @@ const actualizarUsuario = async (req, res) => {
       { rut },
       datosActualizados,
       {
-        new: true,
+        returnDocument: 'after',
         runValidators: true,
       }
     ).select('-password');

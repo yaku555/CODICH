@@ -11,6 +11,10 @@ const subirCVSupabase = async (archivo, rut) => {
 
   const bucket = process.env.SUPABASE_BUCKET_CVS;
 
+  if (!bucket) {
+    throw new Error('Falta SUPABASE_BUCKET_CVS en el archivo .env');
+  }
+
   const nombreArchivo = `${Date.now()}-${crypto.randomUUID()}.pdf`;
   const rutaArchivo = `postulantes/${rut}/${nombreArchivo}`;
 
@@ -163,7 +167,7 @@ const update = async (req, res) => {
       { rut },
       datosActualizados,
       {
-        new: true,
+        returnDocument: 'after',
         runValidators: true,
       }
     );
