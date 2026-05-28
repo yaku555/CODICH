@@ -6,7 +6,8 @@ const cors = require('cors');
 
 // Importa tus rutas
 const usuarioRoutes = require('./routes/usuario.routes');
-const postulacionRoutes = require('./routes/postulacion.routes'); // Cambié el nombre para consistencia
+const postulacionRoutes = require('./routes/postulacion.routes');
+const auditoriaRoutes = require('./routes/auditoria.routes'); 
 
 const app = express();
 
@@ -19,23 +20,22 @@ app.get('/', (req, res) => {
 
 // Rutas
 app.use('/api/usuarios', usuarioRoutes);
-app.use('/api/postulaciones', postulacionRoutes); // Usar plural es estándar
+app.use('/api/postulaciones', postulacionRoutes);
+app.use('/api/auditoria', auditoriaRoutes); 
 
 const PORT = process.env.PORT || 6767;
 
-// Función para conectar a la BD
 const conectarDB = async () => {
   try {
     await mongoose.connect(process.env.MONGO_URI);
     console.log("MongoDB conectado exitosamente");
-    
-    // Iniciar servidor SOLO cuando la BD esté lista
+
     app.listen(PORT, () => {
       console.log(`Servidor corriendo en el puerto ${PORT}`);
     });
   } catch (error) {
     console.error(`Error de conexión a la BD: ${error.message}`);
-    process.exit(1); // Detener el proceso si la BD falla
+    process.exit(1);
   }
 };
 
