@@ -1,7 +1,7 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { Chart, registerables } from "chart.js";
-import { getLogs, getResumen } from "../api/auditoria";
-import "./AuditoriaDashboard.css";
+import { getLogs, getResumen } from "../api/auditoria.js";
+import "../styles/AuditoriaDashboard.css";
 
 Chart.register(...registerables);
 
@@ -19,67 +19,61 @@ export default function AuditoriaDashboard() {
   const [resumen, setResumen]   = useState({ total: 0, exitosos: 0, advertencias: 0, errores: 0 });
   const [cargando, setCargando] = useState(true);
   const [error, setError]       = useState(null);
-
-  const [filtMod, setFiltMod] = useState("");
-  const [filtNiv, setFiltNiv] = useState("");
-  const [buscar, setBuscar]   = useState("");
+  const [filtMod, setFiltMod]   = useState("");
+  const [filtNiv, setFiltNiv]   = useState("");
+  const [buscar, setBuscar]     = useState("");
 
   const chartModRef  = useRef(null);
   const chartNivRef  = useRef(null);
   const chartModInst = useRef(null);
   const chartNivInst = useRef(null);
 
-  // Carga inicial
+  // Carga inicial — lógica inline dentro del efecto
   useEffect(() => {
-    cargarDatos();
+    let activo = true;
+    async function fetchInicial() {
+      try {
+        setCargando(true);
+        setError(null);
+        const [logsData, resumenData] = await Promise.all([
+          getLogs(),
+          getResumen(),
+        ]);
+        if (activo) {
+          setLogs(logsData);
+          setResumen(resumenData);
+        }
+      } catch {
+        if (activo) setError('No se pudo conectar con el servidor. Intenta de nuevo.');
+      } finally {
+        if (activo) setCargando(false);
+      }
+    }
+    fetchInicial();
+    return () => { activo = false; };
   }, []);
 
   // Re-fetch cuando cambian los filtros
   useEffect(() => {
-    cargarLogs();
+    let activo = true;
+    async function fetchFiltrado() {
+      try {
+        const data = await getLogs({
+          nivel:   filtNiv  || undefined,
+          modulo:  filtMod  || undefined,
+          usuario: buscar   || undefined,
+        });
+        if (activo) setLogs(data);
+      } catch (err) {
+        console.error('Error al filtrar logs:', err);
+      }
+    }
+    fetchFiltrado();
+    return () => { activo = false; };
   }, [filtMod, filtNiv, buscar]);
 
-  // Gráficos (se redibujan cuando cambia el resumen)
-  useEffect(() => {
-    if (cargando) return;
-    dibujarGraficos();
-    return () => {
-      chartModInst.current?.destroy();
-      chartNivInst.current?.destroy();
-    };
-  }, [resumen, cargando]);
-
-  const cargarDatos = async () => {
-    try {
-      setCargando(true);
-      setError(null);
-      const [logsData, resumenData] = await Promise.all([
-        getLogs(),
-        getResumen(),
-      ]);
-      setLogs(logsData);
-      setResumen(resumenData);
-    } catch (err) {
-      setError('No se pudo conectar con el servidor. Intenta de nuevo.');
-    } finally {
-      setCargando(false);
-    }
-  };
-
-  const cargarLogs = async () => {
-    try {
-      const data = await getLogs({
-        nivel:   filtNiv  || undefined,
-        modulo:  filtMod  || undefined,
-        usuario: buscar   || undefined,
-      });
-      setLogs(data);
-    } catch (err) {
-      console.error('Error al filtrar logs:', err);
-    }
-  };
-
-  const dibujarGraficos = () => {
+  // Gráficos
+  const dibujarGraficos = useCallback(() => {
     chartModInst.current?.destroy();
     if (chartModRef.current) {
       chartModInst.current = new Chart(chartModRef.current, {
@@ -104,7 +98,6 @@ export default function AuditoriaDashboard() {
         },
       });
     }
-
     chartNivInst.current?.destroy();
     if (chartNivRef.current) {
       chartNivInst.current = new Chart(chartNivRef.current, {
@@ -125,7 +118,29 @@ export default function AuditoriaDashboard() {
         },
       });
     }
-  };
+  }, [resumen]);
+
+  useEffect(() => {
+    if (cargando) return;
+    dibujarGraficos();
+    return () => {
+      chartModInst.current?.destroy();
+      chartNivInst.current?.destroy();
+    };
+  }, [dibujarGraficos, cargando]);
+
+  // Recargar manualmente desde el botón
+  const recargar = useCallback(() => {
+    setCargando(true);
+    setError(null);
+    Promise.all([getLogs(), getResumen()])
+      .then(([logsData, resumenData]) => {
+        setLogs(logsData);
+        setResumen(resumenData);
+      })
+      .catch(() => setError('No se pudo conectar con el servidor. Intenta de nuevo.'))
+      .finally(() => setCargando(false));
+  }, []);
 
   const formatearFecha = (fechaISO) => {
     const d = new Date(fechaISO);
@@ -145,7 +160,7 @@ export default function AuditoriaDashboard() {
       <div className="auditoria-page">
         <div className="auditoria-error">
           <p>{error}</p>
-          <button onClick={cargarDatos}>Reintentar</button>
+          <button onClick={recargar}>Reintentar</button>
         </div>
       </div>
     );
@@ -168,7 +183,7 @@ export default function AuditoriaDashboard() {
             <span className="dot-verde"></span>
             Sistema activo
           </span>
-          <button className="btn-recargar" onClick={cargarDatos} title="Recargar">↻</button>
+          <button className="btn-recargar" onClick={recargar} title="Recargar">↻</button>
         </div>
       </div>
 
