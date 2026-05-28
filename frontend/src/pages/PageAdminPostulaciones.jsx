@@ -1,6 +1,6 @@
-// frontend/src/pages/PagAdminPostulaciones.jsx
-
 import React, { useEffect, useState } from 'react';
+import emailjs from "@emailjs/browser";
+
 import {
   getPostulacionesRequest,
   updatePostulacionRequest,
@@ -15,6 +15,7 @@ function PagAdminPostulaciones() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [mensaje, setMensaje] = useState('');
+  const [aprobandoRut, setAprobandoRut] = useState(null);
 
   useEffect(() => {
     cargarPostulaciones();
@@ -47,10 +48,31 @@ function PagAdminPostulaciones() {
     return password;
   };
 
+  const enviarCorreoAprobado = async (postulacion, passwordProvisoria) => {
+    const nombreCompleto = `${postulacion.nombre} ${postulacion.apellido}`.trim();
+
+    await emailjs.send(
+      "service_8ry86mp",
+      "template_rp7plkw",
+      {
+        name: nombreCompleto,
+        email: postulacion.email,
+        link_pago: "https://www.transbank.cl",
+        password: passwordProvisoria,
+        rut: postulacion.rut,
+        profesion: postulacion.profesion,
+      },
+      {
+        publicKey: "JC5QAq6AciVrpi5gQ",
+      }
+    );
+  };
+
   const aprobarPostulacion = async (postulacion) => {
     try {
       setMensaje('');
       setError('');
+      setAprobandoRut(postulacion.rut);
 
       if (postulacion.estado === 'Aprobada') {
         setError('Esta postulación ya fue aprobada.');
@@ -84,25 +106,34 @@ function PagAdminPostulaciones() {
 
       await crearUsuario(nuevoUsuario);
 
-      const formData = new FormData();
+      const datosPostulacion = new FormData();
 
-      formData.append('nombre', postulacion.nombre);
-      formData.append('apellido', postulacion.apellido);
-      formData.append('rut', postulacion.rut);
-      formData.append('email', postulacion.email);
-      formData.append('telefono', postulacion.telefono);
-      formData.append('profesion', postulacion.profesion);
-      formData.append('experiencia', postulacion.experiencia);
-      formData.append('estado', 'Aprobada');
+      datosPostulacion.append('nombre', postulacion.nombre);
+      datosPostulacion.append('apellido', postulacion.apellido);
+      datosPostulacion.append('rut', postulacion.rut);
+      datosPostulacion.append('email', postulacion.email);
+      datosPostulacion.append('telefono', postulacion.telefono);
+      datosPostulacion.append('profesion', postulacion.profesion);
+      datosPostulacion.append('experiencia', postulacion.experiencia);
+      datosPostulacion.append('estado', 'Aprobada');
 
-      await updatePostulacionRequest(postulacion.rut, formData);
+      await updatePostulacionRequest(postulacion.rut, datosPostulacion);
 
+      try {
+        await enviarCorreoAprobado(postulacion, passwordProvisoria);
 
-      setMensaje(
-        `Postulación aprobada y usuario creado correctamente. Contraseña provisoria: ${passwordProvisoria}`
-      );
+        setMensaje(
+          `Postulación aprobada, usuario creado y correo enviado correctamente. Contraseña provisoria: ${passwordProvisoria}`
+        );
+      } catch (errorCorreo) {
+        console.error('Error al enviar correo de aprobación:', errorCorreo);
 
-      cargarPostulaciones();
+        setMensaje(
+          `Postulación aprobada y usuario creado correctamente, pero no se pudo enviar el correo. Contraseña provisoria: ${passwordProvisoria}`
+        );
+      }
+
+      await cargarPostulaciones();
     } catch (error) {
       console.error(error);
 
@@ -111,6 +142,8 @@ function PagAdminPostulaciones() {
         error.response?.data?.message ||
         'No se pudo aprobar la postulación ni crear el usuario.'
       );
+    } finally {
+      setAprobandoRut(null);
     }
   };
 
@@ -244,11 +277,13 @@ function PagAdminPostulaciones() {
                         type="button"
                         className="btn-guardar"
                         onClick={() => aprobarPostulacion(postulacion)}
-                        disabled={postulacion.estado === 'Aprobada'}
+                        disabled={postulacion.estado === 'Aprobada' || aprobandoRut === postulacion.rut}
                       >
-                        {postulacion.estado === 'Aprobada'
-                          ? 'Aprobada'
-                          : 'Aprobar'}
+                        {aprobandoRut === postulacion.rut
+                          ? 'Aprobando...'
+                          : postulacion.estado === 'Aprobada'
+                            ? 'Aprobada'
+                            : 'Aprobar'}
                       </button>
                     </td>
                   </tr>

@@ -57,7 +57,7 @@ function Postulacion() {
     const archivoSeleccionado = e.target.files[0];
 
     if (archivoSeleccionado && archivoSeleccionado.type !== 'application/pdf') {
-      setError('⚠️ Formato no válido. Por favor, selecciona un documento en formato PDF.');
+      setError('Formato no válido. Por favor, selecciona un documento en formato PDF.');
 
       e.target.value = '';
 
@@ -81,11 +81,11 @@ function Postulacion() {
     try {
       await emailjs.send(
         "service_8ry86mp",
-        "template_x5it62t",
+        "template_so375en",
         {
           name: `${formData.nombre} ${formData.apellido}`,
           email: formData.email,
-          correo: "https://www.youtube.com"
+          correo: ""
         },
         {
           publicKey: "JC5QAq6AciVrpi5gQ",
