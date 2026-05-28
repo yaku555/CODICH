@@ -15,6 +15,7 @@ import AdminUsuarioDetalle from "./pages/AdminUsuarioDetalle";
 import AdminCrear from "./pages/AdminCrear.jsx";
 import PagePostulacionAdmin from "./pages/PageAdminPostulaciones.jsx";
 import AdminLayout from "./components/AdminLayout.jsx";
+import AuditoriaDashboard from "./pages/AuditoriaDashboard.jsx"; 
 
 import "./styles/App.css";
 
@@ -50,6 +51,7 @@ function App() {
               <Route path="usuarios/:rut" element={<AdminUsuarioDetalle />} />
               <Route path="crear" element={<AdminCrear />} />
               <Route path="postulaciones" element={<PagePostulacionAdmin />} />
+              <Route path="auditoria" element={<AuditoriaDashboard />} /> 
             </Route>
           </Route>
         </Routes>

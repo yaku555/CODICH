@@ -1,0 +1,375 @@
+/* ── AuditoriaDashboard.css ─────────────────────────────────────────── */
+
+.auditoria-page {
+  padding: 1.5rem 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  font-family: 'DM Sans', 'Segoe UI', sans-serif;
+}
+
+/* Header */
+.auditoria-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.auditoria-titulo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.auditoria-header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.fecha-texto {
+  font-size: 0.75rem;
+  color: #9ca3af;
+}
+
+.badge-activo {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.72rem;
+  padding: 4px 10px;
+  border-radius: 20px;
+  background: #dcfce7;
+  color: #15803d;
+  font-weight: 500;
+}
+
+.dot-verde {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #22c55e;
+}
+
+/* Métricas */
+.metricas-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+
+.metrica-card {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 1rem 1.25rem;
+}
+
+.metrica-label {
+  font-size: 0.72rem;
+  color: #6b7280;
+  margin: 0 0 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.metrica-valor {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #111827;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.metrica-valor.success { color: #15803d; }
+.metrica-valor.warning { color: #b45309; }
+.metrica-valor.danger  { color: #b91c1c; }
+
+.metrica-sub {
+  font-size: 0.7rem;
+  color: #9ca3af;
+  margin: 4px 0 0;
+}
+
+/* Cards */
+.card {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 1.25rem 1.5rem;
+}
+
+.card-titulo {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #6b7280;
+  margin: 0 0 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Filtros */
+.filtros-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.filtro-grupo {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.filtro-grupo label {
+  font-size: 0.75rem;
+  color: #6b7280;
+  white-space: nowrap;
+}
+
+.filtros-row select,
+.filtro-buscar {
+  font-size: 0.78rem;
+  padding: 5px 10px;
+  border: 1px solid #d1d5db;
+  border-radius: 7px;
+  color: #374151;
+  background: #f9fafb;
+  outline: none;
+  height: 32px;
+}
+
+.filtros-row select:focus,
+.filtro-buscar:focus {
+  border-color: #1e5fa8;
+  background: #fff;
+}
+
+.filtro-buscar {
+  width: 200px;
+}
+
+/* Tabla */
+.tabla-wrapper {
+  overflow-x: auto;
+}
+
+.log-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8rem;
+  table-layout: fixed;
+}
+
+.log-table th {
+  text-align: left;
+  color: #9ca3af;
+  font-weight: 600;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 6px 10px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.log-table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid #f3f4f6;
+  color: #374151;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  vertical-align: middle;
+}
+
+.log-table tr:last-child td {
+  border-bottom: none;
+}
+
+.log-table tr:hover td {
+  background: #f9fafb;
+}
+
+.td-mono  { font-family: 'Courier New', monospace; font-size: 0.75rem; color: #9ca3af; }
+.td-modulo { color: #6b7280; }
+.td-bold  { font-weight: 600; color: #111827; }
+.td-muted { color: #9ca3af !important; font-size: 0.72rem !important; }
+
+.sin-resultados {
+  text-align: center;
+  color: #9ca3af;
+  padding: 2rem !important;
+  font-style: italic;
+}
+
+/* Pills */
+.pill {
+  display: inline-block;
+  font-size: 0.68rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 20px;
+  letter-spacing: 0.03em;
+}
+
+.pill-info  { background: #dbeafe; color: #1e40af; }
+.pill-warn  { background: #fef3c7; color: #92400e; }
+.pill-error { background: #fee2e2; color: #991b1b; }
+
+/* Gráficos */
+.graficos-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.chart-wrapper {
+  position: relative;
+  width: 100%;
+  height: 180px;
+}
+
+.chart-dona {
+  height: 160px;
+}
+
+.chart-leyenda {
+  display: flex;
+  gap: 14px;
+  font-size: 0.72rem;
+  color: #6b7280;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+}
+
+.leyenda-sq {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  margin-right: 4px;
+  vertical-align: middle;
+}
+
+/* Actividad por usuario */
+.actividad-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.actividad-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.actividad-row:last-child {
+  border-bottom: none;
+}
+
+.avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.72rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.actividad-info {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.actividad-nombre {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.actividad-desc {
+  font-size: 0.8rem;
+  color: #6b7280;
+}
+
+.actividad-meta {
+  font-size: 0.7rem;
+  color: #9ca3af;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .auditoria-page { padding: 1rem; }
+  .metricas-grid  { grid-template-columns: repeat(2, 1fr); }
+  .graficos-grid  { grid-template-columns: 1fr; }
+  .filtro-buscar  { width: 100%; }
+}
+
+/* Estados de carga y error */
+.auditoria-cargando {
+  text-align: center;
+  padding: 4rem;
+  color: #6b7280;
+  font-size: 0.9rem;
+}
+
+.auditoria-error {
+  text-align: center;
+  padding: 4rem;
+  color: #b91c1c;
+}
+
+.auditoria-error p {
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+}
+
+.auditoria-error button {
+  padding: 8px 20px;
+  border: 1px solid #b91c1c;
+  border-radius: 8px;
+  background: transparent;
+  color: #b91c1c;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+.auditoria-error button:hover {
+  background: #fee2e2;
+}
+
+/* Botón recargar */
+.btn-recargar {
+  background: transparent;
+  border: 1px solid #d1d5db;
+  border-radius: 7px;
+  width: 30px;
+  height: 30px;
+  cursor: pointer;
+  color: #6b7280;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-recargar:hover {
+  background: #f3f4f6;
+  color: #111827;
+}
