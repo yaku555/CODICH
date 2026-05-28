@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { createPostulacionRequest } from '../api/postulacion';
+import emailjs from "@emailjs/browser";
+
 import '../styles/Postulacion.css';
 
 function Postulacion() {
@@ -51,6 +53,28 @@ function Postulacion() {
     }));
   };
 
+  const enviarCorreoPostulacion = async () => {
+    try {
+      await emailjs.send(
+        "service_8ry86mp",
+        "template_x5it62t",
+        {
+          name: `${formData.nombre} ${formData.apellido}`,
+          email: formData.email,
+          correo: "https://www.youtube.com"
+        },
+        {
+          publicKey: "JC5QAq6AciVrpi5gQ",
+        }
+      );
+
+      console.log("Correo enviado correctamente");
+    } catch (error) {
+      console.error("Error al enviar correo:", error);
+      throw error;
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -82,8 +106,17 @@ function Postulacion() {
 
       await createPostulacionRequest(form);
 
-      setSuccess('Postulación creada correctamente con su documento.');
+      try {
+        await enviarCorreoPostulacion();
 
+        setSuccess(
+          'Postulación creada correctamente. Se ha enviado un correo de confirmación.'
+        );
+      } catch (errorCorreo) {
+        setSuccess(
+          'Postulación creada correctamente, pero no se pudo enviar el correo de confirmación.'
+        );
+      }
       setFormData({
         nombre: '',
         apellido: '',
@@ -102,9 +135,9 @@ function Postulacion() {
       console.error(err);
       setError(
         'Error: ' +
-          (err.response?.data?.error ||
-            err.response?.data?.message ||
-            err.message)
+        (err.response?.data?.error ||
+          err.response?.data?.message ||
+          err.message)
       );
     } finally {
       setLoading(false);
