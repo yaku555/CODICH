@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import {
   getPostulacionesRequest,
   updatePostulacionRequest,
+  getCvPostulacionRequest,
 } from '../api/postulacion.js';
 import { crearUsuario } from '../api/usuarios.js';
 import '../styles/AdminUsuarios.css';
@@ -113,14 +114,26 @@ function PagAdminPostulaciones() {
     }
   };
 
-  const ver = (documentoPath) => {
-    if (!documentoPath) {
-      alert('Esta postulación no tiene CV cargado.');
-      return;
-    }
+  const verCV = async (rut) => {
+    const ventanaCV = window.open('', '_blank');
 
-    const url = `http://localhost:5000/${documentoPath}`;
-    window.open(url, '_blank');
+    try {
+      const { data } = await getCvPostulacionRequest(rut);
+
+      if (!data.url) {
+        throw new Error('No se recibió la URL del CV');
+      }
+
+      ventanaCV.location.href = data.url;
+    } catch (error) {
+      console.error(error);
+
+      if (ventanaCV) {
+        ventanaCV.close();
+      }
+
+      setError('No se pudo abrir el CV.');
+    }
   };
 
   const postulacionesFiltradas = postulaciones.filter((postulacion) => {
@@ -220,7 +233,7 @@ function PagAdminPostulaciones() {
                       <button
                         type="button"
                         className="btn-ver"
-                        onClick={() => verCV(postulacion.documentoPath)}
+                        onClick={() => verCV(postulacion.rut)}
                       >
                         Ver CV
                       </button>

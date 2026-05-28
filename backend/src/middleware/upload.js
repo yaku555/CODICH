@@ -1,23 +1,19 @@
-const multer = require("multer");
-const path = require("path");
-const fs = require("fs");
+const multer = require('multer');
 
-const uploadDir = path.join(__dirname, "../../uploads");
+const upload = multer({
+  storage: multer.memoryStorage(),
 
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
-}
-
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, uploadDir);
+  limits: {
+    fileSize: 10 * 1024 * 1024, // 10 MB
   },
-  filename: (req, file, cb) => {
-    const cleanName = file.originalname.replace(/\s+/g, "_");
-    cb(null, `${Date.now()}-${cleanName}`);
+
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype !== 'application/pdf') {
+      return cb(new Error('Solo se permiten archivos PDF'));
+    }
+
+    cb(null, true);
   },
 });
-
-const upload = multer({ storage });
 
 module.exports = upload;

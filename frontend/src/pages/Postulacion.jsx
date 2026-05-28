@@ -18,6 +18,30 @@ function Postulacion() {
     documento: null
   });
 
+  const formatearRut = (valor) => {
+    const limpio = valor.replace(/[^0-9kK]/g, '').toUpperCase().slice(0, 9);
+
+    if (limpio.length <= 1) return limpio;
+
+    const cuerpo = limpio.slice(0, -1);
+    const dv = limpio.slice(-1);
+
+    return `${cuerpo}-${dv}`;
+  };
+
+  const validarFormatoRut = (rut) => {
+    return /^\d{7,8}-[0-9K]$/.test(rut);
+  };
+
+  const handleRutChange = (e) => {
+    const rutFormateado = formatearRut(e.target.value);
+
+    setFormData((prev) => ({
+      ...prev,
+      rut: rutFormateado,
+    }));
+  };
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
 
@@ -60,6 +84,11 @@ function Postulacion() {
     if (!formData.nombre.trim()) return setError('El nombre es requerido');
     if (!formData.apellido.trim()) return setError('El apellido es requerido');
     if (!formData.rut.trim()) return setError('El RUT es requerido');
+
+    if (!validarFormatoRut(formData.rut)) {
+      return setError('El RUT debe tener el formato 12345678-5.');
+    }
+
     if (!formData.email.trim()) return setError('El correo electrónico es requerido');
     if (!formData.telefono.trim()) return setError('El teléfono es requerido');
     if (!formData.profesion.trim()) return setError('La profesión es requerida');
@@ -141,9 +170,9 @@ function Postulacion() {
               type="text"
               id="rut"
               name="rut"
-              placeholder="Ej: 11111111-0"
+              placeholder="Ej: 12345678-5"
               value={formData.rut}
-              onChange={handleInputChange}
+              onChange={handleRutChange}
               disabled={loading}
               required
             />
@@ -244,4 +273,4 @@ function Postulacion() {
   );
 }
 
-export default Postulacion; 
+export default Postulacion;
