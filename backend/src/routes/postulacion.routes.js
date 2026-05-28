@@ -8,6 +8,7 @@ const {
   update,
   remove,
   getCvUrl,
+  aprobar,
 } = require('../controllers/postulacion.controller');
 
 const upload = require('../middleware/upload');
@@ -17,6 +18,8 @@ router.get('/', getAll);
 router.post('/', upload.single('documento'), create);
 
 router.get('/:rut/cv', getCvUrl);
+
+router.patch('/:rut/aprobar', aprobar);
 
 router.get('/:rut', getById);
 

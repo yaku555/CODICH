@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import emailjs from "@emailjs/browser";
 
 import {
   getPostulacionesRequest,
-  updatePostulacionRequest,
   getCvPostulacionRequest,
+  aprobarPostulacionRequest,
 } from '../api/postulacion.js';
-import { crearUsuario } from '../api/usuarios.js';
+
 import '../styles/AdminUsuarios.css';
 
 function PagAdminPostulaciones() {
@@ -36,38 +35,6 @@ function PagAdminPostulaciones() {
     }
   };
 
-  const generarPasswordProvisoria = () => {
-    const caracteres = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789';
-    let password = 'Codich-';
-
-    for (let i = 0; i < 8; i++) {
-      const indice = Math.floor(Math.random() * caracteres.length);
-      password += caracteres[indice];
-    }
-
-    return password;
-  };
-
-  const enviarCorreoAprobado = async (postulacion, passwordProvisoria) => {
-    const nombreCompleto = `${postulacion.nombre} ${postulacion.apellido}`.trim();
-
-    await emailjs.send(
-      "service_8ry86mp",
-      "template_rp7plkw",
-      {
-        name: nombreCompleto,
-        email: postulacion.email,
-        link_pago: "https://www.transbank.cl",
-        password: passwordProvisoria,
-        rut: postulacion.rut,
-        profesion: postulacion.profesion,
-      },
-      {
-        publicKey: "JC5QAq6AciVrpi5gQ",
-      }
-    );
-  };
-
   const aprobarPostulacion = async (postulacion) => {
     try {
       setMensaje('');
@@ -79,59 +46,12 @@ function PagAdminPostulaciones() {
         return;
       }
 
-      if (
-        !postulacion.nombre ||
-        !postulacion.apellido ||
-        !postulacion.rut ||
-        !postulacion.email ||
-        !postulacion.telefono ||
-        !postulacion.profesion
-      ) {
-        setError('La postulación no tiene todos los datos necesarios para crear el usuario.');
-        return;
-      }
+      const res = await aprobarPostulacionRequest(postulacion.rut);
 
-      const passwordProvisoria = generarPasswordProvisoria();
-
-      const nuevoUsuario = {
-        nombre: postulacion.nombre,
-        apellido: postulacion.apellido,
-        rut: postulacion.rut,
-        email: postulacion.email,
-        telefono: postulacion.telefono,
-        profesion: postulacion.profesion,
-        rol: 'usuario',
-        password: passwordProvisoria,
-      };
-
-      await crearUsuario(nuevoUsuario);
-
-      const datosPostulacion = new FormData();
-
-      datosPostulacion.append('nombre', postulacion.nombre);
-      datosPostulacion.append('apellido', postulacion.apellido);
-      datosPostulacion.append('rut', postulacion.rut);
-      datosPostulacion.append('email', postulacion.email);
-      datosPostulacion.append('telefono', postulacion.telefono);
-      datosPostulacion.append('profesion', postulacion.profesion);
-      datosPostulacion.append('experiencia', postulacion.experiencia);
-      datosPostulacion.append('estado', 'Aprobada');
-
-      await updatePostulacionRequest(postulacion.rut, datosPostulacion);
-
-      try {
-        await enviarCorreoAprobado(postulacion, passwordProvisoria);
-
-        setMensaje(
-          `Postulación aprobada, usuario creado y correo enviado correctamente. Contraseña provisoria: ${passwordProvisoria}`
-        );
-      } catch (errorCorreo) {
-        console.error('Error al enviar correo de aprobación:', errorCorreo);
-
-        setMensaje(
-          `Postulación aprobada y usuario creado correctamente, pero no se pudo enviar el correo. Contraseña provisoria: ${passwordProvisoria}`
-        );
-      }
+      setMensaje(
+        res.data?.message ||
+          'Postulación aprobada correctamente.'
+      );
 
       await cargarPostulaciones();
     } catch (error) {
@@ -139,8 +59,8 @@ function PagAdminPostulaciones() {
 
       setError(
         error.response?.data?.error ||
-        error.response?.data?.message ||
-        'No se pudo aprobar la postulación ni crear el usuario.'
+          error.response?.data?.message ||
+          'No se pudo aprobar la postulación.'
       );
     } finally {
       setAprobandoRut(null);
@@ -257,7 +177,11 @@ function PagAdminPostulaciones() {
                     <td>{postulacion.experiencia}</td>
 
                     <td>
-                      <span className={`rol-badge rol-${postulacion.estado?.toLowerCase().replaceAll(' ', '-')}`}>
+                      <span
+                        className={`rol-badge rol-${postulacion.estado
+                          ?.toLowerCase()
+                          .replaceAll(' ', '-')}`}
+                      >
                         {postulacion.estado}
                       </span>
                     </td>
@@ -277,7 +201,10 @@ function PagAdminPostulaciones() {
                         type="button"
                         className="btn-guardar"
                         onClick={() => aprobarPostulacion(postulacion)}
-                        disabled={postulacion.estado === 'Aprobada' || aprobandoRut === postulacion.rut}
+                        disabled={
+                          postulacion.estado === 'Aprobada' ||
+                          aprobandoRut === postulacion.rut
+                        }
                       >
                         {aprobandoRut === postulacion.rut
                           ? 'Aprobando...'

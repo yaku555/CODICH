@@ -30,3 +30,6 @@ export const deletePostulacionRequest = (rut) =>
 
 export const getCvPostulacionRequest = (rut) =>
   axios.get(`/postulaciones/${rut}/cv`);
+
+export const aprobarPostulacionRequest = (rut) =>
+  axios.patch(`/postulaciones/${rut}/aprobar`);

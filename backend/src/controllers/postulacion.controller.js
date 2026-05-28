@@ -1,6 +1,15 @@
 const crypto = require('crypto');
 const Postulacion = require('../models/Postulacion');
+const Usuario = require('../models/Usuario');
 const supabase = require('../config/supabase');
+const bcrypt = require('bcrypt');
+
+const generarPasswordProvisoria = require('../utils/generarPassword');
+
+const {
+  enviarCorreoPostulacionCreada,
+  enviarCorreoPostulacionAprobada,
+} = require('../utils/correo.service');
 
 const subirCVSupabase = async (archivo, rut) => {
   if (!archivo) return null;
@@ -86,8 +95,16 @@ const create = async (req, res) => {
       documentoPath,
       estado: 'Pendiente',
     });
-
     const postulacionGuardada = await nuevaPostulacion.save();
+
+    try {
+      await enviarCorreoPostulacionCreada(postulacionGuardada);
+    } catch (errorCorreo) {
+      console.error(
+        'La postulación fue creada, pero falló el correo de confirmación:',
+        errorCorreo.message
+      );
+    }
 
     return res.status(201).json(postulacionGuardada);
   } catch (error) {
@@ -256,6 +273,83 @@ const getCvUrl = async (req, res) => {
   }
 };
 
+const aprobar = async (req, res) => {
+  try {
+    const { rut } = req.params;
+
+    const postulacion = await Postulacion.findOne({ rut });
+
+    if (!postulacion) {
+      return res.status(404).json({
+        error: 'Postulación no encontrada.',
+      });
+    }
+
+    if (postulacion.estado === 'Aprobada') {
+      return res.status(400).json({
+        error: 'Esta postulación ya fue aprobada.',
+      });
+    }
+
+    const usuarioExistente = await Usuario.findOne({
+      $or: [
+        { rut: postulacion.rut },
+        { email: postulacion.email }
+      ]
+    });
+
+    if (usuarioExistente) {
+      return res.status(400).json({
+        error: 'Ya existe un usuario registrado con este RUT o correo.',
+      });
+    }
+
+    const passwordProvisoria = generarPasswordProvisoria();
+
+    const salt = await bcrypt.genSalt(10);
+    const passwordHasheada = await bcrypt.hash(passwordProvisoria, salt);
+
+    const nuevoUsuario = new Usuario({
+      nombre: postulacion.nombre,
+      apellido: postulacion.apellido,
+      rut: postulacion.rut,
+      email: postulacion.email,
+      telefono: postulacion.telefono,
+      profesion: postulacion.profesion,
+      rol: 'usuario',
+      password: passwordHasheada,
+    });
+
+    await nuevoUsuario.save();
+    postulacion.estado = 'Aprobada';
+    await postulacion.save();
+
+    try {
+      await enviarCorreoPostulacionAprobada(postulacion, passwordProvisoria);
+
+      return res.json({
+        message: 'Postulación aprobada, usuario creado y correo enviado correctamente.',
+      });
+    } catch (errorCorreo) {
+      console.error(
+        'La postulación fue aprobada, pero falló el correo:',
+        errorCorreo.message
+      );
+
+      return res.json({
+        message: 'Postulación aprobada y usuario creado, pero no se pudo enviar el correo.',
+      });
+    }
+  } catch (error) {
+    console.error(error);
+
+    return res.status(500).json({
+      error: 'Error al aprobar la postulación.',
+      detalle: error.message,
+    });
+  }
+};
+
 module.exports = {
   create,
   getAll,
@@ -263,4 +357,5 @@ module.exports = {
   update,
   remove,
   getCvUrl,
+  aprobar,
 };

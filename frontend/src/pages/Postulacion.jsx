@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { createPostulacionRequest } from '../api/postulacion';
-import emailjs from "@emailjs/browser";
 
 import '../styles/Postulacion.css';
 
@@ -77,26 +76,20 @@ function Postulacion() {
     }));
   };
 
-  const enviarCorreoPostulacion = async () => {
-    try {
-      await emailjs.send(
-        "service_8ry86mp",
-        "template_so375en",
-        {
-          name: `${formData.nombre} ${formData.apellido}`,
-          email: formData.email,
-          correo: ""
-        },
-        {
-          publicKey: "JC5QAq6AciVrpi5gQ",
-        }
-      );
+  const limpiarFormulario = () => {
+    setFormData({
+      nombre: '',
+      apellido: '',
+      rut: '',
+      email: '',
+      telefono: '',
+      profesion: '',
+      experiencia: '',
+      documento: null
+    });
 
-      console.log("Correo enviado correctamente");
-    } catch (error) {
-      console.error("Error al enviar correo:", error);
-      throw error;
-    }
+    const fileInput = document.getElementById('documento');
+    if (fileInput) fileInput.value = '';
   };
 
   const handleSubmit = async (e) => {
@@ -133,40 +126,22 @@ function Postulacion() {
       form.append('experiencia', formData.experiencia);
       form.append('documento', formData.documento);
 
-      await createPostulacionRequest(form);
+      const res = await createPostulacionRequest(form);
 
-      try {
-        await enviarCorreoPostulacion();
-
-        setSuccess(
+      setSuccess(
+        res.data?.message ||
           'Postulación creada correctamente. Se ha enviado un correo de confirmación.'
-        );
-      } catch (errorCorreo) {
-        setSuccess(
-          'Postulación creada correctamente, pero no se pudo enviar el correo de confirmación.'
-        );
-      }
-      setFormData({
-        nombre: '',
-        apellido: '',
-        rut: '',
-        email: '',
-        telefono: '',
-        profesion: '',
-        experiencia: '',
-        documento: null
-      });
+      );
 
-      const fileInput = document.getElementById('documento');
-      if (fileInput) fileInput.value = '';
-
+      limpiarFormulario();
     } catch (err) {
       console.error(err);
+
       setError(
         'Error: ' +
-        (err.response?.data?.error ||
-          err.response?.data?.message ||
-          err.message)
+          (err.response?.data?.error ||
+            err.response?.data?.message ||
+            err.message)
       );
     } finally {
       setLoading(false);
