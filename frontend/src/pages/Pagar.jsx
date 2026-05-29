@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useUsuario } from '../context/usuario.context';
 import '../styles/Pagar.css';
 
 const PLANES = [
@@ -38,6 +39,7 @@ export default function Pagar() {
   const [cargando, setCargando] = useState(false);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
+  const { usuario } = useUsuario();
 
   const handlePagar = async () => {
     if (!planSeleccionado) return;
@@ -50,7 +52,7 @@ export default function Pagar() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           monto: planSeleccionado.monto,
-          rutSocio: 'invitado-' + Date.now(),
+          rutSocio: usuario?.rut || 'invitado',
           plan: planSeleccionado.nombre,
         }),
       });
