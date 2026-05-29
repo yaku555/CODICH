@@ -50,6 +50,15 @@ function AdminLayout() {
         >
           Auditoría
         </NavLink>
+
+        <NavLink
+          to="/admin/pagos"
+          className={({ isActive }) =>
+            isActive ? 'admin-nav-link active' : 'admin-nav-link'
+          }
+        >
+          Pagos
+        </NavLink>
       </nav>
 
       <section className="admin-content">
