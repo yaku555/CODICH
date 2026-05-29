@@ -17,7 +17,6 @@ function AdminLayout() {
           <p className="admin-subtitle">Panel de administración</p>
           <h1 className="admin-title">Administración CODICH</h1>
         </div>
-
         <button className="admin-logout" onClick={cerrarSesion}>
           Cerrar sesión
         </button>
@@ -26,29 +25,27 @@ function AdminLayout() {
       <nav className="admin-navbar">
         <NavLink
           to="/admin/usuarios"
-          className={({ isActive }) =>
-            isActive ? 'admin-nav-link active' : 'admin-nav-link'
-          }
+          className={({ isActive }) => isActive ? 'admin-nav-link active' : 'admin-nav-link'}
         >
           Usuarios
         </NavLink>
-
         <NavLink
           to="/admin/postulaciones"
-          className={({ isActive }) =>
-            isActive ? 'admin-nav-link active' : 'admin-nav-link'
-          }
+          className={({ isActive }) => isActive ? 'admin-nav-link active' : 'admin-nav-link'}
         >
           Postulaciones
         </NavLink>
-
         <NavLink
           to="/admin/auditoria"
-          className={({ isActive }) =>
-            isActive ? 'admin-nav-link active' : 'admin-nav-link'
-          }
+          className={({ isActive }) => isActive ? 'admin-nav-link active' : 'admin-nav-link'}
         >
           Auditoría
+        </NavLink>
+        <NavLink
+          to="/admin/estadisticas"
+          className={({ isActive }) => isActive ? 'admin-nav-link active' : 'admin-nav-link'}
+        >
+          Estadísticas
         </NavLink>
       </nav>
 
