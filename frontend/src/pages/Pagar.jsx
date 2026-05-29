@@ -135,7 +135,7 @@ export default function Pagar() {
             </button>
 
             <p className="pagar-seguro">
-              🔒 Pago seguro procesado por Transbank. No almacenamos datos de tu tarjeta.
+               Pago seguro procesado por Transbank. No almacenamos datos de tu tarjeta.
             </p>
           </div>
         </section>
@@ -143,21 +143,21 @@ export default function Pagar() {
 
       <section className="pagar-info">
         <div className="info-item">
-          <span className="info-icono">🛡️</span>
+          <span className="info-icono"></span>
           <div>
             <strong>Pago 100% seguro</strong>
             <p>Procesado por WebPay Plus de Transbank bajo protocolo TLS.</p>
           </div>
         </div>
         <div className="info-item">
-          <span className="info-icono">📄</span>
+          <span className="info-icono"></span>
           <div>
             <strong>Comprobante inmediato</strong>
             <p>Recibirás tu comprobante digital al correo registrado.</p>
           </div>
         </div>
         <div className="info-item">
-          <span className="info-icono">⚡</span>
+          <span className="info-icono"></span>
           <div>
             <strong>Activación instantánea</strong>
             <p>Tu membresía se activa automáticamente tras el pago.</p>

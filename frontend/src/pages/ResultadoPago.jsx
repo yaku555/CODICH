@@ -49,7 +49,7 @@ export default function ResultadoPago() {
     return (
       <main className="pagar-page" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <div className="resumen-card" style={{ textAlign: 'center', maxWidth: '480px' }}>
-          <div style={{ fontSize: '4rem', marginBottom: '16px' }}>✅</div>
+          <div style={{ fontSize: '4rem', marginBottom: '16px' }}></div>
           <h2 style={{ color: '#071d3a', margin: '0 0 8px', fontSize: '1.8rem', fontWeight: 800 }}>
             ¡Pago exitoso!
           </h2>
@@ -92,7 +92,7 @@ export default function ResultadoPago() {
     <main className="pagar-page" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
       <div className="resumen-card" style={{ textAlign: 'center', maxWidth: '480px' }}>
         <div style={{ fontSize: '4rem', marginBottom: '16px' }}>
-          {resultado?.cancelado ? '🚫' : '❌'}
+          {resultado?.cancelado ? 'x' : 'x'}
         </div>
         <h2 style={{ color: '#071d3a', margin: '0 0 8px', fontSize: '1.8rem', fontWeight: 800 }}>
           {resultado?.cancelado ? 'Pago cancelado' : 'Pago rechazado'}
