@@ -11,7 +11,7 @@ export const getEstadisticas = async ({ desde, hasta, metrica } = {}) => {
     const response = await axios.get('/estadisticas', { params });
     return response.data;
   } catch (error) {
-    console.error('Error al obtener estadísticas:', error);
+    console.error('Error al obtener estadisticas:', error);
     throw error;
   }
 };
