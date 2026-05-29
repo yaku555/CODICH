@@ -15,7 +15,10 @@ import AdminUsuarioDetalle from "./pages/AdminUsuarioDetalle";
 import AdminCrear from "./pages/AdminCrear.jsx";
 import PagePostulacionAdmin from "./pages/PageAdminPostulaciones.jsx";
 import AdminLayout from "./components/AdminLayout.jsx";
-import AuditoriaDashboard from "./pages/AuditoriaDashboard.jsx"; 
+import AuditoriaDashboard from "./pages/AuditoriaDashboard.jsx";
+import AdminPagos from "./pages/AdminPagos.jsx";
+import Pagar from "./pages/Pagar.jsx";
+import ResultadoPago from "./pages/ResultadoPago.jsx";
 
 import "./styles/App.css";
 
@@ -33,6 +36,8 @@ function App() {
           <Route path="/membresias" element={<Membresias />} />
           <Route path="/postulacion" element={<Postulacion />} />
           <Route path="/contacto" element={<Contacto />} />
+          <Route path="/pagar" element={<Pagar />} />
+          <Route path="/pago/resultado" element={<ResultadoPago />} />
 
           {/* Rutas protegidas de usuario */}
           <Route element={<ProtectedRoute rolesPermitidos={["usuario"]} />}>
@@ -51,7 +56,8 @@ function App() {
               <Route path="usuarios/:rut" element={<AdminUsuarioDetalle />} />
               <Route path="crear" element={<AdminCrear />} />
               <Route path="postulaciones" element={<PagePostulacionAdmin />} />
-              <Route path="auditoria" element={<AuditoriaDashboard />} /> 
+              <Route path="auditoria" element={<AuditoriaDashboard />} />
+              <Route path="pagos" element={<AdminPagos />} />
             </Route>
           </Route>
         </Routes>

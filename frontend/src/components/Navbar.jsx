@@ -42,6 +42,9 @@ function Navbar() {
                 Contacto
               </NavLink>
             </li>
+            <li>
+              <NavLink to="/pagar" className="nav-btn">Pagos</NavLink>
+            </li>
 
           </ul>
 
@@ -74,6 +77,9 @@ function Navbar() {
 
         <NavLink to="/contacto" className="side-link" onClick={closeMenu}>
           Contacto
+        </NavLink>
+        <NavLink to="/pagar" className="side-link" onClick={closeMenu}>
+          Pagos
         </NavLink>
         <NavLink to="/acceder" className="side-access-btn" onClick={closeMenu}>
           Acceder
