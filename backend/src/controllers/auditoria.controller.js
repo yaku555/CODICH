@@ -1,6 +1,5 @@
 const Auditoria = require('../models/Auditoria');
 
-// Registrar un nuevo log de auditoría
 const registrarLog = async (req, res) => {
   try {
     const { nivel, modulo, usuario, descripcion, ip } = req.body;
@@ -21,7 +20,6 @@ const registrarLog = async (req, res) => {
   }
 };
 
-// Obtener todos los logs (con filtros opcionales por nivel y módulo)
 const getLogs = async (req, res) => {
   try {
     const { nivel, modulo, usuario } = req.query;
@@ -42,7 +40,6 @@ const getLogs = async (req, res) => {
   }
 };
 
-// Obtener resumen de métricas del día
 const getResumen = async (req, res) => {
   try {
     const inicioDia = new Date();
@@ -62,7 +59,6 @@ const getResumen = async (req, res) => {
   }
 };
 
-// Eliminar logs anteriores a N días (limpieza)
 const limpiarLogs = async (req, res) => {
   try {
     const { dias = 30 } = req.query;

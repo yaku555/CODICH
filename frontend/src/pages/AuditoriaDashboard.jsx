@@ -172,7 +172,6 @@ export default function AuditoriaDashboard() {
         </div>
       </div>
 
-      {/* Métricas */}
       <div className="metricas-grid">
         <div className="metrica-card">
           <p className="metrica-label">Eventos hoy</p>
@@ -261,7 +260,6 @@ export default function AuditoriaDashboard() {
         </div>
       </div>
 
-      {/* Gráficos */}
       <div className="graficos-grid">
         <div className="card">
           <p className="card-titulo">Eventos por módulo (hoy)</p>
@@ -283,7 +281,6 @@ export default function AuditoriaDashboard() {
         </div>
       </div>
 
-      {/* Actividad por usuario */}
       <div className="card">
         <p className="card-titulo">Actividad reciente por usuario</p>
         <div className="actividad-lista">
