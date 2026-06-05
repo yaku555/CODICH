@@ -51,7 +51,11 @@ function AdminUsuarioDetalle() {
       });
     } catch (error) {
       console.error(error);
-      setError('No se pudo cargar el usuario.');
+      setError(
+        error.response?.data?.error ||
+        error.response?.data?.message ||
+        'No se pudo cargar el usuario.'
+      );
     } finally {
       setLoading(false);
     }
@@ -60,6 +64,7 @@ function AdminUsuarioDetalle() {
   const handleChange = (e) => {
     const { name, value } = e.target;
 
+    // El RUT no se modifica porque es identificador único del usuario
     if (name === 'rut') return;
 
     setForm({
@@ -79,7 +84,6 @@ function AdminUsuarioDetalle() {
       const datosActualizados = {
         nombre: form.nombre,
         apellido: form.apellido,
-        rut: form.rut,
         email: form.email,
         telefono: form.telefono,
         profesion: form.profesion,
@@ -90,8 +94,10 @@ function AdminUsuarioDetalle() {
         datosActualizados.password = form.password;
       }
 
+      // Se usa el RUT de la URL solo para encontrar al usuario.
+      // No se envía el RUT como dato editable.
       const usuarioActualizado = await actualizarUsuario(
-        form.rut,
+        rut,
         datosActualizados
       );
 
@@ -111,7 +117,11 @@ function AdminUsuarioDetalle() {
       setMensaje('Usuario actualizado correctamente.');
     } catch (error) {
       console.error(error);
-      setError('No se pudo actualizar el usuario.');
+      setError(
+        error.response?.data?.error ||
+        error.response?.data?.message ||
+        'No se pudo actualizar el usuario.'
+      );
     } finally {
       setGuardando(false);
     }
@@ -129,17 +139,21 @@ function AdminUsuarioDetalle() {
       setMensaje('');
       setError('');
 
-      await borrarUsuario(form.rut);
+      // Se usa el RUT de la URL como identificador seguro
+      await borrarUsuario(rut);
 
       sessionStorage.setItem('adminMensaje', 'Usuario eliminado correctamente.');
 
       navigate('/admin', {
         replace: true,
       });
-      
     } catch (error) {
       console.error(error);
-      setError('No se pudo eliminar el usuario.');
+      setError(
+        error.response?.data?.error ||
+        error.response?.data?.message ||
+        'No se pudo eliminar el usuario.'
+      );
     } finally {
       setEliminando(false);
     }
@@ -203,9 +217,12 @@ function AdminUsuarioDetalle() {
               type="text"
               name="rut"
               value={form.rut}
-              onChange={handleChange}
-              required
+              readOnly
+              disabled
+              className="input-bloqueado"  
+              title="El RUT no se puede modificar porque es un identificador único."
             />
+            <small>El RUT no se puede modificar porque es un identificador único.</small>
           </div>
 
           <div className="form-grupo">
@@ -259,7 +276,7 @@ function AdminUsuarioDetalle() {
           </div>
 
           <div className="form-grupo">
-            <label htmlFor="Teléfono">Teléfono</label>
+            <label htmlFor="telefono">Teléfono</label>
             <input
               type="text"
               id="telefono"

@@ -466,3 +466,12 @@
   flex-direction: column;
   line-height: 1.3;
 }
+
+.input-bloqueado,
+.input-bloqueado:disabled,
+.form-grupo input.input-bloqueado:disabled {
+  background: #e5e7eb !important;
+  color: #64748b !important;
+  cursor: not-allowed !important;
+  opacity: 1;
+}

@@ -19,13 +19,37 @@ function AdminCrear() {
   const [mensaje, setMensaje] = useState('');
   const [error, setError] = useState('');
 
+  const formatearRut = (valor) => {
+    const limpio = valor.replace(/[^0-9kK]/g, '').toUpperCase().slice(0, 9);
+
+    if (limpio.length <= 1) return limpio;
+
+    const cuerpo = limpio.slice(0, -1);
+    const dv = limpio.slice(-1);
+
+    return `${cuerpo}-${dv}`;
+  };
+
+  const validarFormatoRut = (rut) => {
+    return /^\d{7,8}-[0-9K]$/.test(rut);
+  };
+
+  const handleRutChange = (e) => {
+    const rutFormateado = formatearRut(e.target.value);
+
+    setForm((prev) => ({
+      ...prev,
+      rut: rutFormateado,
+    }));
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
 
-    setForm({
-      ...form,
+    setForm((prev) => ({
+      ...prev,
       [name]: value,
-    });
+    }));
   };
 
   const validarFormulario = () => {
@@ -40,6 +64,11 @@ function AdminCrear() {
       !form.password.trim()
     ) {
       setError('Debes completar todos los campos.');
+      return false;
+    }
+
+    if (!validarFormatoRut(form.rut)) {
+      setError('El RUT debe tener el formato 12345678-5, sin puntos y con guion.');
       return false;
     }
 
@@ -85,7 +114,10 @@ function AdminCrear() {
     } catch (error) {
       console.error(error);
 
-      const mensajeServidor = error.response?.data?.error;
+      const mensajeServidor =
+        error.response?.data?.error ||
+        error.response?.data?.message;
+
       setError(mensajeServidor || 'No se pudo crear el usuario.');
     } finally {
       setGuardando(false);
@@ -141,10 +173,12 @@ function AdminCrear() {
               name="rut"
               type="text"
               value={form.rut}
-              onChange={handleChange}
-              placeholder="Ej: 12.345.678-9"
+              onChange={handleRutChange}
+              placeholder="Ej: 12345678-9"
+              maxLength="10"
               required
             />
+            <small>Ingresa el RUT sin puntos y con guion.</small>
           </div>
 
           <div className="form-grupo">
