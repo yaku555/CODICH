@@ -1,9 +1,10 @@
 import { useState } from "react";
 import emailjs from "@emailjs/browser";
 import { useUsuario } from "../context/usuario.context.jsx";
+import generarComprobantePDF from "../components/crearPDF.jsx";
 
 function Inicio() {
-  const { usuarioPrueba } = useUsuario();
+  const { usuarioPrueba, usuario } = useUsuario();
   const [enviando, setEnviando] = useState(false);
 
   const enviarCorreo = async () => {
@@ -14,9 +15,9 @@ function Inicio() {
         "service_8ry86mp",
         "template_x5it62t",
         {
-          name: "Joaquin",        
+          name: "Joaquin",
           email: "javierhermosilla17@gmail.com",
-          correo: "https://www.youtube.com"
+          correo: "https://www.youtube.com",
         },
         {
           publicKey: "JC5QAq6AciVrpi5gQ",
@@ -32,6 +33,7 @@ function Inicio() {
     }
   };
 
+
   return (
     <main className="page hero-page">
       <section className="hero-content">
@@ -39,7 +41,8 @@ function Inicio() {
         <h1>Colegio de Diseñadores Instruccionales Chile</h1>
 
         <p>
-          Centraliza la gestión de socios, membresías, pagos y reportes en una plataforma moderna, segura y eficiente.
+          Centraliza la gestión de socios, membresías, pagos y reportes en una
+          plataforma moderna, segura y eficiente.
         </p>
 
         <div className="hero-actions">
@@ -52,6 +55,13 @@ function Inicio() {
             disabled={enviando}
           >
             {enviando ? "Enviando..." : "Enviar correo"}
+          </button>
+
+          <button
+            className="secondary-btn"
+            onClick={generarComprobantePDF}
+          >
+            Descargar comprobante PDF
           </button>
         </div>
       </section>
