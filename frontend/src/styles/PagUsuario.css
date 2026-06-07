@@ -357,6 +357,115 @@
   font-size: 1rem;
 }
 
+.perfil-pago-acciones {
+  display: flex;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.perfil-pago-acciones .btn-perfil-pago-principal {
+  flex: 1;
+}
+
+.btn-perfil-cancelar {
+  background: transparent;
+  color: #64748b;
+  border: 1px solid #e2e8f0;
+  flex-shrink: 0;
+}
+
+.btn-perfil-cancelar:hover:not(:disabled) {
+  background: #f1f5f9;
+  transform: none;
+}
+
+/* Botón editar perfil */
+.btn-editar-perfil {
+  margin-top: 20px;
+  padding: 10px 20px;
+  background: transparent;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  color: #0f172a;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.btn-editar-perfil:hover {
+  background: #f1f5f9;
+  border-color: #94a3b8;
+}
+
+/* Mensaje de éxito */
+.perfil-exito {
+  margin: 0 0 16px;
+  padding: 10px 14px;
+  background: #dcfce7;
+  color: #166534;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+/* Formulario de edición */
+.perfil-form {
+  margin-top: 4px;
+}
+
+.perfil-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.perfil-form-grupo {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.perfil-form-grupo label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.perfil-form-grupo input {
+  padding: 10px 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  color: #0f172a;
+  background: #f8fafc;
+  transition: border-color 0.15s ease;
+  outline: none;
+}
+
+.perfil-form-grupo input:focus {
+  border-color: #0f172a;
+  background: #fff;
+}
+
+.perfil-input-disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: #f1f5f9 !important;
+}
+
+.perfil-label-opcional {
+  font-weight: 400;
+  text-transform: none;
+  color: #94a3b8;
+}
+
+.perfil-form .perfil-pago-acciones {
+  margin-top: 24px;
+}
+
 @media (max-width: 768px) {
   .perfil-page {
     padding: 40px 20px;
@@ -368,6 +477,10 @@
   }
 
   .perfil-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .perfil-form-grid {
     grid-template-columns: 1fr;
   }
 

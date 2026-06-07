@@ -1,4 +1,3 @@
-import { Link } from 'react-router-dom';
 import { PLANES_PRINCIPALES, OPCIONES_MEMBRESIA, formatMonto } from '../data/planesMembresia';
 import '../styles/Pagar.css';
 
@@ -42,12 +41,8 @@ export default function Pagar() {
           ))}
 
           <p className="pagar-aviso">
-            Una vez aprobada la solicitud de postulacion, recibiras un correo con tus credenciales. El boton de pago estara disponible en tu perfil de socio.
+            Una vez aprobada tu postulacion, recibiras un correo con tus credenciales de acceso. El pago se realiza desde tu perfil de socio.
           </p>
-
-          <Link to="/acceder" className="btn-pagar pagar-link">
-            Ir a mi perfil
-          </Link>
         </div>
       </section>
 
