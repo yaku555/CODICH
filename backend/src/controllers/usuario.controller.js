@@ -4,6 +4,7 @@ const bcrypt = require('bcrypt');
 // Función para crear un nuevo usuario
 const crearUsuario = async (req, res) => {
   try {
+    
     const { nombre, apellido, rut, email, telefono, profesion, rol, password } = req.body;
 
     // Validar que venga contraseña
@@ -14,8 +15,8 @@ const crearUsuario = async (req, res) => {
     // Verificar si el RUT ya existe
     const usuarioExistente = await Usuario.findOne({ rut });
 
-    if (usuarioExistente) {
-      return res.status(400).json({ error: 'El RUT ya está registrado' });
+   if (usuarioExistente) {
+  return res.status(400).json({ error: 'El RUT ya está registrado' });
     }
 
     // Verificar si el email ya existe
