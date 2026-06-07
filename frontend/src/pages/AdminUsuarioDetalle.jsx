@@ -15,6 +15,8 @@ function AdminUsuarioDetalle() {
     rut: '',
     email: '',
     telefono: '',
+    residencia: '',
+    areaFormacion: '',
     profesion: '',
     rol: '',
     password: '',
@@ -45,6 +47,8 @@ function AdminUsuarioDetalle() {
         rut: usuarioEncontrado.rut || '',
         email: usuarioEncontrado.email || '',
         telefono: usuarioEncontrado.telefono || '',
+        residencia: usuarioEncontrado.residencia || '',
+        areaFormacion: usuarioEncontrado.areaFormacion || '',
         profesion: usuarioEncontrado.profesion || '',
         rol: usuarioEncontrado.rol || '',
         password: '',
@@ -86,6 +90,8 @@ function AdminUsuarioDetalle() {
         apellido: form.apellido,
         email: form.email,
         telefono: form.telefono,
+        residencia: form.residencia,
+        areaFormacion: form.areaFormacion,
         profesion: form.profesion,
         rol: form.rol,
       };
@@ -109,6 +115,8 @@ function AdminUsuarioDetalle() {
         rut: usuarioActualizado.rut || '',
         email: usuarioActualizado.email || '',
         telefono: usuarioActualizado.telefono || '',
+        residencia: usuarioActualizado.residencia || '',
+        areaFormacion: usuarioActualizado.areaFormacion || '',
         profesion: usuarioActualizado.profesion || '',
         rol: usuarioActualizado.rol || '',
         password: '',
@@ -244,6 +252,31 @@ function AdminUsuarioDetalle() {
               value={form.profesion}
               onChange={handleChange}
               placeholder="Ej: Enfermero, Médico, TENS, Administrativo"
+              required
+            />
+          </div>
+
+          <div className="form-grupo">
+            <label>Área de formación</label>
+            <select
+              name="areaFormacion"
+              value={form.areaFormacion}
+              onChange={handleChange}
+              required
+            >
+              <option value="">Selecciona un área</option>
+              <option value="educacion_pedagogia">Educación/Pedagogía</option>
+              <option value="otra_area">Otra Área</option>
+            </select>
+          </div>
+
+          <div className="form-grupo">
+            <label>Residencia</label>
+            <input
+              type="text"
+              name="residencia"
+              value={form.residencia}
+              onChange={handleChange}
               required
             />
           </div>

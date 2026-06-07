@@ -3,8 +3,8 @@ const Postulacion = require('../models/Postulacion');
 const Usuario = require('../models/Usuario');
 const supabase = require('../config/supabase');
 const bcrypt = require('bcrypt');
-
 const generarPasswordProvisoria = require('../utils/generarPassword');
+const evaluarPostulacion = require('../utils/evaluarPostulacion');
 
 const {
   enviarCorreoPostulacionCreada,
@@ -50,8 +50,11 @@ const create = async (req, res) => {
       rut,
       email,
       telefono,
+      residencia,
       profesion,
+      areaFormacion,
       experiencia,
+      aniosExperiencia,
     } = req.body;
 
     if (
@@ -60,17 +63,16 @@ const create = async (req, res) => {
       !rut ||
       !email ||
       !telefono ||
+      !residencia ||
       !profesion ||
-      !experiencia
+      !areaFormacion ||
+      !experiencia ||
+      aniosExperiencia === undefined ||
+      aniosExperiencia === null ||
+      aniosExperiencia === ''
     ) {
       return res.status(400).json({
-        error: 'Debes completar todos los campos.',
-      });
-    }
-
-    if (!req.file) {
-      return res.status(400).json({
-        error: 'El documento CV es obligatorio.',
+        error: 'Debes completar todos los campos obligatorios.',
       });
     }
 
@@ -82,7 +84,25 @@ const create = async (req, res) => {
       });
     }
 
-    const documentoPath = await subirCVSupabase(req.file, rut);
+    let documentoPath = '';
+
+    if (req.file) {
+      documentoPath = await subirCVSupabase(req.file, rut);
+    }
+
+    const resultadoEvaluacion = evaluarPostulacion({
+      nombre,
+      apellido,
+      rut,
+      email,
+      telefono,
+      residencia,
+      profesion,
+      areaFormacion,
+      experiencia,
+      aniosExperiencia,
+      documentoPath,
+    });
 
     const nuevaPostulacion = new Postulacion({
       nombre,
@@ -90,11 +110,16 @@ const create = async (req, res) => {
       rut,
       email,
       telefono,
+      residencia,
       profesion,
+      areaFormacion,
       experiencia,
+      aniosExperiencia: Number(aniosExperiencia),
       documentoPath,
-      estado: 'Pendiente',
+      estado: resultadoEvaluacion.estado,
+      motivoRechazo: resultadoEvaluacion.motivoRechazo,
     });
+
     const postulacionGuardada = await nuevaPostulacion.save();
 
     try {
@@ -165,9 +190,14 @@ const update = async (req, res) => {
       rut: req.body.rut,
       email: req.body.email,
       telefono: req.body.telefono,
+      residencia: req.body.residencia,
       profesion: req.body.profesion,
+      areaFormacion: req.body.areaFormacion,
       experiencia: req.body.experiencia,
+      aniosExperiencia: req.body.aniosExperiencia,
       estado: req.body.estado,
+      motivoRechazo: req.body.motivoRechazo,
+      comentarioAdmin: req.body.comentarioAdmin,
     };
 
     Object.keys(datosActualizados).forEach((key) => {
@@ -175,6 +205,12 @@ const update = async (req, res) => {
         delete datosActualizados[key];
       }
     });
+
+    if (datosActualizados.aniosExperiencia !== undefined) {
+      datosActualizados.aniosExperiencia = Number(
+        datosActualizados.aniosExperiencia
+      );
+    }
 
     if (req.file) {
       datosActualizados.documentoPath = await subirCVSupabase(req.file, rut);
@@ -291,6 +327,22 @@ const aprobar = async (req, res) => {
       });
     }
 
+    if (postulacion.estado === 'Rechazada') {
+      return res.status(400).json({
+        error: 'No se puede aprobar una postulación ya rechazada.',
+      });
+    }
+
+
+    if (
+      postulacion.estado !== 'Pre-Aprobada' &&
+      postulacion.estado !== 'Pre-Rechazada'
+    ) {
+      return res.status(400).json({
+        error: 'Solo se pueden aprobar postulaciones en estado Pre-Aprobada o Pre-Rechazada.',
+      });
+    }
+
     const usuarioExistente = await Usuario.findOne({
       $or: [
         { rut: postulacion.rut },
@@ -316,12 +368,22 @@ const aprobar = async (req, res) => {
       email: postulacion.email,
       telefono: postulacion.telefono,
       profesion: postulacion.profesion,
+      residencia: postulacion.residencia,
+      areaFormacion: postulacion.areaFormacion,
       rol: 'usuario',
       password: passwordHasheada,
     });
 
     await nuevoUsuario.save();
+    const estadoAnterior = postulacion.estado;
+
     postulacion.estado = 'Aprobada';
+    postulacion.fechaRevisionAdmin = new Date();
+
+    postulacion.comentarioAdmin =
+      estadoAnterior === 'Pre-Rechazada'
+        ? 'Postulación aprobada manualmente pese a observaciones de la evaluación automática.'
+        : 'Postulación aprobada por el administrador.';
     await postulacion.save();
 
     try {
@@ -350,6 +412,59 @@ const aprobar = async (req, res) => {
   }
 };
 
+const rechazar = async (req, res) => {
+  try {
+    const { rut } = req.params;
+    const { comentarioAdmin } = req.body;
+
+    const postulacion = await Postulacion.findOne({ rut });
+
+    if (!postulacion) {
+      return res.status(404).json({
+        error: 'Postulación no encontrada.',
+      });
+    }
+
+    if (postulacion.estado === 'Rechazada') {
+      return res.status(400).json({
+        error: 'Esta postulación ya fue rechazada.',
+      });
+    }
+
+    if (postulacion.estado === 'Aprobada') {
+      return res.status(400).json({
+        error: 'No se puede rechazar una postulación ya aprobada.',
+      });
+    }
+
+    postulacion.estado = 'Rechazada';
+    postulacion.comentarioAdmin =
+      comentarioAdmin || 'Postulación rechazada por el administrador.';
+    postulacion.fechaRevisionAdmin = new Date();
+
+    if (!postulacion.motivoRechazo || postulacion.motivoRechazo.length === 0) {
+      postulacion.motivoRechazo = [
+        'Postulación rechazada manualmente por el administrador',
+      ];
+    }
+
+    await postulacion.save();
+
+    return res.json({
+      message: 'Postulación rechazada correctamente.',
+      postulacion,
+    });
+  } catch (error) {
+    console.error(error);
+
+    return res.status(500).json({
+      error: 'Error al rechazar la postulación.',
+      detalle: error.message,
+    });
+  }
+};
+
+
 module.exports = {
   create,
   getAll,
@@ -358,4 +473,5 @@ module.exports = {
   remove,
   getCvUrl,
   aprobar,
+  rechazar,
 };

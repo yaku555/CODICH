@@ -27,6 +27,17 @@ function PagMiembros() {
   }
 
   const nombreCompleto = `${usuario.nombre || ''} ${usuario.apellido || ''}`.trim();
+  const obtenerTextoArea = (areaFormacion) => {
+    if (areaFormacion === 'educacion_pedagogia') {
+      return 'Educación / Pedagogía';
+    }
+
+    if (areaFormacion === 'otra_area') {
+      return 'Otra área';
+    }
+
+    return 'No especificada';
+  };
 
   return (
     <main className="perfil-page">
@@ -80,9 +91,19 @@ function PagMiembros() {
           </div>
 
           <div className="perfil-dato">
+            <span>Residencia</span>
+            <strong>{usuario.residencia || 'No especificada'}</strong>
+          </div>
+
+          <div className="perfil-dato">
             <span>Profesión</span>
             <strong>{usuario.profesion || 'No especificado'}</strong>
           </div>
+
+          <div className="perfil-dato">
+            <span>Área de formación</span>
+            <strong>{obtenerTextoArea(usuario.areaFormacion)}</strong>
+          </div>  
 
           <div className="perfil-dato">
             <span>Rol en la plataforma</span>

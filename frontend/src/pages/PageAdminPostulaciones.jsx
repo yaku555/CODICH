@@ -379,4 +379,4 @@ function PagAdminPostulaciones() {
   );
 }
 
-export default PagAdminPostulaciones;
+export default PagAdminPostulaciones; 

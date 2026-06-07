@@ -34,10 +34,22 @@ const PostulacionSchema = new mongoose.Schema(
       trim: true,
     },
 
+    residencia: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+
     profesion: {
       type: String,
       required: true,
       trim: true,
+    },
+
+    areaFormacion: {
+      type: String,
+      enum: ['educacion_pedagogia', 'otra_area'],
+      required: true,
     },
 
     experiencia: {
@@ -46,18 +58,53 @@ const PostulacionSchema = new mongoose.Schema(
       trim: true,
     },
 
+    aniosExperiencia: {
+      type: Number,
+      required: true,
+      min: 0,
+    },
+
     documentoPath: {
       type: String,
       required: false,
+      trim: true,
+      default: '',
     },
 
     estado: {
       type: String,
-      enum: ['Pendiente', 'Aprobada', 'Rechazada'],
-      default: 'Pendiente',
+      enum: [
+        'Pre-Aprobada',
+        'Pre-Rechazada',
+        'Aprobada',
+        'Rechazada',
+      ],
+      default: 'Pre-Rechazada',
+    },
+
+    motivoRechazo: {
+      type: [String],
+      default: [],
+    },
+
+    comentarioAdmin: {
+      type: String,
+      default: '',
+      trim: true,
+    },
+
+    fechaRevisionAdmin: {
+      type: Date,
+      default: null,
     },
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+  }
 );
 
-module.exports = mongoose.model('Postulacion', PostulacionSchema, 'postulaciones');
+module.exports = mongoose.model(
+  'Postulacion',
+  PostulacionSchema,
+  'postulaciones'
+);
