@@ -4,6 +4,7 @@ import {
   getPostulacionesRequest,
   getCvPostulacionRequest,
   aprobarPostulacionRequest,
+  rechazarPostulacionRequest,
 } from '../api/postulacion.js';
 
 import '../styles/AdminUsuarios.css';
@@ -15,6 +16,7 @@ function PagAdminPostulaciones() {
   const [error, setError] = useState('');
   const [mensaje, setMensaje] = useState('');
   const [aprobandoRut, setAprobandoRut] = useState(null);
+  const [rechazandoRut, setRechazandoRut] = useState(null);
 
   useEffect(() => {
     cargarPostulaciones();
@@ -26,7 +28,7 @@ function PagAdminPostulaciones() {
       setError('');
 
       const res = await getPostulacionesRequest();
-      setPostulaciones(res.data);
+      setPostulaciones(Array.isArray(res.data) ? res.data : []);
     } catch (error) {
       console.error(error);
       setError('No se pudieron cargar las postulaciones.');
@@ -46,11 +48,23 @@ function PagAdminPostulaciones() {
         return;
       }
 
+      if (postulacion.estado === 'Rechazada') {
+        setError('No se puede aprobar una postulación ya rechazada.');
+        return;
+      }
+
+      if (
+        postulacion.estado !== 'Pre-Aprobada' &&
+        postulacion.estado !== 'Pre-Rechazada'
+      ) {
+        setError('Solo se pueden aprobar postulaciones pre-evaluadas.');
+        return;
+      }
+
       const res = await aprobarPostulacionRequest(postulacion.rut);
 
       setMensaje(
-        res.data?.message ||
-          'Postulación aprobada correctamente.'
+        res.data?.message || 'Postulación aprobada correctamente.'
       );
 
       await cargarPostulaciones();
@@ -64,6 +78,66 @@ function PagAdminPostulaciones() {
       );
     } finally {
       setAprobandoRut(null);
+    }
+  };
+
+  const rechazarPostulacion = async (postulacion) => {
+    try {
+      setMensaje('');
+      setError('');
+      setRechazandoRut(postulacion.rut);
+
+      if (postulacion.estado === 'Rechazada') {
+        setError('Esta postulación ya fue rechazada.');
+        return;
+      }
+
+      if (postulacion.estado === 'Aprobada') {
+        setError('No se puede rechazar una postulación ya aprobada.');
+        return;
+      }
+
+      if (
+        postulacion.estado !== 'Pre-Aprobada' &&
+        postulacion.estado !== 'Pre-Rechazada'
+      ) {
+        setError('Solo se pueden rechazar postulaciones pre-evaluadas.');
+        return;
+      }
+
+      const confirmar = window.confirm(
+        `¿Seguro que deseas rechazar la postulación de ${postulacion.nombre} ${postulacion.apellido}?`
+      );
+
+      if (!confirmar) return;
+
+      const comentarioAdmin = window.prompt(
+        'Ingrese un comentario para el rechazo:',
+        'Postulación rechazada por el administrador.'
+      );
+
+      if (comentarioAdmin === null) return;
+
+      const res = await rechazarPostulacionRequest(
+        postulacion.rut,
+        comentarioAdmin.trim() || 'Postulación rechazada por el administrador.'
+      );
+
+      setMensaje(
+        res.data?.message || 'Postulación rechazada correctamente.'
+      );
+
+      await cargarPostulaciones();
+    } catch (error) {
+      console.error(error);
+
+      setError(
+        error.response?.data?.error ||
+          error.response?.data?.message ||
+          'No se pudo rechazar la postulación.'
+      );
+    } finally {
+      setRechazandoRut(null);
     }
   };
 
@@ -89,16 +163,47 @@ function PagAdminPostulaciones() {
     }
   };
 
+  const obtenerTextoArea = (areaFormacion) => {
+    if (areaFormacion === 'educacion_pedagogia') {
+      return 'Educación / Pedagogía';
+    }
+
+    if (areaFormacion === 'otra_area') {
+      return 'Otra área';
+    }
+
+    return 'No registrada';
+  };
+
+  const obtenerMotivos = (motivos) => {
+    if (!motivos || motivos.length === 0) {
+      return '';
+    }
+
+    return motivos.join(', ');
+  };
+
+  const obtenerClaseEstado = (estado = '') => {
+    return estado
+      .toLowerCase()
+      .replaceAll(' ', '-');
+  };
+
   const postulacionesFiltradas = postulaciones.filter((postulacion) => {
     const texto = `
-      ${postulacion.nombre}
-      ${postulacion.apellido}
-      ${postulacion.rut}
-      ${postulacion.email}
-      ${postulacion.telefono}
-      ${postulacion.profesion}
-      ${postulacion.experiencia}
-      ${postulacion.estado}
+      ${postulacion.nombre || ''}
+      ${postulacion.apellido || ''}
+      ${postulacion.rut || ''}
+      ${postulacion.email || ''}
+      ${postulacion.telefono || ''}
+      ${postulacion.residencia || ''}
+      ${postulacion.profesion || ''}
+      ${postulacion.areaFormacion || ''}
+      ${obtenerTextoArea(postulacion.areaFormacion)}
+      ${postulacion.experiencia || ''}
+      ${postulacion.aniosExperiencia || ''}
+      ${postulacion.estado || ''}
+      ${postulacion.motivoRechazo?.join(' ') || ''}
     `;
 
     return texto.toLowerCase().includes(busqueda.toLowerCase());
@@ -131,7 +236,7 @@ function PagAdminPostulaciones() {
         <div className="admin-toolbar">
           <input
             type="text"
-            placeholder="Buscar por nombre, RUT, email, profesión o estado..."
+            placeholder="Buscar por nombre, RUT, email, profesión, estado o motivo..."
             value={busqueda}
             onChange={(e) => setBusqueda(e.target.value)}
             className="admin-buscador"
@@ -161,60 +266,110 @@ function PagAdminPostulaciones() {
               </thead>
 
               <tbody>
-                {postulacionesFiltradas.map((postulacion) => (
-                  <tr key={postulacion._id || postulacion.rut}>
-                    <td>
-                      <strong className="nombre-postulante">
-                        <span>{postulacion.nombre}</span>
-                        <span>{postulacion.apellido}</span>
-                      </strong>
-                    </td>
+                {postulacionesFiltradas.map((postulacion) => {
+                  const puedeAccionar =
+                    postulacion.estado === 'Pre-Aprobada' ||
+                    postulacion.estado === 'Pre-Rechazada';
 
-                    <td>{postulacion.rut}</td>
-                    <td>{postulacion.email}</td>
-                    <td>{postulacion.telefono}</td>
-                    <td>{postulacion.profesion}</td>
-                    <td>{postulacion.experiencia}</td>
+                  const motivos = obtenerMotivos(postulacion.motivoRechazo);
 
-                    <td>
-                      <span
-                        className={`rol-badge rol-${postulacion.estado
-                          ?.toLowerCase()
-                          .replaceAll(' ', '-')}`}
-                      >
-                        {postulacion.estado}
-                      </span>
-                    </td>
+                  return (
+                    <tr key={postulacion._id || postulacion.rut}>
+                      <td>
+                        <strong className="nombre-postulante">
+                          <span>{postulacion.nombre}</span>
+                          <span>{postulacion.apellido}</span>
+                        </strong>
 
-                    <td>
-                      <button
-                        type="button"
-                        className="btn-ver"
-                        onClick={() => verCV(postulacion.rut)}
-                      >
-                        Ver CV
-                      </button>
-                    </td>
+                        {postulacion.residencia && (
+                          <span className="dato-secundario">
+                            {postulacion.residencia}
+                          </span>
+                        )}
+                      </td>
 
-                    <td>
-                      <button
-                        type="button"
-                        className="btn-guardar"
-                        onClick={() => aprobarPostulacion(postulacion)}
-                        disabled={
-                          postulacion.estado === 'Aprobada' ||
-                          aprobandoRut === postulacion.rut
-                        }
-                      >
-                        {aprobandoRut === postulacion.rut
-                          ? 'Aprobando...'
-                          : postulacion.estado === 'Aprobada'
-                            ? 'Aprobada'
-                            : 'Aprobar'}
-                      </button>
-                    </td>
-                  </tr>
-                ))}
+                      <td>{postulacion.rut}</td>
+                      <td>{postulacion.email}</td>
+                      <td>{postulacion.telefono}</td>
+
+                      <td>
+                        <span>{postulacion.profesion}</span>
+                        <span className="dato-secundario">
+                          {obtenerTextoArea(postulacion.areaFormacion)}
+                        </span>
+                      </td>
+
+                      <td>
+                        <span>{postulacion.experiencia}</span>
+                        <span className="dato-secundario">
+                          Años exp: {postulacion.aniosExperiencia ?? 'No registrado'}
+                        </span>
+                      </td>
+
+                      <td>
+                        <span
+                          className={`rol-badge rol-${obtenerClaseEstado(
+                            postulacion.estado
+                          )}`}
+                        >
+                          {postulacion.estado}
+                        </span>
+
+                        {motivos && (
+                          <span className="motivo-rechazo">
+                            {motivos}
+                          </span>
+                        )}
+                      </td>
+
+                      <td>
+                        <button
+                          type="button"
+                          className="btn-ver"
+                          onClick={() => verCV(postulacion.rut)}
+                        >
+                          Ver CV
+                        </button>
+                      </td>
+
+                      <td>
+                        <div className="acciones-postulacion">
+                          <button
+                            type="button"
+                            className="btn-guardar"
+                            onClick={() => aprobarPostulacion(postulacion)}
+                            disabled={
+                              !puedeAccionar ||
+                              aprobandoRut === postulacion.rut
+                            }
+                          >
+                            {aprobandoRut === postulacion.rut
+                              ? 'Aprobando...'
+                              : postulacion.estado === 'Aprobada'
+                                ? 'Aprobada'
+                                : 'Aprobar'}
+                          </button>
+
+                          <button
+                            type="button"
+                            className="btn-eliminar"
+                            onClick={() => rechazarPostulacion(postulacion)}
+                            disabled={
+                              !puedeAccionar ||
+                              rechazandoRut === postulacion.rut
+                            }
+                          >
+                            {rechazandoRut === postulacion.rut
+                              ? 'Rechazando...'
+                              : postulacion.estado === 'Rechazada'
+                                ? 'Rechazada'
+                                : 'Rechazar'}
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>

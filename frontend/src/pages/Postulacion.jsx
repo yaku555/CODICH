@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { createPostulacionRequest } from '../api/postulacion';
-
 import '../styles/Postulacion.css';
 
 function Postulacion() {
@@ -8,15 +7,21 @@ function Postulacion() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
+  const LIMITE_ARCHIVO_MB = 5;
+  const LIMITE_ARCHIVO_BYTES = LIMITE_ARCHIVO_MB * 1024 * 1024;
+
   const [formData, setFormData] = useState({
     nombre: '',
     apellido: '',
     rut: '',
     email: '',
     telefono: '',
+    residencia: '',
     profesion: '',
+    areaFormacion: '',
     experiencia: '',
-    documento: null
+    aniosExperiencia: '',
+    documento: null,
   });
 
   const formatearRut = (valor) => {
@@ -48,31 +53,48 @@ function Postulacion() {
 
     setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
   const handleFileChange = (e) => {
     const archivoSeleccionado = e.target.files[0];
 
-    if (archivoSeleccionado && archivoSeleccionado.type !== 'application/pdf') {
-      setError('Formato no válido. Por favor, selecciona un documento en formato PDF.');
+    setError('');
 
+    if (!archivoSeleccionado) {
+      setFormData((prev) => ({
+        ...prev,
+        documento: null,
+      }));
+      return;
+    }
+
+    if (archivoSeleccionado.type !== 'application/pdf') {
+      setError('Formato no válido. Por favor, selecciona un documento en formato PDF.');
       e.target.value = '';
 
       setFormData((prev) => ({
         ...prev,
-        documento: null
+        documento: null,
       }));
-
       return;
     }
 
-    setError('');
+    if (archivoSeleccionado.size > LIMITE_ARCHIVO_BYTES) {
+      setError(`El archivo no puede superar los ${LIMITE_ARCHIVO_MB} MB.`);
+      e.target.value = '';
+
+      setFormData((prev) => ({
+        ...prev,
+        documento: null,
+      }));
+      return;
+    }
 
     setFormData((prev) => ({
       ...prev,
-      documento: archivoSeleccionado
+      documento: archivoSeleccionado,
     }));
   };
 
@@ -83,13 +105,49 @@ function Postulacion() {
       rut: '',
       email: '',
       telefono: '',
+      residencia: '',
       profesion: '',
+      areaFormacion: '',
       experiencia: '',
-      documento: null
+      aniosExperiencia: '',
+      documento: null,
     });
 
     const fileInput = document.getElementById('documento');
     if (fileInput) fileInput.value = '';
+  };
+
+  const validarFormulario = () => {
+    if (!formData.nombre.trim()) return 'El nombre es requerido';
+    if (!formData.apellido.trim()) return 'El apellido es requerido';
+    if (!formData.rut.trim()) return 'El RUT es requerido';
+
+    if (!validarFormatoRut(formData.rut)) {
+      return 'El RUT debe tener el formato 12345678-5.';
+    }
+
+    if (!formData.email.trim()) return 'El correo electrónico es requerido';
+    if (!formData.telefono.trim()) return 'El teléfono es requerido';
+    if (!formData.residencia.trim()) return 'El lugar de residencia es requerido';
+    if (!formData.profesion.trim()) return 'La profesión es requerida';
+    if (!formData.areaFormacion) return 'El área de formación es requerida';
+    if (!formData.experiencia.trim()) return 'La experiencia es requerida';
+
+    if (
+      formData.aniosExperiencia === '' ||
+      formData.aniosExperiencia === null ||
+      Number(formData.aniosExperiencia) < 0
+    ) {
+      return 'Los años de experiencia deben ser válidos';
+    }
+
+    if (!formData.documento) return 'El documento CV es requerido';
+
+    if (formData.documento.size > LIMITE_ARCHIVO_BYTES) {
+      return `El archivo no puede superar los ${LIMITE_ARCHIVO_MB} MB.`;
+    }
+
+    return '';
   };
 
   const handleSubmit = async (e) => {
@@ -98,19 +156,12 @@ function Postulacion() {
     setError('');
     setSuccess('');
 
-    if (!formData.nombre.trim()) return setError('El nombre es requerido');
-    if (!formData.apellido.trim()) return setError('El apellido es requerido');
-    if (!formData.rut.trim()) return setError('El RUT es requerido');
+    const errorValidacion = validarFormulario();
 
-    if (!validarFormatoRut(formData.rut)) {
-      return setError('El RUT debe tener el formato 12345678-5.');
+    if (errorValidacion) {
+      setError(errorValidacion);
+      return;
     }
-
-    if (!formData.email.trim()) return setError('El correo electrónico es requerido');
-    if (!formData.telefono.trim()) return setError('El teléfono es requerido');
-    if (!formData.profesion.trim()) return setError('La profesión es requerida');
-    if (!formData.experiencia.trim()) return setError('La experiencia es requerida');
-    if (!formData.documento) return setError('El documento CV es requerido');
 
     try {
       setLoading(true);
@@ -122,16 +173,20 @@ function Postulacion() {
       form.append('rut', formData.rut);
       form.append('email', formData.email);
       form.append('telefono', formData.telefono);
+      form.append('residencia', formData.residencia);
       form.append('profesion', formData.profesion);
+      form.append('areaFormacion', formData.areaFormacion);
       form.append('experiencia', formData.experiencia);
+      form.append('aniosExperiencia', formData.aniosExperiencia);
       form.append('documento', formData.documento);
 
       const res = await createPostulacionRequest(form);
 
-      setSuccess(
-        res.data?.message ||
-          'Postulación creada correctamente. Se ha enviado un correo de confirmación.'
-      );
+        setSuccess(
+          res.data?.message ||
+            'Postulación creada correctamente. Se ha enviado un correo de confirmación.'
+        );
+
 
       limpiarFormulario();
     } catch (err) {
@@ -149,7 +204,7 @@ function Postulacion() {
   };
 
   return (
-    <main className="page">
+    <>
       <div className="form-header-banner">
         <h1>Proceso de Postulación</h1>
       </div>
@@ -162,12 +217,11 @@ function Postulacion() {
           <div className="form-group-custom">
             <label htmlFor="nombre">Nombres</label>
             <input
-              type="text"
               id="nombre"
               name="nombre"
+              type="text"
               value={formData.nombre}
               onChange={handleInputChange}
-              disabled={loading}
               required
             />
           </div>
@@ -175,28 +229,54 @@ function Postulacion() {
           <div className="form-group-custom">
             <label htmlFor="rut">RUT</label>
             <input
-              type="text"
               id="rut"
               name="rut"
-              placeholder="Ej: 12345678-5"
+              type="text"
               value={formData.rut}
               onChange={handleRutChange}
-              disabled={loading}
+              placeholder="12345678-5"
               required
             />
           </div>
 
           <div className="form-group-custom">
-            <label htmlFor="email">Correo Electrónico</label>
+            <label htmlFor="email">Correo electrónico</label>
             <input
-              type="email"
               id="email"
               name="email"
+              type="email"
               value={formData.email}
               onChange={handleInputChange}
-              disabled={loading}
               required
             />
+          </div>
+
+          <div className="form-group-custom">
+            <label htmlFor="residencia">Lugar de residencia</label>
+            <input
+              id="residencia"
+              name="residencia"
+              type="text"
+              value={formData.residencia}
+              onChange={handleInputChange}
+              placeholder="Ej: Santiago"
+              required
+            />
+          </div>
+
+          <div className="form-group-custom">
+            <label htmlFor="areaFormacion">Área de formación</label>
+            <select
+              id="areaFormacion"
+              name="areaFormacion"
+              value={formData.areaFormacion}
+              onChange={handleInputChange}
+              required
+            >
+              <option value="">Seleccione área de formación</option>
+              <option value="educacion_pedagogia">Educación / Pedagogía</option>
+              <option value="otra_area">Otra área</option>
+            </select>
           </div>
         </div>
 
@@ -204,12 +284,11 @@ function Postulacion() {
           <div className="form-group-custom">
             <label htmlFor="apellido">Apellido</label>
             <input
-              type="text"
               id="apellido"
               name="apellido"
+              type="text"
               value={formData.apellido}
               onChange={handleInputChange}
-              disabled={loading}
               required
             />
           </div>
@@ -217,12 +296,11 @@ function Postulacion() {
           <div className="form-group-custom">
             <label htmlFor="telefono">Teléfono</label>
             <input
-              type="tel"
               id="telefono"
               name="telefono"
+              type="text"
               value={formData.telefono}
               onChange={handleInputChange}
-              disabled={loading}
               required
             />
           </div>
@@ -230,54 +308,63 @@ function Postulacion() {
           <div className="form-group-custom">
             <label htmlFor="profesion">Profesión</label>
             <input
-              type="text"
               id="profesion"
               name="profesion"
+              type="text"
               value={formData.profesion}
               onChange={handleInputChange}
-              disabled={loading}
+              placeholder="Ej: Profesor de Historia"
               required
             />
           </div>
 
           <div className="form-group-custom">
-            <label htmlFor="experiencia">Experiencia</label>
+            <label htmlFor="aniosExperiencia">Años de experiencia</label>
             <input
-              type="text"
-              id="experiencia"
-              name="experiencia"
-              placeholder="Ej: 5 años"
-              value={formData.experiencia}
+              id="aniosExperiencia"
+              name="aniosExperiencia"
+              type="number"
+              min="0"
+              value={formData.aniosExperiencia}
               onChange={handleInputChange}
-              disabled={loading}
+              required
+            />
+          </div>
+
+          <div className="form-group-custom">
+            <label htmlFor="documento">Documento CV PDF</label>
+            <input
+              id="documento"
+              name="documento"
+              type="file"
+              accept="application/pdf"
+              onChange={handleFileChange}
               required
             />
           </div>
         </div>
 
-        <div
-          className="form-group-custom"
-          style={{ gridColumn: 'span 2', marginTop: '1rem' }}
-        >
-          <label htmlFor="documento">Documento CV PDF</label>
-          <input
-            type="file"
-            id="documento"
-            name="documento"
-            accept=".pdf"
-            onChange={handleFileChange}
-            disabled={loading}
-            required
-          />
+        <div className="form-actions-full">
+          <div className="form-group-custom" style={{ width: '100%' }}>
+            <label htmlFor="experiencia">Experiencia</label>
+            <textarea
+              id="experiencia"
+              name="experiencia"
+              value={formData.experiencia}
+              onChange={handleInputChange}
+              placeholder="Describe tu experiencia relacionada con diseño instruccional o labores afines."
+              required
+            />
+          </div>
         </div>
 
         <div className="form-actions-full">
-          <button type="submit" disabled={loading} className="btn-siguiente">
+          <button type="submit" className="btn-siguiente" disabled={loading}>
             {loading ? 'Procesando...' : 'Enviar Postulación'}
           </button>
         </div>
       </form>
-    </main>
+    </>
   );
 }
 
