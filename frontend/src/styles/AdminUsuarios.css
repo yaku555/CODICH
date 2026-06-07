@@ -475,3 +475,51 @@
   cursor: not-allowed !important;
   opacity: 1;
 }
+
+.dato-secundario {
+  display: block;
+  margin-top: 6px;
+  color: #64748b;
+  font-size: 0.78rem;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.motivo-rechazo {
+  display: block;
+  margin-top: 8px;
+  color: #92400e;
+  font-size: 0.78rem;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.acciones-postulacion {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.admin-card-postulaciones .acciones-postulacion .btn-guardar,
+.admin-card-postulaciones .acciones-postulacion .btn-eliminar {
+  width: 100%;
+  padding: 10px 14px;
+  font-size: 13px;
+  margin-top: 0;
+  white-space: nowrap;
+}
+
+.rol-pre-aprobada {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.rol-pre-rechazada {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.rol-rechazada {
+  background: #fee2e2;
+  color: #991b1b;
+}
