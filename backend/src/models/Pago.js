@@ -14,4 +14,11 @@ const pagoSchema = new Schema(
   { versionKey: false }
 );
 
+pagoSchema.virtual('usuario', {
+  ref: 'Usuario',
+  localField: 'rutSocio',
+  foreignField: 'rut',
+  justOne: true,
+});
+
 module.exports = model('Pago', pagoSchema);

@@ -41,7 +41,7 @@ function App() {
 
           {/* Rutas protegidas de usuario */}
           <Route element={<ProtectedRoute rolesPermitidos={["usuario"]} />}>
-            <Route path="/miembros" element={<PagMiembros />} />
+            <Route path="/perfil" element={<PagMiembros />} />
           </Route>
 
           {/* Rutas protegidas de admin */}
