@@ -35,6 +35,7 @@
   padding: 34px;
   border: 1px solid #e5e7eb;
   box-shadow: 0 18px 45px rgba(15, 23, 42, 0.08);
+  margin-bottom: 28px;
 }
 
 .perfil-user-top {
@@ -126,6 +127,468 @@
   font-weight: 600;
 }
 
+.perfil-pagos-card {
+  display: flex;
+  flex-direction: column;
+  gap: 26px;
+}
+
+.perfil-section-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+  padding-bottom: 22px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.perfil-section-head h2 {
+  margin: 0;
+  color: #0f172a;
+  font-size: 1.8rem;
+}
+
+.perfil-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 9px 14px;
+  border-radius: 999px;
+  background: #f5f3ff;
+  color: #6d28d9;
+  font-weight: 900;
+  font-size: 0.82rem;
+}
+
+.perfil-pago-bloque {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.perfil-pago-bloque h3 {
+  margin: 0;
+  color: #0f172a;
+  font-size: 1.25rem;
+}
+
+.perfil-muted {
+  margin: 0;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.perfil-error {
+  margin: 0;
+  padding: 12px 16px;
+  border-radius: 14px;
+  border: 1px solid #fecaca;
+  background: #fef2f2;
+  color: #b91c1c;
+  font-weight: 700;
+}
+
+.perfil-cuotas-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.perfil-cuota-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  background: #f8fafc;
+}
+
+.perfil-cuota-item strong,
+.perfil-cuota-item span {
+  display: block;
+}
+
+.perfil-cuota-item span {
+  color: #64748b;
+  font-size: 0.9rem;
+  margin-top: 4px;
+}
+
+.perfil-cuota-accion {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-shrink: 0;
+}
+
+.perfil-plan-tabs {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.perfil-tab,
+.perfil-opcion {
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  color: #0f172a;
+  cursor: pointer;
+  font-family: inherit;
+  transition: 0.2s ease;
+}
+
+.perfil-tab {
+  padding: 11px 18px;
+  border-radius: 999px;
+  font-weight: 900;
+}
+
+.perfil-tab.activo,
+.perfil-tab:hover {
+  background: #0f172a;
+  color: #ffffff;
+  border-color: #0f172a;
+}
+
+.perfil-opciones-pago {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 14px;
+}
+
+.perfil-opcion {
+  min-height: 112px;
+  border-radius: 16px;
+  padding: 16px;
+  text-align: left;
+}
+
+.perfil-opcion span,
+.perfil-opcion strong,
+.perfil-opcion small {
+  display: block;
+}
+
+.perfil-opcion span {
+  font-weight: 900;
+  margin-bottom: 6px;
+}
+
+.perfil-opcion strong {
+  color: #6d28d9;
+  margin-bottom: 8px;
+}
+
+.perfil-opcion small {
+  color: #64748b;
+  font-weight: 700;
+}
+
+.perfil-opcion.activa,
+.perfil-opcion:hover {
+  border-color: #6d28d9;
+  box-shadow: 0 14px 30px rgba(109, 40, 217, 0.13);
+}
+
+.perfil-resumen-pago {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 12px;
+}
+
+.perfil-resumen-pago div {
+  border-radius: 14px;
+  border: 1px solid #e5e7eb;
+  background: #f8fafc;
+  padding: 14px;
+}
+
+.perfil-resumen-pago span {
+  display: block;
+  color: #64748b;
+  font-size: 0.8rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.perfil-resumen-pago strong {
+  color: #0f172a;
+}
+
+.perfil-aviso {
+  margin: 0;
+  border-radius: 14px;
+  padding: 13px 16px;
+  background: #f5f3ff;
+  border: 1px solid #ddd6fe;
+  color: #5b21b6;
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+.btn-perfil-pago {
+  border: none;
+  background: #0f172a;
+  color: #ffffff;
+  cursor: pointer;
+  font-family: inherit;
+  font-weight: 900;
+  border-radius: 999px;
+  padding: 11px 16px;
+  transition: 0.2s ease;
+}
+
+.btn-perfil-pago:hover:not(:disabled) {
+  transform: translateY(-2px);
+  background: #1e293b;
+}
+
+.btn-perfil-pago:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.btn-perfil-pago-principal {
+  width: 100%;
+  padding: 15px 20px;
+  font-size: 1rem;
+}
+
+.perfil-pago-acciones {
+  display: flex;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.perfil-pago-acciones .btn-perfil-pago-principal {
+  flex: 1;
+}
+
+.btn-perfil-cancelar {
+  background: transparent;
+  color: #64748b;
+  border: 1px solid #e2e8f0;
+  flex-shrink: 0;
+}
+
+.btn-perfil-cancelar:hover:not(:disabled) {
+  background: #f1f5f9;
+  transform: none;
+}
+
+/* Botón editar perfil */
+.btn-editar-perfil {
+  margin-top: 20px;
+  padding: 10px 20px;
+  background: transparent;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  color: #0f172a;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.btn-editar-perfil:hover {
+  background: #f1f5f9;
+  border-color: #94a3b8;
+}
+
+/* Mensaje de éxito */
+.perfil-exito {
+  margin: 0 0 16px;
+  padding: 10px 14px;
+  background: #dcfce7;
+  color: #166534;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+/* Formulario de edición */
+.perfil-form {
+  margin-top: 4px;
+}
+
+.perfil-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.perfil-form-grupo {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.perfil-form-grupo label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.perfil-form-grupo input {
+  padding: 10px 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  color: #0f172a;
+  background: #f8fafc;
+  transition: border-color 0.15s ease;
+  outline: none;
+}
+
+.perfil-form-grupo input:focus {
+  border-color: #0f172a;
+  background: #fff;
+}
+
+.perfil-input-disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: #f1f5f9 !important;
+}
+
+.perfil-label-opcional {
+  font-weight: 400;
+  text-transform: none;
+  color: #94a3b8;
+}
+
+.perfil-form .perfil-pago-acciones {
+  margin-top: 24px;
+}
+
+/* Textarea contacto */
+.perfil-form-grupo textarea {
+  padding: 10px 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  color: #0f172a;
+  background: #f8fafc;
+  font-family: inherit;
+  resize: vertical;
+  outline: none;
+  transition: border-color 0.15s ease;
+}
+
+.perfil-form-grupo textarea:focus {
+  border-color: #0f172a;
+  background: #fff;
+}
+
+/* Campo que ocupa ancho completo en el form grid */
+.perfil-form-full {
+  grid-column: 1 / -1;
+}
+
+/* Pill variantes */
+.perfil-pill-activa {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.perfil-pill-cancelada {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+/* Política de cancelación */
+.perfil-politica {
+  margin-top: 16px;
+  padding: 14px 16px;
+  background: #f8fafc;
+  border-left: 3px solid #cbd5e1;
+  border-radius: 0 8px 8px 0;
+}
+
+.perfil-politica strong {
+  display: block;
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #64748b;
+  margin-bottom: 6px;
+}
+
+.perfil-politica p {
+  margin: 0;
+  font-size: 0.92rem;
+  color: #334155;
+  line-height: 1.5;
+}
+
+/* Mensaje de cancelación */
+.perfil-msg-cancelacion {
+  margin-top: 14px;
+  padding: 10px 14px;
+  background: #fef9c3;
+  color: #713f12;
+  border-radius: 8px;
+  font-size: 0.9rem;
+}
+
+/* Confirmación de cancelación */
+.perfil-confirm-cancel {
+  margin-top: 16px;
+  padding: 16px;
+  background: #fff7ed;
+  border: 1px solid #fed7aa;
+  border-radius: 10px;
+}
+
+.perfil-confirm-cancel p {
+  margin: 0 0 14px;
+  font-size: 0.92rem;
+  color: #7c2d12;
+}
+
+/* Botón cancelar membresía */
+.btn-cancelar-membresia {
+  margin-top: 18px;
+  padding: 10px 20px;
+  background: transparent;
+  border: 1px solid #fca5a5;
+  border-radius: 8px;
+  color: #dc2626;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.btn-cancelar-membresia:hover {
+  background: #fee2e2;
+  border-color: #dc2626;
+}
+
+/* Botón confirmar cancelación */
+.btn-cancelar-confirm {
+  background: #dc2626;
+  color: #fff;
+  border-color: #dc2626;
+}
+
+.btn-cancelar-confirm:hover:not(:disabled) {
+  background: #b91c1c;
+  transform: none;
+}
+
+/* Exito contacto */
+.perfil-contacto-exito {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
 @media (max-width: 768px) {
   .perfil-page {
     padding: 40px 20px;
@@ -140,12 +603,23 @@
     grid-template-columns: 1fr;
   }
 
+  .perfil-form-grid {
+    grid-template-columns: 1fr;
+  }
+
   .perfil-card {
     padding: 24px;
   }
 
   .perfil-user-top {
     align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .perfil-section-head,
+  .perfil-cuota-item,
+  .perfil-cuota-accion {
+    align-items: stretch;
     flex-direction: column;
   }
 }

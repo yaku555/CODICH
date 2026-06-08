@@ -31,8 +31,8 @@ const crearUsuario = async (req, res) => {
     // Verificar si el RUT ya existe
     const usuarioExistente = await Usuario.findOne({ rut });
 
-    if (usuarioExistente) {
-      return res.status(400).json({ error: 'El RUT ya está registrado' });
+   if (usuarioExistente) {
+  return res.status(400).json({ error: 'El RUT ya está registrado' });
     }
 
     // Verificar si el email ya existe
