@@ -71,8 +71,13 @@ function PagMiembros() {
           `http://localhost:4000/api/pagos/membresias?rut=${encodeURIComponent(usuario.rut)}`
         );
         const data = await res.json();
-        const activa = Array.isArray(data) ? data.find((m) => m.estado === 'ACTIVA') : null;
-        setMembresiaActiva(activa || null);
+
+        const membresias = Array.isArray(data) ? data : [];
+
+        const membresiaMostrar =
+          membresias.find((m) => m.estado === 'ACTIVA') || membresias[0] || null;
+
+        setMembresiaActiva(membresiaMostrar);
       } catch {
         setMembresiaActiva(null);
       } finally {
@@ -212,7 +217,6 @@ function PagMiembros() {
     return <Navigate to="/acceder" replace />;
   }
 
-  const nombreCompleto = `${usuario.nombre || ''} ${usuario.apellido || ''}`.trim();
   const obtenerTextoArea = (areaFormacion) => {
     if (areaFormacion === 'educacion_pedagogia') {
       return 'Educación / Pedagogía';
@@ -260,7 +264,10 @@ function PagMiembros() {
               <div className="perfil-dato"><span>Correo electronico</span><strong>{usuario.email || 'No especificado'}</strong></div>
               <div className="perfil-dato"><span>Telefono</span><strong>{usuario.telefono || 'No especificado'}</strong></div>
               <div className="perfil-dato"><span>Profesion</span><strong>{usuario.profesion || 'No especificado'}</strong></div>
-              <div className="perfil-dato"><span>Rol en la plataforma</span><strong>{usuario.rol || 'No especificado'}</strong></div>
+              <div className="perfil-dato">
+                <span>Área de formación</span>
+                <strong>{obtenerTextoArea(usuario.areaFormacion)}</strong>
+              </div>
             </div>
             <button className="btn-editar-perfil" onClick={() => { setExitoPerfil(''); setErrorPerfil(''); setEditando(true); }}>
               Editar perfil
@@ -314,7 +321,7 @@ function PagMiembros() {
             </div>
             <div className="perfil-dato">
               <span>Vence</span>
-              <strong>{formatFecha(membresiaActiva.fechaTermino)}</strong>
+              <strong>{formatearFecha(membresiaActiva.fechaTermino)}</strong>
             </div>
           </div>
 
