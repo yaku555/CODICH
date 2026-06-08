@@ -7,13 +7,6 @@ Chart.register(...registerables);
 
 const NIVEL_CLASS = { INFO: "pill-info", WARN: "pill-warn", ERROR: "pill-error" };
 
-const USUARIOS_ACTIVIDAD = [
-  { ini: "JV", nombre: "jvillalobos", acciones: 14, ultimo: "inicio de sesión",      ts: "hace 2 min",  color: "#1e5fa8" },
-  { ini: "AD", nombre: "admin",       acciones: 28, ultimo: "membresía actualizada", ts: "hace 7 min",  color: "#1a7a4a" },
-  { ini: "JO", nombre: "jolivar",     acciones: 6,  ultimo: "pago confirmado",        ts: "hace 25 min", color: "#7b2fa8" },
-  { ini: "MC", nombre: "mcontreras",  acciones: 3,  ultimo: "intento de acceso",     ts: "hace 30 min", color: "#b56b0a" },
-];
-
 export default function AuditoriaDashboard() {
   const [logs, setLogs]         = useState([]);
   const [resumen, setResumen]   = useState({ total: 0, exitosos: 0, advertencias: 0, errores: 0 });
@@ -29,66 +22,66 @@ export default function AuditoriaDashboard() {
   const chartModInst = useRef(null);
   const chartNivInst = useRef(null);
 
-  // Carga inicial
+  // 1. CARGA INICIAL DE DATOS (Se ejecuta una sola vez al abrir la página)
   useEffect(() => {
-    cargarDatos();
+    async function cargarDatosIniciales() {
+      try {
+        setCargando(true);
+        setError(null);
+        const [logsData, resumenData] = await Promise.all([
+          getLogs(),
+          getResumen(),
+        ]);
+        setLogs(logsData);
+        setResumen(resumenData);
+      } catch (err) {
+        console.error(err);
+        setError('No se pudo conectar con el servidor. Intenta de nuevo.');
+      } finally {
+        setCargando(false);
+      }
+    }
+    cargarDatosIniciales();
   }, []);
 
-  // Re-fetch cuando cambian los filtros
+  // 2. FILTRADO REACTIVO (Se ejecuta cada vez que el usuario usa los selectores o el buscador)
   useEffect(() => {
-    cargarLogs();
-  }, [filtMod, filtNiv, buscar]);
+    async function filtrarLogs() {
+      try {
+        const data = await getLogs({
+          nivel:   filtNiv  || undefined,
+          modulo:  filtMod  || undefined,
+          usuario: buscar   || undefined,
+        });
+        setLogs(data);
+      } catch (err) {
+        console.error('Error al filtrar logs:', err);
+      }
+    }
+    
+    // Evitamos llamadas innecesarias en la primera carga
+    if (!cargando) {
+      filtrarLogs();
+    }
+  }, [filtMod, filtNiv, buscar, cargando]);
 
-  // Gráficos (se redibujan cuando cambia el resumen)
+  // 3. RENDERIZADO DE GRÁFICOS (Se activa cuando cambia la data o el resumen)
   useEffect(() => {
     if (cargando) return;
-    dibujarGraficos();
-    return () => {
-      chartModInst.current?.destroy();
-      chartNivInst.current?.destroy();
-    };
-  }, [resumen, cargando]);
 
-  const cargarDatos = async () => {
-    try {
-      setCargando(true);
-      setError(null);
-      const [logsData, resumenData] = await Promise.all([
-        getLogs(),
-        getResumen(),
-      ]);
-      setLogs(logsData);
-      setResumen(resumenData);
-    } catch (err) {
-      setError('No se pudo conectar con el servidor. Intenta de nuevo.');
-    } finally {
-      setCargando(false);
-    }
-  };
+    // --- Gráfico de Barras (Módulos) ---
+    const modulosLabels = ["Auth", "Socios", "Pagos", "Postulaciones", "Admin"];
+    const dataModulosReal = modulosLabels.map(mod => logs.filter(log => log.modulo === mod).length);
 
-  const cargarLogs = async () => {
-    try {
-      const data = await getLogs({
-        nivel:   filtNiv  || undefined,
-        modulo:  filtMod  || undefined,
-        usuario: buscar   || undefined,
-      });
-      setLogs(data);
-    } catch (err) {
-      console.error('Error al filtrar logs:', err);
-    }
-  };
-
-  const dibujarGraficos = () => {
     chartModInst.current?.destroy();
     if (chartModRef.current) {
       chartModInst.current = new Chart(chartModRef.current, {
         type: "bar",
         data: {
-          labels: ["Auth", "Socios", "Pagos", "Postulaciones", "Admin"],
+          labels: modulosLabels,
           datasets: [{
-            label: "Eventos",
-            data: [85, 60, 48, 34, 20],
+            label: "Eventos Reales",
+            data: dataModulosReal,
             backgroundColor: "#1e5fa8",
             borderRadius: 5,
           }],
@@ -99,12 +92,13 @@ export default function AuditoriaDashboard() {
           plugins: { legend: { display: false } },
           scales: {
             x: { ticks: { font: { size: 11 }, color: "#888" }, grid: { display: false } },
-            y: { ticks: { font: { size: 11 }, color: "#888" }, grid: { color: "rgba(128,128,128,0.1)" } },
+            y: { ticks: { font: { size: 11 }, color: "#888", stepSize: 1 }, grid: { color: "rgba(128,128,128,0.1)" } },
           },
         },
       });
     }
 
+    // --- Gráfico de Dona (Niveles) ---
     chartNivInst.current?.destroy();
     if (chartNivRef.current) {
       chartNivInst.current = new Chart(chartNivRef.current, {
@@ -125,12 +119,42 @@ export default function AuditoriaDashboard() {
         },
       });
     }
+
+    return () => {
+      chartModInst.current?.destroy();
+      chartNivInst.current?.destroy();
+    };
+  }, [logs, resumen, cargando]);
+
+  // 4. PROCESAMIENTO DE USUARIOS EN TIEMPO REAL
+  const obtenerActividadUsuariosReal = () => {
+    const conteo = {};
+    logs.forEach(l => {
+      if (!conteo[l.usuario]) {
+        conteo[l.usuario] = {
+          nombre: l.usuario,
+          acciones: 0,
+          ultimo: l.descripcion.length > 30 ? l.descripcion.substring(0, 30) + "..." : l.descripcion,
+          fechaUltimo: new Date(l.fecha),
+          ini: l.usuario.substring(0, 2).toUpperCase(),
+          color: "#1e5fa8"
+        };
+      }
+      conteo[l.usuario].acciones += 1;
+      if (new Date(l.fecha) > conteo[l.usuario].fechaUltimo) {
+        conteo[l.usuario].ultimo = l.descripcion.length > 30 ? l.descripcion.substring(0, 30) + "..." : l.descripcion;
+        conteo[l.usuario].fechaUltimo = new Date(l.fecha);
+      }
+    });
+    return Object.values(conteo).sort((a, b) => b.acciones - a.acciones).slice(0, 4);
   };
 
   const formatearFecha = (fechaISO) => {
     const d = new Date(fechaISO);
     return d.toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
   };
+
+  const usuariosActividadReal = obtenerActividadUsuariosReal();
 
   if (cargando) {
     return (
@@ -145,7 +169,7 @@ export default function AuditoriaDashboard() {
       <div className="auditoria-page">
         <div className="auditoria-error">
           <p>{error}</p>
-          <button onClick={cargarDatos}>Reintentar</button>
+          <button onClick={() => window.location.reload()}>Reintentar</button>
         </div>
       </div>
     );
@@ -168,10 +192,11 @@ export default function AuditoriaDashboard() {
             <span className="dot-verde"></span>
             Sistema activo
           </span>
-          <button className="btn-recargar" onClick={cargarDatos} title="Recargar">↻</button>
+          <button className="btn-recargar" onClick={() => window.location.reload()} title="Recargar">↻</button>
         </div>
       </div>
 
+      {/* Métricas */}
       <div className="metricas-grid">
         <div className="metrica-card">
           <p className="metrica-label">Eventos hoy</p>
@@ -260,11 +285,12 @@ export default function AuditoriaDashboard() {
         </div>
       </div>
 
+      {/* Gráficos */}
       <div className="graficos-grid">
         <div className="card">
           <p className="card-titulo">Eventos por módulo (hoy)</p>
           <div className="chart-wrapper">
-            <canvas ref={chartModRef} aria-label="Gráfico de barras de eventos por módulo">Autenticación 85, Socios 60, Pagos 48, Postulaciones 34, Administración 20.</canvas>
+            <canvas ref={chartModRef}></canvas>
           </div>
         </div>
 
@@ -276,24 +302,29 @@ export default function AuditoriaDashboard() {
             <span><span className="leyenda-sq" style={{ background: "#b52c2c" }}></span>ERROR {resumen.errores}</span>
           </div>
           <div className="chart-wrapper chart-dona">
-            <canvas ref={chartNivRef} aria-label="Gráfico de dona con distribución por nivel">INFO {resumen.exitosos}, WARN {resumen.advertencias}, ERROR {resumen.errores}.</canvas>
+            <canvas ref={chartNivRef}></canvas>
           </div>
         </div>
       </div>
 
+      {/* Actividad reciente por usuario */}
       <div className="card">
         <p className="card-titulo">Actividad reciente por usuario</p>
         <div className="actividad-lista">
-          {USUARIOS_ACTIVIDAD.map(u => (
-            <div key={u.nombre} className="actividad-row">
-              <div className="avatar" style={{ background: u.color + "22", color: u.color }}>{u.ini}</div>
-              <div className="actividad-info">
-                <span className="actividad-nombre">{u.nombre}</span>
-                <span className="actividad-desc"> — {u.ultimo}</span>
-                <div className="actividad-meta">{u.acciones} acciones hoy · {u.ts}</div>
+          {usuariosActividadReal.length === 0 ? (
+            <div className="sin-resultados">No hay actividad de usuarios hoy.</div>
+          ) : (
+            usuariosActividadReal.map(u => (
+              <div key={u.nombre} className="actividad-row">
+                <div className="avatar" style={{ background: u.color + "22", color: u.color }}>{u.ini}</div>
+                <div className="actividad-info">
+                  <span className="actividad-nombre">{u.nombre}</span>
+                  <span className="actividad-desc"> — {u.ultimo}</span>
+                  <div className="actividad-meta">{u.acciones} acciones hoy</div>
+                </div>
               </div>
-            </div>
-          ))}
+            ))
+          )}
         </div>
       </div>
     </div>
