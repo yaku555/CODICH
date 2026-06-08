@@ -19,6 +19,7 @@ import AuditoriaDashboard from "./pages/AuditoriaDashboard.jsx";
 import AdminPagos from "./pages/AdminPagos.jsx";
 import Pagar from "./pages/Pagar.jsx";
 import ResultadoPago from "./pages/ResultadoPago.jsx";
+import AdminPostulacionDetalle from "./pages/AdminPostulacionDetalle.jsx";
 
 import "./styles/App.css";
 
@@ -56,6 +57,7 @@ function App() {
               <Route path="usuarios/:rut" element={<AdminUsuarioDetalle />} />
               <Route path="crear" element={<AdminCrear />} />
               <Route path="postulaciones" element={<PagePostulacionAdmin />} />
+              <Route path="/admin/postulaciones/:rut" element={<AdminPostulacionDetalle />} />
               <Route path="auditoria" element={<AuditoriaDashboard />} />
               <Route path="pagos" element={<AdminPagos />} />
             </Route>

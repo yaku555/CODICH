@@ -50,8 +50,28 @@ function PagAdmin() {
     navigate('/acceder', { replace: true });
   };
 
+  const obtenerTextoArea = (areaFormacion) => {
+    if (areaFormacion === 'educacion_pedagogia') {
+      return 'Educación / Pedagogía';
+    }
+
+    if (areaFormacion === 'otra_area') {
+      return 'Otra Área';
+    }
+
+    return 'Sin área registrada';
+  };
+
   const usuariosFiltrados = usuarios.filter((usuario) => {
-    const texto = `${usuario.nombre} ${usuario.apellido} ${usuario.rut} ${usuario.email} ${usuario.profesion || ''} ${usuario.rol}`;
+    const texto = `
+      ${usuario.nombre || ''}
+      ${usuario.apellido || ''}
+      ${usuario.rut || ''}
+      ${usuario.areaFormacion || ''}
+      ${obtenerTextoArea(usuario.areaFormacion)}
+      ${usuario.profesion || ''}
+      ${usuario.rol || ''}
+    `;
     return texto.toLowerCase().includes(busqueda.toLowerCase());
   });
 
@@ -85,7 +105,7 @@ function PagAdmin() {
         <div className="admin-toolbar">
           <input
             type="text"
-            placeholder="Buscar por nombre, RUT, email o rol..."
+            placeholder="Buscar por nombre, RUT, Area de Formacion, Profesion o rol..."
             value={busqueda}
             onChange={(e) => setBusqueda(e.target.value)}
             className="admin-buscador"
@@ -105,7 +125,7 @@ function PagAdmin() {
                 <tr>
                   <th>Nombre</th>
                   <th>RUT</th>
-                  <th>Email</th>
+                  <th>Area de Formación</th>
                   <th>Profesión</th>
                   <th>Rol</th>
                   <th>Acción</th>
@@ -122,7 +142,7 @@ function PagAdmin() {
                     </td>
 
                     <td>{usuario.rut}</td>
-                    <td>{usuario.email}</td>
+                    <td>{obtenerTextoArea(usuario.areaFormacion)}</td>
                     <td>{usuario.profesion || 'Sin profesión'}</td>
 
                     <td>

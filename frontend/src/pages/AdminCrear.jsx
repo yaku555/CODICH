@@ -8,8 +8,11 @@ function AdminCrear() {
     nombre: '',
     apellido: '',
     rut: '',
+    fechaNacimiento: '',
     email: '',
     telefono: '',
+    residencia: '',
+    areaFormacion: '',
     profesion: '',
     rol: 'usuario',
     password: '',
@@ -19,13 +22,37 @@ function AdminCrear() {
   const [mensaje, setMensaje] = useState('');
   const [error, setError] = useState('');
 
+  const formatearRut = (valor) => {
+    const limpio = valor.replace(/[^0-9kK]/g, '').toUpperCase().slice(0, 9);
+
+    if (limpio.length <= 1) return limpio;
+
+    const cuerpo = limpio.slice(0, -1);
+    const dv = limpio.slice(-1);
+
+    return `${cuerpo}-${dv}`;
+  };
+
+  const validarFormatoRut = (rut) => {
+    return /^\d{7,8}-[0-9K]$/.test(rut);
+  };
+
+  const handleRutChange = (e) => {
+    const rutFormateado = formatearRut(e.target.value);
+
+    setForm((prev) => ({
+      ...prev,
+      rut: rutFormateado,
+    }));
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
 
-    setForm({
-      ...form,
+    setForm((prev) => ({
+      ...prev,
       [name]: value,
-    });
+    }));
   };
 
   const validarFormulario = () => {
@@ -33,13 +60,21 @@ function AdminCrear() {
       !form.nombre.trim() ||
       !form.apellido.trim() ||
       !form.rut.trim() ||
+      !form.fechaNacimiento.trim() ||
       !form.email.trim() ||
       !form.telefono.trim() ||
+      !form.residencia.trim() ||
+      !form.areaFormacion.trim() ||
       !form.profesion.trim() ||
       !form.rol.trim() ||
       !form.password.trim()
     ) {
       setError('Debes completar todos los campos.');
+      return false;
+    }
+
+    if (!validarFormatoRut(form.rut)) {
+      setError('El RUT debe tener el formato 12345678-5, sin puntos y con guion.');
       return false;
     }
 
@@ -61,8 +96,11 @@ function AdminCrear() {
         nombre: form.nombre.trim(),
         apellido: form.apellido.trim(),
         rut: form.rut.trim(),
+        fechaNacimiento: form.fechaNacimiento.trim(),
         email: form.email.trim().toLowerCase(),
         telefono: form.telefono.trim(),
+        residencia: form.residencia.trim(),
+        areaFormacion: form.areaFormacion.trim(),
         profesion: form.profesion.trim(),
         rol: form.rol,
         password: form.password,
@@ -76,8 +114,11 @@ function AdminCrear() {
         nombre: '',
         apellido: '',
         rut: '',
+        fechaNacimiento: '',
         email: '',
         telefono: '',
+        residencia: '',
+        areaFormacion: '',
         profesion: '',
         rol: 'usuario',
         password: '',
@@ -85,7 +126,10 @@ function AdminCrear() {
     } catch (error) {
       console.error(error);
 
-      const mensajeServidor = error.response?.data?.error;
+      const mensajeServidor =
+        error.response?.data?.error ||
+        error.response?.data?.message;
+
       setError(mensajeServidor || 'No se pudo crear el usuario.');
     } finally {
       setGuardando(false);
@@ -141,8 +185,22 @@ function AdminCrear() {
               name="rut"
               type="text"
               value={form.rut}
+              onChange={handleRutChange}
+              placeholder="Ej: 12345678-9"
+              maxLength="10"
+              required
+            />
+            <small>Ingresa el RUT sin puntos y con guion.</small>
+          </div>
+
+          <div className="form-grupo">
+            <label>Fecha de nacimiento</label>
+            <input
+              id="fechaNacimiento"
+              name="fechaNacimiento"
+              type="date"
+              value={form.fechaNacimiento}
               onChange={handleChange}
-              placeholder="Ej: 12.345.678-9"
               required
             />
           </div>
@@ -170,6 +228,32 @@ function AdminCrear() {
               placeholder="Ej: +56 9 1234 5678"
               required
             />
+          </div>
+
+          <div className="form-grupo">
+            <label htmlFor="residencia">Residencia</label>
+            <input
+              id="residencia"
+              name="residencia"
+              type="text"
+              value={form.residencia}
+              onChange={handleChange}
+              required
+            />
+          </div>  
+
+          <div className="form-grupo">
+            <label>Área de formación</label>
+            <select
+              name="areaFormacion"
+              value={form.areaFormacion}
+              onChange={handleChange}
+              required
+            >
+              <option value="">Selecciona un área</option>
+              <option value="educacion_pedagogia">Educación/Pedagogía</option>
+              <option value="otra_area">Otra Área</option>
+            </select>
           </div>
 
           <div className="form-grupo">

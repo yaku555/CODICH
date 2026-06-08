@@ -44,17 +44,32 @@ const enviarCorreoPostulacionCreada = async (postulacion) => {
 };
 
 const enviarCorreoPostulacionAprobada = async (postulacion, passwordProvisoria) => {
+  const linkPerfil = process.env.LINK_PERFIL_SOCIO || 'http://localhost:5173/miembros';
+
   return enviarEmailJS(process.env.EMAILJS_TEMPLATE_APROBACION, {
     name: `${postulacion.nombre} ${postulacion.apellido}`,
     email: postulacion.email,
-    link_pago: process.env.LINK_PAGO || 'https://www.transbank.cl',
+    link_pago: linkPerfil,
+    link_perfil: linkPerfil,
+    mensaje_pago: 'Tu postulacion fue aprobada. Ingresa a tu perfil de socio y usa el boton de pago de membresia para elegir plan mensual, trimestral o anual.',
     password: passwordProvisoria,
     rut: postulacion.rut,
     profesion: postulacion.profesion
   });
 };
 
+const enviarCorreoContacto = async ({ nombre, email, asunto, mensaje }) => {
+  return enviarEmailJS(process.env.EMAILJS_TEMPLATE_CONTACTO, {
+    name: nombre,
+    email,
+    asunto,
+    mensaje,
+    admin_email: process.env.ADMIN_EMAIL || 'admin@codich.cl',
+  });
+};
+
 module.exports = {
   enviarCorreoPostulacionCreada,
-  enviarCorreoPostulacionAprobada
+  enviarCorreoPostulacionAprobada,
+  enviarCorreoContacto,
 };

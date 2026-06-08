@@ -1,0 +1,74 @@
+.btn-detalle {
+  display: inline-block;
+  width: 100%;
+  margin-bottom: 0.5rem;
+  border: none;
+  border-radius: 999px;
+  padding: 0.7rem 1rem;
+  background: #111827;
+  color: #ffffff;
+  font-weight: 800;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.btn-detalle:hover {
+  opacity: 0.9;
+}
+
+.detalle-postulacion-card {
+  padding: 2rem;
+}
+
+.detalle-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.detalle-item {
+  background: #f8fafc;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  padding: 1rem;
+}
+
+.detalle-item span {
+  display: block;
+  margin-bottom: 0.4rem;
+  color: #64748b;
+  font-size: 0.8rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.detalle-item strong {
+  display: block;
+  color: #0f172a;
+  font-size: 0.95rem;
+  line-height: 1.45;
+  word-break: break-word;
+}
+
+.detalle-item-full {
+  grid-column: 1 / -1;
+}
+
+.btn-volver {
+  display: inline-block;
+  margin-top: 1rem;
+  border-radius: 999px;
+  padding: 0.8rem 1.4rem;
+  background: #111827;
+  color: #ffffff;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+@media (max-width: 768px) {
+  .detalle-grid {
+    grid-template-columns: 1fr;
+  }
+}

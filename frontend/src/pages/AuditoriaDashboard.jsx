@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Chart, registerables } from "chart.js";
 import { getLogs, getResumen } from "../api/auditoria";
-import "./AuditoriaDashboard.css";
+import "../styles/AuditoriaDashboard.css";
 
 Chart.register(...registerables);
 

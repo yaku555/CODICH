@@ -46,6 +46,10 @@
   margin-bottom: 48px;
 }
 
+.pagar-planes-extendido {
+  grid-template-columns: repeat(auto-fit, minmax(245px, 1fr));
+}
+
 .plan-card {
   background: #ffffff;
   border: 2px solid #e5e7eb;
@@ -99,6 +103,14 @@
   margin: 0;
 }
 
+.plan-subtitulo {
+  color: #7c3aed;
+  font-size: 0.8rem;
+  font-weight: 900;
+  margin: 0;
+  text-transform: uppercase;
+}
+
 .plan-monto {
   font-size: 2rem;
   font-weight: 900;
@@ -112,6 +124,21 @@
   color: #64748b;
   margin: 0;
   line-height: 1.5;
+}
+
+.plan-total,
+.plan-ahorro {
+  margin: 0;
+  font-size: 0.86rem;
+  font-weight: 800;
+}
+
+.plan-total {
+  color: #0f172a;
+}
+
+.plan-ahorro {
+  color: #166534;
 }
 
 .plan-beneficios {
@@ -171,6 +198,41 @@
   gap: 16px;
 }
 
+.resumen-card-amplio {
+  max-width: 760px;
+}
+
+.resumen-opcion {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  border-bottom: 1px solid #e5e7eb;
+  padding: 12px 0;
+}
+
+.resumen-opcion div:last-child {
+  text-align: right;
+}
+
+.resumen-opcion strong,
+.resumen-opcion span {
+  display: block;
+}
+
+.resumen-opcion span {
+  color: #64748b;
+  font-size: 0.88rem;
+  margin-top: 4px;
+}
+
+.pagar-link {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  text-decoration: none;
+  box-sizing: border-box;
+}
+
 .resumen-card h3 {
   font-size: 1.3rem;
   font-weight: 800;
@@ -212,6 +274,18 @@
   border-radius: 12px;
   font-size: 0.9rem;
   font-weight: 600;
+  margin: 0;
+}
+
+.pagar-aviso {
+  background: #f5f3ff;
+  border: 1px solid #ddd6fe;
+  color: #5b21b6;
+  padding: 12px 16px;
+  border-radius: 12px;
+  font-size: 0.88rem;
+  font-weight: 700;
+  line-height: 1.45;
   margin: 0;
 }
 
@@ -303,5 +377,13 @@
 @media (max-width: 520px) {
   .pagar-page {
     padding: 48px 20px;
+  }
+
+  .resumen-opcion {
+    flex-direction: column;
+  }
+
+  .resumen-opcion div:last-child {
+    text-align: left;
   }
 }

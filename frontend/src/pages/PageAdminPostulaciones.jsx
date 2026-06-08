@@ -1,10 +1,7 @@
 import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 
-import {
-  getPostulacionesRequest,
-  getCvPostulacionRequest,
-  aprobarPostulacionRequest,
-} from '../api/postulacion.js';
+import { getPostulacionesRequest } from '../api/postulacion.js';
 
 import '../styles/AdminUsuarios.css';
 
@@ -13,8 +10,6 @@ function PagAdminPostulaciones() {
   const [busqueda, setBusqueda] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [mensaje, setMensaje] = useState('');
-  const [aprobandoRut, setAprobandoRut] = useState(null);
 
   useEffect(() => {
     cargarPostulaciones();
@@ -26,7 +21,7 @@ function PagAdminPostulaciones() {
       setError('');
 
       const res = await getPostulacionesRequest();
-      setPostulaciones(res.data);
+      setPostulaciones(Array.isArray(res.data) ? res.data : []);
     } catch (error) {
       console.error(error);
       setError('No se pudieron cargar las postulaciones.');
@@ -35,70 +30,37 @@ function PagAdminPostulaciones() {
     }
   };
 
-  const aprobarPostulacion = async (postulacion) => {
-    try {
-      setMensaje('');
-      setError('');
-      setAprobandoRut(postulacion.rut);
-
-      if (postulacion.estado === 'Aprobada') {
-        setError('Esta postulación ya fue aprobada.');
-        return;
-      }
-
-      const res = await aprobarPostulacionRequest(postulacion.rut);
-
-      setMensaje(
-        res.data?.message ||
-          'Postulación aprobada correctamente.'
-      );
-
-      await cargarPostulaciones();
-    } catch (error) {
-      console.error(error);
-
-      setError(
-        error.response?.data?.error ||
-          error.response?.data?.message ||
-          'No se pudo aprobar la postulación.'
-      );
-    } finally {
-      setAprobandoRut(null);
+  const obtenerTextoArea = (areaFormacion) => {
+    if (areaFormacion === 'educacion_pedagogia') {
+      return 'Educación / Pedagogía';
     }
+
+    if (areaFormacion === 'otra_area') {
+      return 'Otra área';
+    }
+
+    return 'No registrada';
   };
 
-  const verCV = async (rut) => {
-    const ventanaCV = window.open('', '_blank');
-
-    try {
-      const { data } = await getCvPostulacionRequest(rut);
-
-      if (!data.url) {
-        throw new Error('No se recibió la URL del CV');
-      }
-
-      ventanaCV.location.href = data.url;
-    } catch (error) {
-      console.error(error);
-
-      if (ventanaCV) {
-        ventanaCV.close();
-      }
-
-      setError('No se pudo abrir el CV.');
-    }
+  const obtenerClaseEstado = (estado = '') => {
+    return estado
+      .toLowerCase()
+      .replaceAll(' ', '-');
   };
 
   const postulacionesFiltradas = postulaciones.filter((postulacion) => {
     const texto = `
-      ${postulacion.nombre}
-      ${postulacion.apellido}
-      ${postulacion.rut}
-      ${postulacion.email}
-      ${postulacion.telefono}
-      ${postulacion.profesion}
-      ${postulacion.experiencia}
-      ${postulacion.estado}
+      ${postulacion.nombre || ''}
+      ${postulacion.apellido || ''}
+      ${postulacion.rut || ''}
+      ${postulacion.email || ''}
+      ${postulacion.telefono || ''}
+      ${postulacion.residencia || ''}
+      ${postulacion.profesion || ''}
+      ${postulacion.areaFormacion || ''}
+      ${obtenerTextoArea(postulacion.areaFormacion)}
+      ${postulacion.estado || ''}
+      ${postulacion.motivoRechazo?.join(' ') || ''}
     `;
 
     return texto.toLowerCase().includes(busqueda.toLowerCase());
@@ -131,14 +93,13 @@ function PagAdminPostulaciones() {
         <div className="admin-toolbar">
           <input
             type="text"
-            placeholder="Buscar por nombre, RUT, email, profesión o estado..."
+            placeholder="Buscar por nombre, RUT, email, profesión, estado o motivo..."
             value={busqueda}
             onChange={(e) => setBusqueda(e.target.value)}
             className="admin-buscador"
           />
         </div>
 
-        {mensaje && <p className="admin-exito">{mensaje}</p>}
         {error && <p className="admin-error">{error}</p>}
 
         {postulacionesFiltradas.length === 0 ? (
@@ -151,11 +112,8 @@ function PagAdminPostulaciones() {
                   <th>Nombre</th>
                   <th>RUT</th>
                   <th>Email</th>
-                  <th>Teléfono</th>
                   <th>Profesión</th>
-                  <th>Experiencia</th>
                   <th>Estado</th>
-                  <th>CV</th>
                   <th>Acción</th>
                 </tr>
               </thead>
@@ -164,54 +122,36 @@ function PagAdminPostulaciones() {
                 {postulacionesFiltradas.map((postulacion) => (
                   <tr key={postulacion._id || postulacion.rut}>
                     <td>
-                      <strong className="nombre-postulante">
-                        <span>{postulacion.nombre}</span>
-                        <span>{postulacion.apellido}</span>
+                      <strong>
+                        {postulacion.nombre} {postulacion.apellido}
                       </strong>
                     </td>
 
                     <td>{postulacion.rut}</td>
+
                     <td>{postulacion.email}</td>
-                    <td>{postulacion.telefono}</td>
-                    <td>{postulacion.profesion}</td>
-                    <td>{postulacion.experiencia}</td>
+
+                    <td>{postulacion.profesion || 'No registrada'}</td>
 
                     <td>
                       <span
-                        className={`rol-badge rol-${postulacion.estado
-                          ?.toLowerCase()
-                          .replaceAll(' ', '-')}`}
+                        className={`rol-badge rol-${obtenerClaseEstado(
+                          postulacion.estado
+                        )}`}
                       >
-                        {postulacion.estado}
+                        {postulacion.estado || 'Sin estado'}
                       </span>
                     </td>
 
                     <td>
-                      <button
-                        type="button"
+                      <Link
+                        to={`/admin/postulaciones/${encodeURIComponent(
+                          postulacion.rut
+                        )}`}
                         className="btn-ver"
-                        onClick={() => verCV(postulacion.rut)}
                       >
-                        Ver CV
-                      </button>
-                    </td>
-
-                    <td>
-                      <button
-                        type="button"
-                        className="btn-guardar"
-                        onClick={() => aprobarPostulacion(postulacion)}
-                        disabled={
-                          postulacion.estado === 'Aprobada' ||
-                          aprobandoRut === postulacion.rut
-                        }
-                      >
-                        {aprobandoRut === postulacion.rut
-                          ? 'Aprobando...'
-                          : postulacion.estado === 'Aprobada'
-                            ? 'Aprobada'
-                            : 'Aprobar'}
-                      </button>
+                        Ver detalle
+                      </Link>
                     </td>
                   </tr>
                 ))}
