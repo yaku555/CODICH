@@ -5,10 +5,13 @@ import { actualizarUsuario } from '../api/usuarios';
 import { OPCIONES_MEMBRESIA, PLANES_PRINCIPALES, formatMonto } from '../data/planesMembresia';
 import '../styles/PagUsuario.css';
 
-function formatFecha(fecha) {
-  if (!fecha) return '-';
-  return new Date(fecha).toLocaleDateString('es-CL');
-}
+const formatearFecha = (fecha) => {
+  if (!fecha) return 'No especificada';
+
+  return new Date(fecha).toLocaleDateString('es-CL', {
+    timeZone: 'UTC',
+  });
+};
 
 function PagMiembros() {
   const { usuario, setUsuario, loading, logout } = useUsuario();
@@ -205,7 +208,22 @@ function PagMiembros() {
     );
   }
 
-  if (!usuario) return <Navigate to="/acceder" replace />;
+  if (!usuario) {
+    return <Navigate to="/acceder" replace />;
+  }
+
+  const nombreCompleto = `${usuario.nombre || ''} ${usuario.apellido || ''}`.trim();
+  const obtenerTextoArea = (areaFormacion) => {
+    if (areaFormacion === 'educacion_pedagogia') {
+      return 'Educación / Pedagogía';
+    }
+
+    if (areaFormacion === 'otra_area') {
+      return 'Otra área';
+    }
+
+    return 'No especificada';
+  };
 
   return (
     <main className="perfil-page">

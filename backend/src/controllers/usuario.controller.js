@@ -4,8 +4,24 @@ const bcrypt = require('bcrypt');
 // Función para crear un nuevo usuario
 const crearUsuario = async (req, res) => {
   try {
-    
-    const { nombre, apellido, rut, email, telefono, profesion, rol, password } = req.body;
+    const { nombre, apellido, rut, fechaNacimiento, email, telefono, profesion, residencia, areaFormacion, rol, password } = req.body;
+
+    if (
+      !nombre ||
+      !apellido ||
+      !rut ||
+      !fechaNacimiento ||
+      !email ||
+      !telefono ||
+      !profesion ||
+      !residencia ||
+      !areaFormacion ||
+      !rol
+    ) {
+      return res.status(400).json({
+        error: 'Debes completar todos los campos obligatorios.',
+      });
+    }
 
     // Validar que venga contraseña
     if (!password || password.trim() === '') {
@@ -26,6 +42,18 @@ const crearUsuario = async (req, res) => {
       return res.status(400).json({ error: 'El email ya está registrado' });
     }
 
+    let fechaNacimientoValida;
+
+    if (fechaNacimiento) {
+      fechaNacimientoValida = new Date(fechaNacimiento);
+
+      if (Number.isNaN(fechaNacimientoValida.getTime())) {
+        return res.status(400).json({
+          error: 'La fecha de nacimiento no es válida.',
+        });
+      }
+    }
+
     // Hashear la contraseña antes de guardar
     const salt = await bcrypt.genSalt(10);
     const passwordHasheada = await bcrypt.hash(password, salt);
@@ -34,9 +62,12 @@ const crearUsuario = async (req, res) => {
       nombre,
       apellido,
       rut,
+      fechaNacimiento: fechaNacimientoValida,
       email,
       telefono,
       profesion,
+      residencia,
+      areaFormacion,
       rol,
       password: passwordHasheada,
     });
@@ -88,7 +119,7 @@ const getUsuarioPorRut = async (req, res) => {
 const actualizarUsuario = async (req, res) => {
   try {
     const { rut } = req.params;
-    const { nombre, apellido, email, telefono, profesion, rol, password } = req.body;
+    const { nombre, apellido, email, telefono, profesion, residencia, areaFormacion, rol, password } = req.body;
 
     const datosActualizados = {};
 
@@ -97,6 +128,8 @@ const actualizarUsuario = async (req, res) => {
     if (email !== undefined) datosActualizados.email = email;
     if (telefono !== undefined) datosActualizados.telefono = telefono;
     if (profesion !== undefined) datosActualizados.profesion = profesion;
+    if (residencia !== undefined) datosActualizados.residencia = residencia;
+    if (areaFormacion !== undefined) datosActualizados.areaFormacion = areaFormacion;
     if (rol !== undefined) datosActualizados.rol = rol;
 
     // Si el usuario envía una nueva contraseña para actualizar, también la hasheamos

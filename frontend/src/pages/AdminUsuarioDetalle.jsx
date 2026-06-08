@@ -3,6 +3,11 @@ import { Link, Navigate, useNavigate, useParams } from 'react-router-dom';
 import { getUsuarioPorRut, actualizarUsuario, borrarUsuario } from '../api/usuarios.js';
 import '../styles/AdminUsuarios.css';
 
+const formatearFechaInput = (fecha) => {
+  if (!fecha) return '';
+  return new Date(fecha).toISOString().split('T')[0];
+};
+
 function AdminUsuarioDetalle() {
   const { rut } = useParams();
   const navigate = useNavigate();
@@ -13,8 +18,11 @@ function AdminUsuarioDetalle() {
     nombre: '',
     apellido: '',
     rut: '',
+    fechaNacimiento: '',
     email: '',
     telefono: '',
+    residencia: '',
+    areaFormacion: '',
     profesion: '',
     rol: '',
     password: '',
@@ -43,8 +51,11 @@ function AdminUsuarioDetalle() {
         nombre: usuarioEncontrado.nombre || '',
         apellido: usuarioEncontrado.apellido || '',
         rut: usuarioEncontrado.rut || '',
+        fechaNacimiento: formatearFechaInput(usuarioEncontrado.fechaNacimiento) || '',
         email: usuarioEncontrado.email || '',
         telefono: usuarioEncontrado.telefono || '',
+        residencia: usuarioEncontrado.residencia || '',
+        areaFormacion: usuarioEncontrado.areaFormacion || '',
         profesion: usuarioEncontrado.profesion || '',
         rol: usuarioEncontrado.rol || '',
         password: '',
@@ -86,6 +97,8 @@ function AdminUsuarioDetalle() {
         apellido: form.apellido,
         email: form.email,
         telefono: form.telefono,
+        residencia: form.residencia,
+        areaFormacion: form.areaFormacion,
         profesion: form.profesion,
         rol: form.rol,
       };
@@ -109,6 +122,8 @@ function AdminUsuarioDetalle() {
         rut: usuarioActualizado.rut || '',
         email: usuarioActualizado.email || '',
         telefono: usuarioActualizado.telefono || '',
+        residencia: usuarioActualizado.residencia || '',
+        areaFormacion: usuarioActualizado.areaFormacion || '',
         profesion: usuarioActualizado.profesion || '',
         rol: usuarioActualizado.rol || '',
         password: '',
@@ -226,6 +241,19 @@ function AdminUsuarioDetalle() {
           </div>
 
           <div className="form-grupo">
+            <label>Fecha de nacimiento</label>
+            <input
+              type="date"
+              name="fechaNacimiento"
+              value={form.fechaNacimiento}
+              readOnly
+              disabled
+              className="input-bloqueado"
+            />
+            <small>La fecha de nacimiento no se puede modificar.</small>
+          </div>
+
+          <div className="form-grupo">
             <label>Correo electrónico</label>
             <input
               type="email"
@@ -244,6 +272,31 @@ function AdminUsuarioDetalle() {
               value={form.profesion}
               onChange={handleChange}
               placeholder="Ej: Enfermero, Médico, TENS, Administrativo"
+              required
+            />
+          </div>
+
+          <div className="form-grupo">
+            <label>Área de formación</label>
+            <select
+              name="areaFormacion"
+              value={form.areaFormacion}
+              onChange={handleChange}
+              required
+            >
+              <option value="">Selecciona un área</option>
+              <option value="educacion_pedagogia">Educación/Pedagogía</option>
+              <option value="otra_area">Otra Área</option>
+            </select>
+          </div>
+
+          <div className="form-grupo">
+            <label>Residencia</label>
+            <input
+              type="text"
+              name="residencia"
+              value={form.residencia}
+              onChange={handleChange}
               required
             />
           </div>

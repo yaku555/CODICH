@@ -8,8 +8,11 @@ function AdminCrear() {
     nombre: '',
     apellido: '',
     rut: '',
+    fechaNacimiento: '',
     email: '',
     telefono: '',
+    residencia: '',
+    areaFormacion: '',
     profesion: '',
     rol: 'usuario',
     password: '',
@@ -57,8 +60,11 @@ function AdminCrear() {
       !form.nombre.trim() ||
       !form.apellido.trim() ||
       !form.rut.trim() ||
+      !form.fechaNacimiento.trim() ||
       !form.email.trim() ||
       !form.telefono.trim() ||
+      !form.residencia.trim() ||
+      !form.areaFormacion.trim() ||
       !form.profesion.trim() ||
       !form.rol.trim() ||
       !form.password.trim()
@@ -90,8 +96,11 @@ function AdminCrear() {
         nombre: form.nombre.trim(),
         apellido: form.apellido.trim(),
         rut: form.rut.trim(),
+        fechaNacimiento: form.fechaNacimiento.trim(),
         email: form.email.trim().toLowerCase(),
         telefono: form.telefono.trim(),
+        residencia: form.residencia.trim(),
+        areaFormacion: form.areaFormacion.trim(),
         profesion: form.profesion.trim(),
         rol: form.rol,
         password: form.password,
@@ -105,8 +114,11 @@ function AdminCrear() {
         nombre: '',
         apellido: '',
         rut: '',
+        fechaNacimiento: '',
         email: '',
         telefono: '',
+        residencia: '',
+        areaFormacion: '',
         profesion: '',
         rol: 'usuario',
         password: '',
@@ -182,6 +194,18 @@ function AdminCrear() {
           </div>
 
           <div className="form-grupo">
+            <label>Fecha de nacimiento</label>
+            <input
+              id="fechaNacimiento"
+              name="fechaNacimiento"
+              type="date"
+              value={form.fechaNacimiento}
+              onChange={handleChange}
+              required
+            />
+          </div>
+
+          <div className="form-grupo">
             <label htmlFor="email">Correo electrónico</label>
             <input
               id="email"
@@ -204,6 +228,32 @@ function AdminCrear() {
               placeholder="Ej: +56 9 1234 5678"
               required
             />
+          </div>
+
+          <div className="form-grupo">
+            <label htmlFor="residencia">Residencia</label>
+            <input
+              id="residencia"
+              name="residencia"
+              type="text"
+              value={form.residencia}
+              onChange={handleChange}
+              required
+            />
+          </div>  
+
+          <div className="form-grupo">
+            <label>Área de formación</label>
+            <select
+              name="areaFormacion"
+              value={form.areaFormacion}
+              onChange={handleChange}
+              required
+            >
+              <option value="">Selecciona un área</option>
+              <option value="educacion_pedagogia">Educación/Pedagogía</option>
+              <option value="otra_area">Otra Área</option>
+            </select>
           </div>
 
           <div className="form-grupo">
