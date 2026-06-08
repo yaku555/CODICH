@@ -8,6 +8,7 @@ function AdminCrear() {
     nombre: '',
     apellido: '',
     rut: '',
+    fechaNacimiento: '',
     email: '',
     telefono: '',
     residencia: '',
@@ -59,6 +60,7 @@ function AdminCrear() {
       !form.nombre.trim() ||
       !form.apellido.trim() ||
       !form.rut.trim() ||
+      !form.fechaNacimiento.trim() ||
       !form.email.trim() ||
       !form.telefono.trim() ||
       !form.residencia.trim() ||
@@ -94,6 +96,7 @@ function AdminCrear() {
         nombre: form.nombre.trim(),
         apellido: form.apellido.trim(),
         rut: form.rut.trim(),
+        fechaNacimiento: form.fechaNacimiento.trim(),
         email: form.email.trim().toLowerCase(),
         telefono: form.telefono.trim(),
         residencia: form.residencia.trim(),
@@ -111,6 +114,7 @@ function AdminCrear() {
         nombre: '',
         apellido: '',
         rut: '',
+        fechaNacimiento: '',
         email: '',
         telefono: '',
         residencia: '',
@@ -187,6 +191,18 @@ function AdminCrear() {
               required
             />
             <small>Ingresa el RUT sin puntos y con guion.</small>
+          </div>
+
+          <div className="form-grupo">
+            <label>Fecha de nacimiento</label>
+            <input
+              id="fechaNacimiento"
+              name="fechaNacimiento"
+              type="date"
+              value={form.fechaNacimiento}
+              onChange={handleChange}
+              required
+            />
           </div>
 
           <div className="form-grupo">

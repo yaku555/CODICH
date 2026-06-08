@@ -14,6 +14,7 @@ function Postulacion() {
     nombre: '',
     apellido: '',
     rut: '',
+    fechaNacimiento: '',
     email: '',
     telefono: '',
     residencia: '',
@@ -103,6 +104,7 @@ function Postulacion() {
       nombre: '',
       apellido: '',
       rut: '',
+      fechaNacimiento: '',
       email: '',
       telefono: '',
       residencia: '',
@@ -126,6 +128,7 @@ function Postulacion() {
       return 'El RUT debe tener el formato 12345678-5.';
     }
 
+    if (!formData.fechaNacimiento.trim()) return 'La fecha de nacimiento es requerida';
     if (!formData.email.trim()) return 'El correo electrónico es requerido';
     if (!formData.telefono.trim()) return 'El teléfono es requerido';
     if (!formData.residencia.trim()) return 'El lugar de residencia es requerido';
@@ -171,6 +174,7 @@ function Postulacion() {
       form.append('nombre', formData.nombre);
       form.append('apellido', formData.apellido);
       form.append('rut', formData.rut);
+      form.append('fechaNacimiento', formData.fechaNacimiento);
       form.append('email', formData.email);
       form.append('telefono', formData.telefono);
       form.append('residencia', formData.residencia);
@@ -235,6 +239,18 @@ function Postulacion() {
               value={formData.rut}
               onChange={handleRutChange}
               placeholder="12345678-5"
+              required
+            />
+          </div>
+          
+          <div className="form-group-custom">
+            <label htmlFor="fechaNacimiento">Fecha de nacimiento</label>
+            <input
+              id="fechaNacimiento"
+              name="fechaNacimiento"
+              type="date"
+              value={formData.fechaNacimiento}
+              onChange={handleInputChange}
               required
             />
           </div>

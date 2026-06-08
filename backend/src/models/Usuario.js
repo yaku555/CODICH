@@ -18,6 +18,10 @@ const userSchema = new Schema(
       unique: true,
       trim: true,
     },
+    fechaNacimiento: {
+      type: Date,
+      required: true,
+    },
     email: {
       type: String,
       required: true,

@@ -48,6 +48,7 @@ const create = async (req, res) => {
       nombre,
       apellido,
       rut,
+      fechaNacimiento,
       email,
       telefono,
       residencia,
@@ -62,6 +63,7 @@ const create = async (req, res) => {
       !apellido ||
       !rut ||
       !email ||
+      !fechaNacimiento ||
       !telefono ||
       !residencia ||
       !profesion ||
@@ -75,7 +77,15 @@ const create = async (req, res) => {
         error: 'Debes completar todos los campos obligatorios.',
       });
     }
+  
+    const fechaNacimientoValida = new Date(fechaNacimiento);
 
+    if (Number.isNaN(fechaNacimientoValida.getTime())) {
+      return res.status(400).json({
+        error: 'La fecha de nacimiento no es válida.',
+      });
+    }
+    
     const postulacionExistente = await Postulacion.findOne({ rut });
 
     if (postulacionExistente) {
@@ -94,6 +104,7 @@ const create = async (req, res) => {
       nombre,
       apellido,
       rut,
+      fechaNacimiento: fechaNacimientoValida,
       email,
       telefono,
       residencia,
@@ -108,6 +119,7 @@ const create = async (req, res) => {
       nombre,
       apellido,
       rut,
+      fechaNacimiento: fechaNacimientoValida,
       email,
       telefono,
       residencia,
@@ -188,6 +200,7 @@ const update = async (req, res) => {
       nombre: req.body.nombre,
       apellido: req.body.apellido,
       rut: req.body.rut,
+      fechaNacimiento: req.body.fechaNacimiento,
       email: req.body.email,
       telefono: req.body.telefono,
       residencia: req.body.residencia,
@@ -214,6 +227,18 @@ const update = async (req, res) => {
 
     if (req.file) {
       datosActualizados.documentoPath = await subirCVSupabase(req.file, rut);
+    }
+
+    if (datosActualizados.fechaNacimiento !== undefined) {
+      const fechaNacimientoValida = new Date(datosActualizados.fechaNacimiento);
+
+      if (Number.isNaN(fechaNacimientoValida.getTime())) {
+        return res.status(400).json({
+          error: 'La fecha de nacimiento no es válida.',
+        });
+      }
+
+      datosActualizados.fechaNacimiento = fechaNacimientoValida;
     }
 
     const postulacionActualizada = await Postulacion.findOneAndUpdate(
@@ -365,6 +390,7 @@ const aprobar = async (req, res) => {
       nombre: postulacion.nombre,
       apellido: postulacion.apellido,
       rut: postulacion.rut,
+      fechaNacimiento: postulacion.fechaNacimiento,
       email: postulacion.email,
       telefono: postulacion.telefono,
       profesion: postulacion.profesion,

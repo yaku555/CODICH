@@ -3,6 +3,11 @@ import { Link, Navigate, useNavigate, useParams } from 'react-router-dom';
 import { getUsuarioPorRut, actualizarUsuario, borrarUsuario } from '../api/usuarios.js';
 import '../styles/AdminUsuarios.css';
 
+const formatearFechaInput = (fecha) => {
+  if (!fecha) return '';
+  return new Date(fecha).toISOString().split('T')[0];
+};
+
 function AdminUsuarioDetalle() {
   const { rut } = useParams();
   const navigate = useNavigate();
@@ -13,6 +18,7 @@ function AdminUsuarioDetalle() {
     nombre: '',
     apellido: '',
     rut: '',
+    fechaNacimiento: '',
     email: '',
     telefono: '',
     residencia: '',
@@ -45,6 +51,7 @@ function AdminUsuarioDetalle() {
         nombre: usuarioEncontrado.nombre || '',
         apellido: usuarioEncontrado.apellido || '',
         rut: usuarioEncontrado.rut || '',
+        fechaNacimiento: formatearFechaInput(usuarioEncontrado.fechaNacimiento) || '',
         email: usuarioEncontrado.email || '',
         telefono: usuarioEncontrado.telefono || '',
         residencia: usuarioEncontrado.residencia || '',
@@ -231,6 +238,19 @@ function AdminUsuarioDetalle() {
               title="El RUT no se puede modificar porque es un identificador único."
             />
             <small>El RUT no se puede modificar porque es un identificador único.</small>
+          </div>
+
+          <div className="form-grupo">
+            <label>Fecha de nacimiento</label>
+            <input
+              type="date"
+              name="fechaNacimiento"
+              value={form.fechaNacimiento}
+              readOnly
+              disabled
+              className="input-bloqueado"
+            />
+            <small>La fecha de nacimiento no se puede modificar.</small>
           </div>
 
           <div className="form-grupo">

@@ -3,6 +3,14 @@ import { Navigate, useNavigate } from 'react-router-dom';
 import { useUsuario } from '../context/usuario.context';
 import '../styles/PagUsuario.css';
 
+const formatearFecha = (fecha) => {
+  if (!fecha) return 'No especificada';
+
+  return new Date(fecha).toLocaleDateString('es-CL', {
+    timeZone: 'UTC',
+  });
+};
+
 function PagMiembros() {
   const { usuario, loading, logout } = useUsuario();
   const navigate = useNavigate();
@@ -78,6 +86,11 @@ function PagMiembros() {
           <div className="perfil-dato">
             <span>RUT</span>
             <strong>{usuario.rut || 'No especificado'}</strong>
+          </div>
+
+          <div className="perfil-dato">
+            <span>Fecha de nacimiento</span>
+            <strong>{formatearFecha(usuario.fechaNacimiento)}</strong>
           </div>
 
           <div className="perfil-dato">
