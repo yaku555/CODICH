@@ -3,6 +3,8 @@ import { Chart, registerables } from "chart.js";
 import { getLogs, getResumen } from "../api/auditoria";
 import "./AuditoriaDashboard.css";
 
+//hola
+
 Chart.register(...registerables);
 
 const NIVEL_CLASS = { INFO: "pill-info", WARN: "pill-warn", ERROR: "pill-error" };
