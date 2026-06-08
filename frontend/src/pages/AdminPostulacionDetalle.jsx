@@ -55,6 +55,12 @@ function AdminPostulacionDetalle() {
     });
   };
 
+  const obtenerClaseEstado = (estado = '') => {
+    return estado
+      .toLowerCase()
+      .replaceAll(' ', '-');
+  };
+
   const obtenerTextoArea = (areaFormacion) => {
     if (areaFormacion === 'educacion_pedagogia') {
       return 'Educación / Pedagogía';
@@ -244,14 +250,13 @@ function AdminPostulacionDetalle() {
           <h1>
             {postulacion.nombre} {postulacion.apellido}
           </h1>
+          <h2 className={`rol-badge rol-${obtenerClaseEstado(postulacion.estado)}`}>
+            {postulacion.estado || 'Estado no registrado'}
+          </h2>
         </div>
 
         <div className="admin-acciones">
-          {postulacion.documentoPath && (
-            <button type="button" className="btn-ver" onClick={verCV}>
-              Ver CV
-            </button>
-          )}
+ 
 
           <button
             type="button"
@@ -365,10 +370,12 @@ function AdminPostulacionDetalle() {
           </div>
 
           <div className="detalle-item">
-            <span>CV</span>
-            <strong>
-              {postulacion.documentoPath ? 'Adjuntado' : 'No adjuntado'}
-            </strong>
+            {postulacion.documentoPath && (
+                <button type="button" className="btn-guardar" onClick={verCV}>
+                  Ver CV
+                </button>
+              )}
+              {!postulacion.documentoPath && <span>CV no disponible</span>}
           </div>
         </div>
       </section>
