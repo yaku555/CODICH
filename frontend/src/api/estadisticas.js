@@ -1,17 +1,11 @@
 import axios from './axios';
 
-// Obtener estadísticas generales filtradas por rango de fechas y tipo de métrica
-export const getEstadisticas = async ({ desde, hasta, metrica } = {}) => {
+export const getEstadisticasAPI = async (filtros = {}) => {
   try {
-    const params = {};
-    if (desde)   params.desde   = desde;
-    if (hasta)   params.hasta   = hasta;
-    if (metrica) params.metrica = metrica;
-
-    const response = await axios.get('/estadisticas', { params });
+    const response = await axios.get('/estadisticas', { params: filtros });
     return response.data;
   } catch (error) {
-    console.error('Error al obtener estadísticas:', error);
+    console.error('Error al conectar con la API de estadísticas:', error);
     throw error;
   }
 };

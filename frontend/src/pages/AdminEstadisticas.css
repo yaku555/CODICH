@@ -1,0 +1,91 @@
+.estadisticas-page {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+  font-family: sans-serif;
+}
+.estadisticas-header h2 {
+  margin: 0 0 5px 0;
+  color: #111;
+}
+.estadisticas-header p {
+  color: #666;
+  margin: 0 0 20px 0;
+}
+.card {
+  background: white;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  margin-bottom: 20px;
+}
+.filtros-grid {
+  display: flex;
+  gap: 15px;
+  align-items: flex-end;
+  flex-wrap: wrap;
+}
+.filtro-campo {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  flex: 1;
+  min-width: 150px;
+}
+.filtro-campo label {
+  font-size: 13px;
+  font-weight: bold;
+  color: #444;
+}
+.filtro-campo input, .filtro-campo select {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+.btn-filtrar {
+  background: #1e5fa8;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+}
+.btn-filtrar:hover { background: #15457d; }
+.resumen-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+  margin-bottom: 20px;
+}
+.card-mini {
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  border-left: 5px solid #1e5fa8;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+}
+.card-mini.success { border-left-color: #2e7d32; }
+.card-mini.danger { border-left-color: #c62828; }
+.card-mini h4 { margin: 0 0 10px 0; color: #666; font-size: 14px; }
+.card-mini .valor { margin: 0; font-size: 28px; font-weight: bold; color: #222; }
+.graficos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+  gap: 20px;
+}
+.chart-container {
+  position: relative;
+  height: 280px;
+  width: 100%;
+}
+.sin-registros-box {
+  background: #fff3cd;
+  color: #856404;
+  border: 1px solid #ffeeba;
+  padding: 20px;
+  text-align: center;
+  border-radius: 6px;
+  font-weight: bold;
+  margin: 20px 0;
+}

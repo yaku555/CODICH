@@ -21,6 +21,9 @@ import Pagar from "./pages/Pagar.jsx";
 import ResultadoPago from "./pages/ResultadoPago.jsx";
 import AdminPostulacionDetalle from "./pages/AdminPostulacionDetalle.jsx";
 
+// Importación del nuevo panel de estadísticas
+import AdminEstadisticas from "./pages/AdminEstadisticas.jsx";
+
 import "./styles/App.css";
 
 function App() {
@@ -60,6 +63,9 @@ function App() {
               <Route path="/admin/postulaciones/:rut" element={<AdminPostulacionDetalle />} />
               <Route path="auditoria" element={<AuditoriaDashboard />} />
               <Route path="pagos" element={<AdminPagos />} />
+              
+              {/*  Nueva ruta hija para estadísticas dentro del Layout de Admin */}
+              <Route path="estadisticas" element={<AdminEstadisticas />} />
             </Route>
           </Route>
         </Routes>
