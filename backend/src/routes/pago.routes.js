@@ -5,15 +5,13 @@ const {
   confirmarPago,
   listarPagos,
   listarMembresias,
-  listarCuotas,
-  actualizarMorosidad,
+  cancelarMembresia,
 } = require('../controllers/pago.controller');
 
 router.post('/iniciar', iniciarPago);
 router.post('/confirmar', confirmarPago);
 router.get('/historial', listarPagos);
 router.get('/membresias', listarMembresias);
-router.get('/cuotas', listarCuotas);
-router.post('/morosidad/revisar', actualizarMorosidad);
+router.patch('/membresias/:id/cancelar', cancelarMembresia);
 
 module.exports = router;

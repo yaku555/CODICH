@@ -58,7 +58,18 @@ const enviarCorreoPostulacionAprobada = async (postulacion, passwordProvisoria) 
   });
 };
 
+const enviarCorreoContacto = async ({ nombre, email, asunto, mensaje }) => {
+  return enviarEmailJS(process.env.EMAILJS_TEMPLATE_CONTACTO, {
+    name: nombre,
+    email,
+    asunto,
+    mensaje,
+    admin_email: process.env.ADMIN_EMAIL || 'admin@codich.cl',
+  });
+};
+
 module.exports = {
   enviarCorreoPostulacionCreada,
-  enviarCorreoPostulacionAprobada
+  enviarCorreoPostulacionAprobada,
+  enviarCorreoContacto,
 };

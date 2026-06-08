@@ -7,12 +7,9 @@ const pagoSchema = new Schema(
     monto: { type: Number, required: true },
     plan: { type: String, default: 'Sin especificar' },
     planId: { type: String, default: '' },
-    modalidad: { type: String, enum: ['contado', 'cuotas'], default: 'contado' },
+    modalidad: { type: String, enum: ['contado'], default: 'contado' },
     rutSocio: { type: String, required: true },
     membresiaId: { type: Schema.Types.ObjectId, ref: 'Membresia' },
-    cuotaId: { type: Schema.Types.ObjectId, ref: 'Cuota' },
-    numeroCuota: { type: Number, default: 1 },
-    totalCuotas: { type: Number, default: 1 },
     estado: {
       type: String,
       enum: ['AUTHORIZED', 'FAILED', 'CANCELLED', 'PENDING'],
