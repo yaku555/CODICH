@@ -271,7 +271,6 @@ function AdminUsuarioDetalle() {
               name="profesion"
               value={form.profesion}
               onChange={handleChange}
-              placeholder="Ej: Enfermero, Médico, TENS, Administrativo"
               required
             />
           </div>
