@@ -9,6 +9,7 @@ const evaluarPostulacion = require('../utils/evaluarPostulacion');
 const {
   enviarCorreoPostulacionCreada,
   enviarCorreoPostulacionAprobada,
+  enviarCorreoPostulacionRechazada,
 } = require('../utils/correo.service');
 
 const subirCVSupabase = async (archivo, rut) => {
@@ -77,7 +78,7 @@ const create = async (req, res) => {
         error: 'Debes completar todos los campos obligatorios.',
       });
     }
-  
+
     const fechaNacimientoValida = new Date(fechaNacimiento);
 
     if (Number.isNaN(fechaNacimientoValida.getTime())) {
@@ -85,7 +86,7 @@ const create = async (req, res) => {
         error: 'La fecha de nacimiento no es válida.',
       });
     }
-    
+
     const postulacionExistente = await Postulacion.findOne({ rut });
 
     if (postulacionExistente) {
@@ -475,11 +476,23 @@ const rechazar = async (req, res) => {
     }
 
     await postulacion.save();
+    try {
+      await enviarCorreoPostulacionRechazada(postulacion);
 
-    return res.json({
-      message: 'Postulación rechazada correctamente.',
-      postulacion,
-    });
+      return res.json({
+        message: 'Postulación rechazada y correo enviado correctamente.',
+      });
+    } catch (errorCorreo) {
+      console.error(
+        'La postulación fue rechazada, pero falló el correo:',
+        errorCorreo.message
+      );
+
+      return res.json({
+        message: 'Postulación rechazada, pero no se pudo enviar el correo.',
+      });
+    }
+
   } catch (error) {
     console.error(error);
 

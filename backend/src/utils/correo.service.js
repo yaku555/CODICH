@@ -44,17 +44,20 @@ const enviarCorreoPostulacionCreada = async (postulacion) => {
 };
 
 const enviarCorreoPostulacionAprobada = async (postulacion, passwordProvisoria) => {
-  const linkPerfil = process.env.LINK_PERFIL_SOCIO || 'http://localhost:5173/miembros';
-
   return enviarEmailJS(process.env.EMAILJS_TEMPLATE_APROBACION, {
     name: `${postulacion.nombre} ${postulacion.apellido}`,
     email: postulacion.email,
-    link_pago: linkPerfil,
-    link_perfil: linkPerfil,
-    mensaje_pago: 'Tu postulacion fue aprobada. Ingresa a tu perfil de socio y usa el boton de pago de membresia para elegir plan mensual, trimestral o anual.',
-    password: passwordProvisoria,
-    rut: postulacion.rut,
-    profesion: postulacion.profesion
+    estado: 'Aprobada',
+    mensaje: `Hola ${postulacion.nombre},\nTe informamos que tu postulacion en CODICH ha sido aprobada.\nPodras iniciar sesion en codich.cl con tu croreo y una contraseña temporal que podras cambiar una vez iniciado.\nTu contraseña temporal es: ${passwordProvisoria} \n Ademas, te dejaremos un boton de pago de tu membresia en tu perfil de socio dentro de la pagina de CODICH para que puedas elegir el plan que mas te acomode y pagar inmediatamente.\nTendras 5 dias habiles para pagar, en caso de no hacerlo, el sistema dara de baja tu membresia.`,
+  });
+};
+
+const enviarCorreoPostulacionRechazada = async (postulacion) => {
+  return enviarEmailJS(process.env.EMAILJS_TEMPLATE_APROBACION, {
+    name: `${postulacion.nombre} ${postulacion.apellido}`,
+    email: postulacion.email,
+    estado: 'Rechazada',
+    mensaje: `Hola ${postulacion.nombre},\nTe informamos que tu postulacion en CODICH ha sido rechazada.\nSi tienes alguna pregunta, no dudes en contactarnos.`,
   });
 };
 
@@ -71,5 +74,6 @@ const enviarCorreoContacto = async ({ nombre, email, asunto, mensaje }) => {
 module.exports = {
   enviarCorreoPostulacionCreada,
   enviarCorreoPostulacionAprobada,
+  enviarCorreoPostulacionRechazada,
   enviarCorreoContacto,
 };
