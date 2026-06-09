@@ -258,31 +258,7 @@ function AdminPostulacionDetalle() {
         <div className="admin-acciones">
  
 
-          <button
-            type="button"
-            className="btn-guardar"
-            onClick={aprobarPostulacion}
-            disabled={!puedeAccionar || aprobando}
-          >
-            {aprobando
-              ? 'Aprobando...'
-              : postulacion.estado === 'Aprobada'
-                ? 'Aprobada'
-                : 'Aprobar'}
-          </button>
 
-          <button
-            type="button"
-            className="btn-eliminar"
-            onClick={rechazarPostulacion}
-            disabled={!puedeAccionar || rechazando}
-          >
-            {rechazando
-              ? 'Rechazando...'
-              : postulacion.estado === 'Rechazada'
-                ? 'Rechazada'
-                : 'Rechazar'}
-          </button>
 
           <Link to="/admin/postulaciones" className="btn-crear">
             Volver
@@ -376,6 +352,34 @@ function AdminPostulacionDetalle() {
                 </button>
               )}
               {!postulacion.documentoPath && <span>CV no disponible</span>}
+          </div>
+
+          <div className="form-acciones">
+            <button
+              type="button"
+              className="btn-guardar"
+              onClick={aprobarPostulacion}
+              disabled={!puedeAccionar || aprobando}
+            >
+              {aprobando
+                ? 'Aprobando...'
+                : postulacion.estado === 'Aprobada'
+                  ? 'Aprobada'
+                  : 'Aprobar'}
+            </button>
+
+            <button
+              type="button"
+              className="btn-eliminar"
+              onClick={rechazarPostulacion}
+              disabled={!puedeAccionar || rechazando}
+            >
+              {rechazando
+                ? 'Rechazando...'
+                : postulacion.estado === 'Rechazar'
+                  ? 'Rechazada'
+                  : 'Rechazar'}
+            </button>
           </div>
         </div>
       </section>
