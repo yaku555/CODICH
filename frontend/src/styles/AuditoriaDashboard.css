@@ -157,8 +157,14 @@
 }
 
 /* Tabla */
+/* Tabla */
+.tabla-card {
+  overflow: visible;
+}
+
 .tabla-wrapper {
   overflow-x: auto;
+  overflow-y: visible;
 }
 
 .log-table {
@@ -195,18 +201,6 @@
 
 .log-table tr:hover td {
   background: #f9fafb;
-}
-
-.td-mono  { font-family: 'Courier New', monospace; font-size: 0.75rem; color: #9ca3af; }
-.td-modulo { color: #6b7280; }
-.td-bold  { font-weight: 600; color: #111827; }
-.td-muted { color: #9ca3af !important; font-size: 0.72rem !important; }
-
-.sin-resultados {
-  text-align: center;
-  color: #9ca3af;
-  padding: 2rem !important;
-  font-style: italic;
 }
 
 /* Pills */
@@ -401,4 +395,76 @@
 
 .btn-limpiar-filtros:hover {
   background: #f3f4f6;
+}
+
+/* Tooltip solo para Usuario y Descripción */
+.td-usuario,
+.td-descripcion {
+  position: relative;
+  overflow: visible !important;
+}
+
+.td-usuario:hover,
+.td-descripcion:hover {
+  z-index: 20;
+}
+
+.auditoria-tooltip {
+  position: relative;
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  cursor: help;
+}
+
+.auditoria-texto-cortado {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  vertical-align: middle;
+}
+
+.auditoria-tooltip-box {
+  visibility: hidden;
+  opacity: 0;
+  position: absolute;
+  z-index: 99999;
+  left: 0;
+  top: calc(100% + 8px);
+  min-width: 260px;
+  max-width: 380px;
+  background: #111827;
+  color: #ffffff;
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  line-height: 1.4;
+  white-space: normal;
+  word-break: break-word;
+  box-shadow: 0 10px 25px rgba(15, 23, 42, 0.25);
+  pointer-events: none;
+  transition: opacity 0.15s ease, visibility 0.15s ease;
+}
+
+.auditoria-tooltip-box::before {
+  content: "";
+  position: absolute;
+  top: -6px;
+  left: 14px;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-bottom: 6px solid #111827;
+}
+
+.auditoria-tooltip:hover .auditoria-tooltip-box {
+  visibility: visible;
+  opacity: 1;
+}
+
+.auditoria-tooltip-box-grande {
+  min-width: 320px;
+  max-width: 520px;
 }

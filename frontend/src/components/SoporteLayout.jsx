@@ -36,11 +36,12 @@ function SoporteLayout() {
           >
             Backups
           </NavLink>
+          <button className="soporte-logout" onClick={cerrarSesion}>
+            Cerrar sesión
+          </button>
         </nav>
 
-        <button className="soporte-logout" onClick={cerrarSesion}>
-          Cerrar sesión
-        </button>
+
       </aside>
 
       <main className="soporte-main">

@@ -11,6 +11,39 @@ const NIVEL_CLASS = {
   ERROR: "pill-error",
 };
 
+function TooltipTexto({ titulo, texto, ancho = "normal", bold = false }) {
+  const contenido = texto || "Sin información";
+
+  return (
+    <span
+      className="auditoria-tooltip"
+      title={`${titulo}: ${contenido}`}
+    >
+      <span
+        className={
+          bold
+            ? "auditoria-texto-cortado td-bold"
+            : "auditoria-texto-cortado"
+        }
+      >
+        {contenido}
+      </span>
+
+      <span
+        className={
+          ancho === "grande"
+            ? "auditoria-tooltip-box auditoria-tooltip-box-grande"
+            : "auditoria-tooltip-box"
+        }
+      >
+        <strong>{titulo}:</strong>
+        <br />
+        {contenido}
+      </span>
+    </span>
+  );
+}
+
 export default function AuditoriaDashboard() {
   const [logs, setLogs] = useState([]);
   const [resumen, setResumen] = useState({
@@ -85,7 +118,15 @@ export default function AuditoriaDashboard() {
   useEffect(() => {
     if (cargando) return;
 
-    const modulosLabels = ["Auth", "Socios", "Pagos", "Postulaciones", "Admin"];
+    const modulosLabels = [
+      "Auth",
+      "Socios",
+      "Pagos",
+      "Postulaciones",
+      "Admin",
+      "Soporte",
+    ];
+
     const dataModulosReal = modulosLabels.map((mod) =>
       logs.filter((log) => log.modulo === mod).length
     );
@@ -171,29 +212,32 @@ export default function AuditoriaDashboard() {
     const conteo = {};
 
     logs.forEach((log) => {
-      if (!conteo[log.usuario]) {
-        conteo[log.usuario] = {
-          nombre: log.usuario,
+      const usuarioLog = log.usuario || "Sin usuario";
+      const descripcionLog = log.descripcion || "Sin descripción";
+
+      if (!conteo[usuarioLog]) {
+        conteo[usuarioLog] = {
+          nombre: usuarioLog,
           acciones: 0,
           ultimo:
-            log.descripcion.length > 30
-              ? `${log.descripcion.substring(0, 30)}...`
-              : log.descripcion,
+            descripcionLog.length > 30
+              ? `${descripcionLog.substring(0, 30)}...`
+              : descripcionLog,
           fechaUltimo: new Date(log.fecha),
-          ini: log.usuario.substring(0, 2).toUpperCase(),
+          ini: usuarioLog.substring(0, 2).toUpperCase(),
           color: "#1e5fa8",
         };
       }
 
-      conteo[log.usuario].acciones += 1;
+      conteo[usuarioLog].acciones += 1;
 
-      if (new Date(log.fecha) > conteo[log.usuario].fechaUltimo) {
-        conteo[log.usuario].ultimo =
-          log.descripcion.length > 30
-            ? `${log.descripcion.substring(0, 30)}...`
-            : log.descripcion;
+      if (new Date(log.fecha) > conteo[usuarioLog].fechaUltimo) {
+        conteo[usuarioLog].ultimo =
+          descripcionLog.length > 30
+            ? `${descripcionLog.substring(0, 30)}...`
+            : descripcionLog;
 
-        conteo[log.usuario].fechaUltimo = new Date(log.fecha);
+        conteo[usuarioLog].fechaUltimo = new Date(log.fecha);
       }
     });
 
@@ -355,6 +399,7 @@ export default function AuditoriaDashboard() {
               <option value="Pagos">Pagos</option>
               <option value="Postulaciones">Postulaciones</option>
               <option value="Admin">Administración</option>
+              <option value="Soporte">Soporte</option>
             </select>
           </div>
 
@@ -447,9 +492,26 @@ export default function AuditoriaDashboard() {
                     </td>
 
                     <td className="td-modulo">{log.modulo}</td>
-                    <td className="td-bold">{log.usuario}</td>
-                    <td>{log.descripcion}</td>
-                    <td className="td-mono td-muted">{log.ip}</td>
+
+                    <td className="td-usuario">
+                      <TooltipTexto
+                        titulo="Usuario"
+                        texto={log.usuario}
+                        bold
+                      />
+                    </td>
+
+                    <td className="td-descripcion">
+                      <TooltipTexto
+                        titulo="Descripción"
+                        texto={log.descripcion}
+                        ancho="grande"
+                      />
+                    </td>
+
+                    <td className="td-mono td-muted">
+                      {log.ip || "desconocida"}
+                    </td>
                   </tr>
                 ))
               )}
