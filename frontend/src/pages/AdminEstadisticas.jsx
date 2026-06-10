@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Chart, registerables } from 'chart.js';
 import { getEstadisticasAPI } from '../api/estadisticas';
-import './AdminEstadisticas.css';
+import '../styles/AdminEstadisticas.css';
 
 Chart.register(...registerables);
 

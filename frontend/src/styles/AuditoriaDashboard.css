@@ -371,3 +371,34 @@
   background: #f3f4f6;
   color: #111827;
 }
+
+.filtro-fecha {
+  font-size: 0.78rem;
+  padding: 5px 10px;
+  border: 1px solid #d1d5db;
+  border-radius: 7px;
+  color: #374151;
+  background: #f9fafb;
+  outline: none;
+  height: 32px;
+}
+
+.filtro-fecha:focus {
+  border-color: #1e5fa8;
+  background: #fff;
+}
+
+.btn-limpiar-filtros {
+  height: 32px;
+  padding: 5px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 7px;
+  background: #fff;
+  color: #374151;
+  font-size: 0.78rem;
+  cursor: pointer;
+}
+
+.btn-limpiar-filtros:hover {
+  background: #f3f4f6;
+}
