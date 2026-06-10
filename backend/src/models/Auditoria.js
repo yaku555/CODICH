@@ -8,7 +8,7 @@ const auditoriaSchema = new mongoose.Schema({
   },
   modulo: {
     type: String,
-    enum: ['Auth', 'Socios', 'Pagos', 'Postulaciones', 'Admin'],
+    enum: ['Auth', 'Socios', 'Pagos', 'Postulaciones', 'Admin', 'Soporte'],
     required: true,
   },
   usuario: {

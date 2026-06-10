@@ -27,6 +27,7 @@ const auditoriaMiddleware = async (req, res, next) => {
       if (url.includes('postulacion')) moduloDetectado = 'Postulaciones';
       if (url.includes('pago')) moduloDetectado = 'Pagos';
       if (url.includes('socio')) moduloDetectado = 'Socios';
+      if (url.includes('soporte')) moduloDetectado = 'Soporte';
 
       // 3. Capturar el Operador
       let usuarioOperador = 'Sistema Admin';

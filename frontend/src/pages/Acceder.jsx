@@ -2,7 +2,9 @@ import { useState } from 'react';
 import { loginUsuario } from '../api/usuarios';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useUsuario } from '../context/usuario.context'; 
+import { loginSoporteTecnico } from '../api/soporteTecnico';
 import Postulacion from './Postulacion.jsx';
+
 
 function Acceder() {
   const [email, setEmail] = useState('');
@@ -12,32 +14,44 @@ function Acceder() {
   const navigate = useNavigate();
   const { setUsuario } = useUsuario(); // ← AGREGAR ESTO
 
-const handleLogin = async (e) => {
-  e.preventDefault();
-  setLoading(true);
-  setError(null);
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
 
-  try {
-    const usuario = await loginUsuario(email, password);
-    setUsuario(usuario);
-    localStorage.setItem('usuario', JSON.stringify(usuario));
+    try {
+      let usuarioAutenticado = null;
 
-    const rol = usuario.rol?.toLowerCase().trim();
+      try {
+        usuarioAutenticado = await loginUsuario(email, password);
+      } catch (errorUsuario) {
+        usuarioAutenticado = await loginSoporteTecnico(email, password);
+      }
 
-    if (rol === 'admin' || rol === 'administrador') {
-      navigate('/admin');
-    } else if (rol === 'usuario') {
-      navigate('/miembros');
-    } else {
-      navigate('/');
+      setUsuario(usuarioAutenticado);
+      localStorage.setItem('usuario', JSON.stringify(usuarioAutenticado));
+
+      const rol = usuarioAutenticado.rol?.toLowerCase().trim();
+
+      if (rol === 'admin' || rol === 'administrador') {
+        navigate('/admin');
+      } else if (rol === 'soporte_tecnico') {
+        navigate('/soporte/logs');
+      } else if (rol === 'usuario') {
+        navigate('/miembros');
+      } else {
+        navigate('/');
+      }
+    } catch (err) {
+      setError(
+        err.response?.data?.error ||
+        err.response?.data?.message ||
+        'Error al iniciar sesión'
+      );
+    } finally {
+      setLoading(false);
     }
-
-  } catch (err) {
-    setError(err.response?.data?.error || 'Error al iniciar sesión');
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
   return (
     <main className="page login-page">
