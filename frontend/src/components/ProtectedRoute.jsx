@@ -117,7 +117,11 @@ function ProtectedRoute({ rolesPermitidos = [] }) {
       <Navigate
         to="/acceder"
         replace
-        state={{ from: location.pathname }}
+        state={{
+          from: location.pathname,
+          requiereLogin: true,
+          mensaje: 'Debes iniciar sesión para acceder',
+        }}
       />
     );
   }
@@ -130,6 +134,7 @@ function ProtectedRoute({ rolesPermitidos = [] }) {
         state={{
           from: location.pathname,
           accesoDenegado: true,
+          mensaje: 'Acceso denegado',
         }}
       />
     );
