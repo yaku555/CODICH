@@ -1,7 +1,3 @@
-// Model  = modelo de Mongoose (Usuario, Vehiculo, etc.)
-// getData = función que extrae los campos válidos del body (getUsuarioData, getVehiculoData)
-// idParam  = nombre del parámetro en la URL (por ejemplo: 'rut' o 'poliza')
-// idField  = nombre del campo en la base de datos (por ejemplo: 'rut' o 'poliza')
 const createCrudController = (Model, getDataFn, idParam, idField) => {
   // GET / (todos)
   const getAll = async (req, res, next) => {

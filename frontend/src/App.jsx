@@ -20,6 +20,11 @@ import AdminPagos from "./pages/AdminPagos.jsx";
 import Pagar from "./pages/Pagar.jsx";
 import ResultadoPago from "./pages/ResultadoPago.jsx";
 import AdminPostulacionDetalle from "./pages/AdminPostulacionDetalle.jsx";
+import AdminEstadisticas from "./pages/AdminEstadisticas.jsx";
+import SoporteLayout from "./components/SoporteLayout.jsx";
+import SoporteLogs from "./pages/SoporteLogs.jsx";
+import SoporteBackups from "./pages/SoporteBackups.jsx";
+
 
 import "./styles/App.css";
 
@@ -60,6 +65,18 @@ function App() {
               <Route path="/admin/postulaciones/:rut" element={<AdminPostulacionDetalle />} />
               <Route path="auditoria" element={<AuditoriaDashboard />} />
               <Route path="pagos" element={<AdminPagos />} />
+              <Route path="estadisticas" element={<AdminEstadisticas />} />
+            </Route>
+          </Route>
+          <Route
+            element={
+              <ProtectedRoute rolesPermitidos={["soporte_tecnico"]} />
+            }
+          >
+            <Route path="/soporte" element={<SoporteLayout />}>
+              <Route index element={<Navigate to="/soporte/logs" replace />} />
+              <Route path="logs" element={<SoporteLogs />} />
+              <Route path="backups" element={<SoporteBackups />} />
             </Route>
           </Route>
         </Routes>

@@ -13,6 +13,8 @@ const postulacionRoutes = require('./routes/postulacion.routes');
 const auditoriaRoutes = require('./routes/auditoria.routes');
 const pagoRoutes = require('./routes/pago.routes');
 const contactoRoutes = require('./routes/contacto.routes');
+const estadisticasRoutes = require('./routes/estadisticas.routes');
+const soporteTecnicoRoutes = require('./routes/soporteTecnico.routes');
 
 const app = express();
 
@@ -29,6 +31,8 @@ app.use('/api/postulaciones', postulacionRoutes);
 app.use('/api/auditoria', auditoriaRoutes);
 app.use('/api/pagos', pagoRoutes);
 app.use('/api/contacto', contactoRoutes);
+app.use('/api/estadisticas', estadisticasRoutes);
+app.use('/api/soporte-tecnico', soporteTecnicoRoutes);
 
 app.use(notFound);
 app.use(errorHandler);

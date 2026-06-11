@@ -1,12 +1,21 @@
 import axios from './axios';
 
-// Obtener todos los logs (acepta filtros opcionales)
-export const getLogs = async ({ nivel, modulo, usuario } = {}) => {
+const construirParams = ({ nivel, modulo, usuario, fechaDesde, fechaHasta } = {}) => {
+  const params = {};
+
+  if (nivel) params.nivel = nivel;
+  if (modulo) params.modulo = modulo;
+  if (usuario) params.usuario = usuario;
+  if (fechaDesde) params.fechaDesde = fechaDesde;
+  if (fechaHasta) params.fechaHasta = fechaHasta;
+
+  return params;
+};
+
+// Obtener todos los logs con filtros opcionales
+export const getLogs = async (filtros = {}) => {
   try {
-    const params = {};
-    if (nivel)   params.nivel   = nivel;
-    if (modulo)  params.modulo  = modulo;
-    if (usuario) params.usuario = usuario;
+    const params = construirParams(filtros);
 
     const response = await axios.get('/auditoria', { params });
     return response.data;
@@ -16,10 +25,12 @@ export const getLogs = async ({ nivel, modulo, usuario } = {}) => {
   }
 };
 
-// Obtener métricas del día (total, exitosos, advertencias, errores)
-export const getResumen = async () => {
+// Obtener métricas según filtros
+export const getResumen = async (filtros = {}) => {
   try {
-    const response = await axios.get('/auditoria/resumen');
+    const params = construirParams(filtros);
+
+    const response = await axios.get('/auditoria/resumen', { params });
     return response.data;
   } catch (error) {
     console.error('Error al obtener el resumen de auditoría:', error);

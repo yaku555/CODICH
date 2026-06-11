@@ -204,3 +204,14 @@
     grid-column: span 1;
   }
 }
+
+.login-error {
+  margin: 10px 0;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: #fee2e2;
+  color: #991b1b;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border: 1px solid #fecaca;
+}

@@ -44,14 +44,41 @@ const registrarLogAPI = async (req, res) => {
 
 const registrarLog = registrarLogAPI;  // Mantener compatibilidad con las rutas existentes
 
+const construirFiltrosAuditoria = (query) => {
+  const { nivel, modulo, usuario, fechaDesde, fechaHasta } = query;
+
+  const filtros = {};
+
+  if (nivel) filtros.nivel = nivel;
+  if (modulo) filtros.modulo = modulo;
+  if (usuario) filtros.usuario = { $regex: usuario, $options: 'i' };
+
+  const filtroFecha = {};
+
+  if (fechaDesde) {
+    const desde = new Date(fechaDesde);
+    if (!Number.isNaN(desde.getTime())) {
+      filtroFecha.$gte = desde;
+    }
+  }
+
+  if (fechaHasta) {
+    const hasta = new Date(fechaHasta);
+    if (!Number.isNaN(hasta.getTime())) {
+      filtroFecha.$lte = hasta;
+    }
+  }
+
+  if (Object.keys(filtroFecha).length > 0) {
+    filtros.fecha = filtroFecha;
+  }
+
+  return filtros;
+};
+
 const getLogs = async (req, res) => {
   try {
-    const { nivel, modulo, usuario } = req.query;
-
-    const filtros = {};
-    if (nivel)   filtros.nivel   = nivel;
-    if (modulo)  filtros.modulo  = modulo;
-    if (usuario) filtros.usuario = { $regex: usuario, $options: 'i' };
+    const filtros = construirFiltrosAuditoria(req.query);
 
     const logs = await Auditoria.find(filtros)
       .sort({ fecha: -1 })
@@ -66,17 +93,37 @@ const getLogs = async (req, res) => {
 
 const getResumen = async (req, res) => {
   try {
-    const inicioDia = new Date();
-    inicioDia.setHours(0, 0, 0, 0);
+    const filtros = construirFiltrosAuditoria(req.query);
+
+    const filtrosSinNivel = { ...filtros };
+    delete filtrosSinNivel.nivel;
+
+    const nivelSeleccionado = req.query.nivel;
+
+    const contarNivel = (nivel) => {
+      if (nivelSeleccionado && nivelSeleccionado !== nivel) {
+        return 0;
+      }
+
+      return Auditoria.countDocuments({
+        ...filtrosSinNivel,
+        nivel,
+      });
+    };
 
     const [total, exitosos, advertencias, errores] = await Promise.all([
-      Auditoria.countDocuments({ fecha: { $gte: inicioDia } }),
-      Auditoria.countDocuments({ fecha: { $gte: inicioDia }, nivel: 'INFO' }),
-      Auditoria.countDocuments({ fecha: { $gte: inicioDia }, nivel: 'WARN' }),
-      Auditoria.countDocuments({ fecha: { $gte: inicioDia }, nivel: 'ERROR' }),
+      Auditoria.countDocuments(filtros),
+      contarNivel('INFO'),
+      contarNivel('WARN'),
+      contarNivel('ERROR'),
     ]);
 
-    res.status(200).json({ total, exitosos, advertencias, errores });
+    res.status(200).json({
+      total,
+      exitosos,
+      advertencias,
+      errores,
+    });
   } catch (error) {
     console.error('Error al obtener resumen de auditoría:', error);
     res.status(500).json({ error: 'Hubo un problema al obtener el resumen' });

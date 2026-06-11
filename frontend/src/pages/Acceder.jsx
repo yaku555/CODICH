@@ -1,43 +1,75 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { loginUsuario } from '../api/usuarios';
-import { NavLink, useNavigate } from 'react-router-dom';
-import { useUsuario } from '../context/usuario.context'; 
-import Postulacion from './Postulacion.jsx';
+import { NavLink, useLocation, useNavigate } from 'react-router-dom';
+import { useUsuario } from '../context/usuario.context';
+import { loginSoporteTecnico } from '../api/soporteTecnico';
 
 function Acceder() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
+
   const navigate = useNavigate();
-  const { setUsuario } = useUsuario(); // ← AGREGAR ESTO
+  const location = useLocation();
+  const { setUsuario } = useUsuario();
 
-const handleLogin = async (e) => {
-  e.preventDefault();
-  setLoading(true);
-  setError(null);
+  useEffect(() => {
+    if (location.state?.accesoDenegado) {
+      setError('Acceso denegado');
 
-  try {
-    const usuario = await loginUsuario(email, password);
-    setUsuario(usuario);
-    localStorage.setItem('usuario', JSON.stringify(usuario));
+      navigate(location.pathname, {
+        replace: true,
+        state: null,
+      });
+    } else if (location.state?.requiereLogin) {
+      setError('Debes iniciar sesión para acceder');
 
-    const rol = usuario.rol?.toLowerCase().trim();
-
-    if (rol === 'admin' || rol === 'administrador') {
-      navigate('/admin');
-    } else if (rol === 'usuario') {
-      navigate('/perfil');
-    } else {
-      navigate('/');
+      navigate(location.pathname, {
+        replace: true,
+        state: null,
+      });
     }
+  }, [location.state, location.pathname, navigate]);
 
-  } catch (err) {
-    setError(err.response?.data?.error || 'Error al iniciar sesión');
-  } finally {
-    setLoading(false);
-  }
-};
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+
+    try {
+      let usuarioAutenticado = null;
+
+      try {
+        usuarioAutenticado = await loginUsuario(email, password);
+      } catch (errorUsuario) {
+        usuarioAutenticado = await loginSoporteTecnico(email, password);
+      }
+
+      setUsuario(usuarioAutenticado);
+      localStorage.setItem('usuario', JSON.stringify(usuarioAutenticado));
+
+      const rol = usuarioAutenticado.rol?.toLowerCase().trim();
+
+      if (rol === 'admin' || rol === 'administrador') {
+        navigate('/admin');
+      } else if (rol === 'soporte_tecnico') {
+        navigate('/soporte/logs');
+      } else if (rol === 'usuario') {
+        navigate('/miembros');
+      } else {
+        navigate('/');
+      }
+    } catch (err) {
+      setError(
+        err.response?.data?.error ||
+        err.response?.data?.message ||
+        'Error al iniciar sesión'
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <main className="page login-page">
@@ -45,8 +77,12 @@ const handleLogin = async (e) => {
         <h1>Acceder</h1>
         <p>Ingresa a tu cuenta CODICH.</p>
 
-        {error && <p style={{ color: 'red' }}>{error}</p>}
-        
+        {error && (
+          <div className="login-error">
+            {error}
+          </div>
+        )}
+
         <form onSubmit={handleLogin}>
           <input
             type="email"
@@ -55,6 +91,7 @@ const handleLogin = async (e) => {
             onChange={(e) => setEmail(e.target.value)}
             required
           />
+
           <input
             type="password"
             placeholder="Contraseña"
@@ -62,14 +99,15 @@ const handleLogin = async (e) => {
             onChange={(e) => setPassword(e.target.value)}
             required
           />
+
           <button type="submit" className="primary-btn" disabled={loading}>
             {loading ? 'Iniciando...' : 'Iniciar sesión'}
           </button>
-          
-          <p>¿No tienes cuenta?{" "}
+
+          <p>
+            ¿No tienes cuenta?{' '}
             <NavLink to="/postulacion">Postula aquí</NavLink>
           </p>
-
         </form>
       </div>
     </main>

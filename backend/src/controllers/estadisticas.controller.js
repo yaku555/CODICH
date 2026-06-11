@@ -15,7 +15,15 @@ const getEstadisticas = async (req, res) => {
     }
     const tieneFecha = Object.keys(filtroFecha).length > 0;
 
-    const resultado = {};
+    const resultado = {
+      totalSocios: 0,
+      sociosPorProfesion: [],
+      membresiasVigentes: 0,
+      membresiasVencidas: 0,
+      postulacionesPendientes: 0,
+      postulacionesAprobadas: 0,
+      postulacionesPorEstado: []
+    };
 
     // ── Socios ───────────────────────────────────────────────────────
     if (metrica === 'todos' || metrica === 'socios') {
@@ -68,6 +76,16 @@ const getEstadisticas = async (req, res) => {
         { $sort: { cantidad: -1 } },
       ]);
     }
+
+  
+    const totalRegistrosEncontrados = 
+      resultado.totalSocios + 
+      resultado.membresiasVigentes + 
+      resultado.membresiasVencidas + 
+      resultado.postulacionesPorEstado.length + 
+      resultado.sociosPorProfesion.length;
+
+    resultado.hayRegistros = totalRegistrosEncontrados > 0;
 
     res.status(200).json(resultado);
   } catch (error) {
