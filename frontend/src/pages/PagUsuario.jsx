@@ -4,6 +4,14 @@ import { useUsuario } from '../context/usuario.context';
 import { actualizarUsuario } from '../api/usuarios';
 import { OPCIONES_MEMBRESIA, PLANES_PRINCIPALES, formatMonto } from '../data/planesMembresia';
 import '../styles/PagUsuario.css';
+import {
+  obtenerMembresiasPorRut,
+  iniciarPagoMembresia,
+  renovarMembresia,
+  cancelarMembresia,
+  simularVencimientoMembresia,
+  simularRenovacionMembresia,
+} from '../api/pagos';
 
 const formatearFecha = (fecha) => {
   if (!fecha) return 'No especificada';
@@ -11,6 +19,38 @@ const formatearFecha = (fecha) => {
   return new Date(fecha).toLocaleDateString('es-CL', {
     timeZone: 'UTC',
   });
+};
+
+const ESTADOS_BLOQUEANTES = [
+  'PENDIENTE',
+  'ACTIVA',
+  'POR_PAGAR',
+  'MOROSA',
+  'SUSPENDIDA',
+];
+const CLASE_ESTADO_MEMBRESIA = {
+  ACTIVA: 'perfil-pill-activa',
+  CANCELADA: 'perfil-pill-cancelada',
+  FINALIZADA: 'perfil-pill-cancelada',
+  MOROSA: 'perfil-pill-morosa',
+  SUSPENDIDA: 'perfil-pill-suspendida',
+  PENDIENTE: 'perfil-pill-pendiente',
+  POR_PAGAR: 'perfil-pill-por-pagar',
+};
+
+const redirigirAWebpay = ({ url, token }) => {
+  const form = document.createElement('form');
+  form.method = 'POST';
+  form.action = url;
+
+  const input = document.createElement('input');
+  input.type = 'hidden';
+  input.name = 'token_ws';
+  input.value = token;
+
+  form.appendChild(input);
+  document.body.appendChild(form);
+  form.submit();
 };
 
 function PagMiembros() {
@@ -49,6 +89,19 @@ function PagMiembros() {
     (o) => o.planId === planActivo && o.modalidad === 'contado'
   );
 
+  const membresiaBloqueante =
+    membresiaActiva && ESTADOS_BLOQUEANTES.includes(membresiaActiva.estado);
+
+  const puedeCrearNuevaMembresia = !membresiaBloqueante;
+
+  const puedeRenovar =
+    membresiaActiva &&
+    membresiaActiva.puedeRenovar &&
+    !['CANCELADA', 'FINALIZADA'].includes(membresiaActiva.estado);
+
+  const claseEstado =
+    CLASE_ESTADO_MEMBRESIA[membresiaActiva?.estado] || '';
+
   useEffect(() => {
     if (usuario) {
       setForm({
@@ -62,28 +115,29 @@ function PagMiembros() {
     }
   }, [usuario]);
 
-  useEffect(() => {
+  const cargarMembresia = async () => {
     if (!usuario?.rut) return;
-    const cargarMembresia = async () => {
-      try {
-        setCargandoMembresia(true);
-        const res = await fetch(
-          `http://localhost:4000/api/pagos/membresias?rut=${encodeURIComponent(usuario.rut)}`
-        );
-        const data = await res.json();
 
-        const membresias = Array.isArray(data) ? data : [];
+    try {
+      setCargandoMembresia(true);
 
-        const membresiaMostrar =
-          membresias.find((m) => m.estado === 'ACTIVA') || membresias[0] || null;
+      const data = await obtenerMembresiasPorRut(usuario.rut);
+      const membresias = Array.isArray(data) ? data : [];
 
-        setMembresiaActiva(membresiaMostrar);
-      } catch {
-        setMembresiaActiva(null);
-      } finally {
-        setCargandoMembresia(false);
-      }
-    };
+      const membresiaMostrar =
+        membresias.find((m) => ESTADOS_BLOQUEANTES.includes(m.estado)) ||
+        membresias[0] ||
+        null;
+
+      setMembresiaActiva(membresiaMostrar);
+    } catch {
+      setMembresiaActiva(null);
+    } finally {
+      setCargandoMembresia(false);
+    }
+  };
+
+  useEffect(() => {
     cargarMembresia();
   }, [usuario?.rut]);
 
@@ -125,22 +179,20 @@ function PagMiembros() {
   // --- Handlers membresía ---
   const confirmarCancelacion = async () => {
     if (!membresiaActiva) return;
+
     try {
       setCancelando(true);
-      const res = await fetch(
-        `http://localhost:4000/api/pagos/membresias/${membresiaActiva._id}/cancelar`,
-        { method: 'PATCH' }
+
+      const data = await cancelarMembresia(membresiaActiva._id);
+
+      setMembresiaActiva(data.membresia || { ...membresiaActiva, estado: 'CANCELADA' });
+      setMensajeCancelacion('Membresía cancelada. Puedes contratar una nueva cuando lo desees.');
+      setConfirmandoCancelacion(false);
+      setShowSelector(false);
+    } catch (err) {
+      setMensajeCancelacion(
+        err.response?.data?.error || 'No se pudo cancelar la membresía.'
       );
-      const data = await res.json();
-      if (res.ok) {
-        setMembresiaActiva({ ...membresiaActiva, estado: 'CANCELADA' });
-        setMensajeCancelacion('Membresía cancelada. Puedes contratar una nueva cuando lo desees.');
-        setConfirmandoCancelacion(false);
-      } else {
-        setMensajeCancelacion(data.error || 'No se pudo cancelar.');
-      }
-    } catch {
-      setMensajeCancelacion('Error de conexión. Intenta nuevamente.');
     } finally {
       setCancelando(false);
     }
@@ -149,30 +201,106 @@ function PagMiembros() {
   // --- Handlers pagos ---
   const iniciarPago = async (planId) => {
     if (!usuario?.rut) {
-      setErrorPago('Debes iniciar sesion para pagar tu membresia.');
+      setErrorPago('Debes iniciar sesión para pagar tu membresía.');
       return;
     }
+
+    if (!puedeCrearNuevaMembresia) {
+      setErrorPago('Ya tienes una membresía vigente. No puedes crear otra.');
+      return;
+    }
+
     try {
       setCargandoPago(true);
       setErrorPago('');
-      const res = await fetch('http://localhost:4000/api/pagos/iniciar', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ rutSocio: usuario.rut, planId }),
+
+      const data = await iniciarPagoMembresia({
+        rutSocio: usuario.rut,
+        planId,
       });
-      const data = await res.json();
+
       if (data.url && data.token) {
-        window.location.href = `${data.url}?token_ws=${data.token}`;
+        redirigirAWebpay(data);
         return;
       }
+
       setErrorPago(data.error || 'No se pudo iniciar el pago.');
-    } catch {
-      setErrorPago('Error de conexion con el servidor. Verifica que el backend este activo.');
+    } catch (err) {
+      setErrorPago(
+        err.response?.data?.error ||
+        'Error de conexión con el servidor. Verifica que el backend esté activo.'
+      );
     } finally {
       setCargandoPago(false);
     }
   };
 
+  const renovarPagoMembresia = async () => {
+    if (!membresiaActiva?._id) return;
+
+    try {
+      setCargandoPago(true);
+      setErrorPago('');
+
+      const data = await renovarMembresia(membresiaActiva._id, false);
+
+      if (data.url && data.token) {
+        redirigirAWebpay(data);
+        return;
+      }
+
+      setErrorPago(data.error || 'No se pudo iniciar la renovación.');
+    } catch (err) {
+      setErrorPago(
+        err.response?.data?.error ||
+        'No se pudo renovar la membresía.'
+      );
+    } finally {
+      setCargandoPago(false);
+    }
+  };
+
+  const simularVencimiento = async () => {
+    if (!membresiaActiva?._id) return;
+
+    try {
+      setCargandoPago(true);
+      setErrorPago('');
+
+      await simularVencimientoMembresia(membresiaActiva._id);
+      await cargarMembresia();
+
+      setMensajeCancelacion('');
+    } catch (err) {
+      setErrorPago(
+        err.response?.data?.error ||
+        'No se pudo simular el vencimiento.'
+      );
+    } finally {
+      setCargandoPago(false);
+    }
+  };
+
+  const simularRenovacion = async () => {
+    if (!membresiaActiva?._id) return;
+
+    try {
+      setCargandoPago(true);
+      setErrorPago('');
+
+      await simularRenovacionMembresia(membresiaActiva._id);
+      await cargarMembresia();
+
+      setMensajeCancelacion('');
+    } catch (err) {
+      setErrorPago(
+        err.response?.data?.error ||
+        'No se pudo simular la renovación.'
+      );
+    } finally {
+      setCargandoPago(false);
+    }
+  };
   // --- Handlers contacto ---
   const enviarConsulta = async (e) => {
     e.preventDefault();
@@ -268,6 +396,7 @@ function PagMiembros() {
                 <span>Área de formación</span>
                 <strong>{obtenerTextoArea(usuario.areaFormacion)}</strong>
               </div>
+
             </div>
             <button className="btn-editar-perfil" onClick={() => { setExitoPerfil(''); setErrorPerfil(''); setEditando(true); }}>
               Editar perfil
@@ -309,7 +438,7 @@ function PagMiembros() {
               <p className="perfil-subtitulo">Contrato vigente</p>
               <h2>Mi membresía</h2>
             </div>
-            <span className={`perfil-pill ${membresiaActiva.estado === 'ACTIVA' ? 'perfil-pill-activa' : 'perfil-pill-cancelada'}`}>
+            <span className={`perfil-pill ${claseEstado}`}>
               {membresiaActiva.estado}
             </span>
           </div>
@@ -319,12 +448,51 @@ function PagMiembros() {
               <span>Plan</span>
               <strong>{membresiaActiva.planNombre}</strong>
             </div>
+
             <div className="perfil-dato">
               <span>Vence</span>
               <strong>{formatearFecha(membresiaActiva.fechaTermino)}</strong>
             </div>
+
+            <div className="perfil-dato">
+              <span>Próximo pago</span>
+              <strong>{formatearFecha(membresiaActiva.fechaProximoPago)}</strong>
+            </div>
+
+
+
+            <div className="perfil-dato">
+              <span>Pagos asociados</span>
+              <strong>{membresiaActiva.pagos?.length || 0}</strong>
+            </div>
+
+            {membresiaActiva.codigoMembresia && (
+              <div className="perfil-dato">
+                <span>Código membresía</span>
+                <strong>{membresiaActiva.codigoMembresia}</strong>
+              </div>
+            )}
+
+            {membresiaActiva && (
+              <div className="perfil-dato">
+                <span>Monto renovación</span>
+                <strong>
+                  {typeof membresiaActiva.montoRenovacion === 'number'
+                    ? formatMonto(membresiaActiva.montoRenovacion)
+                    : 'No disponible'}
+                </strong>
+              </div>
+            )}
           </div>
 
+          {membresiaActiva.esPagoConMora && (
+            <div className="perfil-aviso-mora">
+              Esta membresía tiene mora. La próxima renovación tendrá un recargo de{' '}
+              <strong>{membresiaActiva.porcentajeRecargo}%</strong>, equivalente a{' '}
+              <strong>{formatMonto(membresiaActiva.recargoMora)}</strong>. Después de pagar,
+              el monto vuelve a la normalidad.
+            </div>
+          )}
           <div className="perfil-politica">
             <strong>Política de cancelación</strong>
             <p>{membresiaActiva.politicaCancelacion}</p>
@@ -334,10 +502,48 @@ function PagMiembros() {
             <p className="perfil-muted perfil-msg-cancelacion">{mensajeCancelacion}</p>
           )}
 
-          {membresiaActiva.estado === 'ACTIVA' && !confirmandoCancelacion && !mensajeCancelacion && (
-            <button className="btn-cancelar-membresia" onClick={() => setConfirmandoCancelacion(true)}>
-              Cancelar membresía
-            </button>
+          {!confirmandoCancelacion && !mensajeCancelacion && (
+            <div className="perfil-acciones-membresia">
+              {puedeRenovar && (
+                <button
+                  className="btn-renovar-membresia"
+                  onClick={renovarPagoMembresia}
+                  disabled={cargandoPago}
+                >
+                  {cargandoPago ? 'Redirigiendo a WebPay...' : 'Renovar membresía'}
+                </button>
+              )}
+
+              {!['CANCELADA', 'FINALIZADA'].includes(membresiaActiva.estado) && (
+                <button
+                  className="btn-cancelar-membresia"
+                  onClick={() => setConfirmandoCancelacion(true)}
+                  disabled={cargandoPago}
+                >
+                  Cancelar membresía
+                </button>
+              )}
+
+              {!['CANCELADA', 'FINALIZADA'].includes(membresiaActiva.estado) && (
+                <button
+                  className="btn-simular-renovacion"
+                  onClick={simularRenovacion}
+                  disabled={cargandoPago}
+                >
+                  Simular renovación
+                </button>
+              )}
+
+              {!['CANCELADA', 'FINALIZADA'].includes(membresiaActiva.estado) && (
+                <button
+                  className="btn-simular-membresia"
+                  onClick={simularVencimiento}
+                  disabled={cargandoPago}
+                >
+                  Simular vencimiento con mora
+                </button>
+              )}
+            </div>
           )}
 
           {confirmandoCancelacion && (
@@ -357,6 +563,7 @@ function PagMiembros() {
       )}
 
       {/* Pagos */}
+      {/* Pagos */}
       <section className="perfil-card perfil-pagos-card">
         <div className="perfil-section-head">
           <div>
@@ -368,52 +575,94 @@ function PagMiembros() {
 
         {errorPago && <p className="perfil-error">{errorPago}</p>}
 
-        <div className="perfil-pago-bloque">
-          {!showSelector ? (
-            <button className="btn-perfil-pago btn-perfil-pago-principal" onClick={() => setShowSelector(true)}>
-              Pagar cuota
-            </button>
-          ) : (
-            <>
-              <h3>Elige tu plan</h3>
-              <div className="perfil-plan-tabs">
-                {PLANES_PRINCIPALES.map((plan) => (
-                  <button
-                    key={plan.id}
-                    className={planActivo === plan.id ? 'perfil-tab activo' : 'perfil-tab'}
-                    onClick={() => setPlanActivo(plan.id)}
-                  >
-                    {plan.nombre}
-                  </button>
-                ))}
-              </div>
+        {!puedeCrearNuevaMembresia ? (
+          <div className="perfil-aviso">
+            Ya tienes una membresía en estado <strong>{membresiaActiva.estado}</strong>.
+            No puedes crear otra membresía mientras esta siga vigente.
+            {puedeRenovar
+              ? ' Puedes renovarla desde la sección “Mi membresía”.'
+              : ' La opción de renovar aparecerá cuando llegue la fecha de próximo pago.'}
+          </div>
+        ) : (
+          <div className="perfil-pago-bloque">
+            {membresiaActiva?.estado === 'CANCELADA' && (
+              <p className="perfil-aviso">
+                Tu membresía anterior está cancelada. Puedes contratar una nueva.
+              </p>
+            )}
 
-              {opcionSeleccionada && (
-                <div className="perfil-resumen-pago">
-                  <div><span>Monto</span><strong>{formatMonto(opcionSeleccionada.monto)}</strong></div>
-                  <div>
-                    <span>Duracion</span>
-                    <strong>{planActivo === 'mensual' ? '1 mes' : planActivo === 'trimestral' ? '3 meses' : '12 meses'}</strong>
-                  </div>
-                  {opcionSeleccionada.ahorro && (
-                    <div><span>Ahorro vs mensual</span><strong>{formatMonto(opcionSeleccionada.ahorro)}</strong></div>
-                  )}
+            {!showSelector ? (
+              <button
+                className="btn-perfil-pago btn-perfil-pago-principal"
+                onClick={() => setShowSelector(true)}
+              >
+                Crear membresía
+              </button>
+            ) : (
+              <>
+                <h3>Elige tu plan</h3>
+
+                <div className="perfil-plan-tabs">
+                  {PLANES_PRINCIPALES.map((plan) => (
+                    <button
+                      key={plan.id}
+                      className={planActivo === plan.id ? 'perfil-tab activo' : 'perfil-tab'}
+                      onClick={() => setPlanActivo(plan.id)}
+                    >
+                      {plan.nombre}
+                    </button>
+                  ))}
                 </div>
-              )}
 
-              <div className="perfil-pago-acciones">
-                <button className="btn-perfil-pago btn-perfil-pago-principal" onClick={() => iniciarPago(planActivo)} disabled={cargandoPago}>
-                  {cargandoPago ? 'Redirigiendo a WebPay...' : 'Pagar con WebPay'}
-                </button>
-                <button className="btn-perfil-pago btn-perfil-cancelar" onClick={() => setShowSelector(false)} disabled={cargandoPago}>
-                  Cancelar
-                </button>
-              </div>
-            </>
-          )}
-        </div>
+                {opcionSeleccionada && (
+                  <div className="perfil-resumen-pago">
+                    <div>
+                      <span>Monto</span>
+                      <strong>{formatMonto(opcionSeleccionada.monto)}</strong>
+                    </div>
+
+                    <div>
+                      <span>Duración</span>
+                      <strong>
+                        {planActivo === 'mensual'
+                          ? '1 mes'
+                          : planActivo === 'trimestral'
+                            ? '3 meses'
+                            : '12 meses'}
+                      </strong>
+                    </div>
+
+                    {opcionSeleccionada.ahorro && (
+                      <div>
+                        <span>Ahorro vs mensual</span>
+                        <strong>{formatMonto(opcionSeleccionada.ahorro)}</strong>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                <div className="perfil-pago-acciones">
+                  <button
+                    className="btn-perfil-pago btn-perfil-pago-principal"
+                    onClick={() => iniciarPago(planActivo)}
+                    disabled={cargandoPago}
+                  >
+                    {cargandoPago ? 'Redirigiendo a WebPay...' : 'Pagar con WebPay'}
+                  </button>
+
+                  <button
+                    className="btn-perfil-pago btn-perfil-cancelar"
+                    onClick={() => setShowSelector(false)}
+                    disabled={cargandoPago}
+                  >
+                    Cancelar
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        )}
       </section>
-
       {/* Contacto */}
       <section className="perfil-card">
         <div className="perfil-section-head">

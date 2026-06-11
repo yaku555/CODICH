@@ -80,7 +80,7 @@ export default function ResultadoPago() {
             </div>
           )}
 
-          <button className="btn-pagar" onClick={() => navigate('/miembros')}>
+          <button className="btn-pagar" onClick={() => navigate('/perfil')}>
             Ir a mi perfil
           </button>
         </div>
@@ -102,8 +102,8 @@ export default function ResultadoPago() {
             ? 'Cancelaste el proceso de pago. Puedes intentarlo nuevamente cuando quieras.'
             : 'La transacción no pudo ser procesada. Verifica tus datos e intenta nuevamente.'}
         </p>
-        <button className="btn-pagar" onClick={() => navigate('/pagar')}>
-          Volver a intentar
+        <button className="btn-pagar" onClick={() => navigate('/perfil')}>
+          Volver a mi perfil
         </button>
       </div>
     </main>

@@ -27,7 +27,7 @@ const handleLogin = async (e) => {
     if (rol === 'admin' || rol === 'administrador') {
       navigate('/admin');
     } else if (rol === 'usuario') {
-      navigate('/miembros');
+      navigate('/perfil');
     } else {
       navigate('/');
     }
