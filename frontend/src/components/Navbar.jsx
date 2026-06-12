@@ -19,7 +19,8 @@ function Navbar() {
       <nav className="navbar">
         <div className="navbar-container">
           <Link to="/" className="logo" onClick={closeMenu}>
-            <div className="logo-mark">C</div>
+            <img className="logo-mark" src="/imgs/codich.png" alt="C" />
+           
             <div className="logo-text">
               <span>CODICH</span>
               <small>Gestión de membresías</small>

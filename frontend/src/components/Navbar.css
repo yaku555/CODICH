@@ -55,7 +55,6 @@ body {
 .logo-mark {
   width: 44px;
   height: 44px;
-  background: linear-gradient(135deg, var(--navy), var(--navy-light));
   color: var(--yellow);
   border-radius: 14px;
   display: grid;
