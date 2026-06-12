@@ -10,6 +10,8 @@ const {
   cancelarMembresia,
   simularVencimientoMembresia,
   simularRenovacionMembresia,
+  descargarComprobantePago,
+
 } = require('../controllers/pago.controller');
 
 router.post('/iniciar', iniciarPago);
@@ -22,5 +24,6 @@ router.post('/membresias/:id/renovar', renovarMembresia);
 router.patch('/membresias/:id/cancelar', cancelarMembresia);
 router.patch('/membresias/:id/simular-vencimiento', simularVencimientoMembresia);
 router.patch('/membresias/:id/simular-renovacion', simularRenovacionMembresia);
+router.get('/comprobantes/:pagoId', descargarComprobantePago);
 
 module.exports = router;

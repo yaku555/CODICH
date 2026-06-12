@@ -147,6 +147,17 @@ const enviarCorreoContacto = async ({ nombre, email, asunto, mensaje }) => {
   });
 };
 
+const enviarCorreoMoroso = async ({usuario, membresia}) => {
+  return enviarEmailJS(process.env.EMAILJS_TEMPLATE_APROBACION, {
+    name: `${usuario.nombre} ${usuario.apellido}`,
+    email: usuario.email,
+    subject: 'Recordatorio de pago pendiente en CODICH',
+    titulo: 'Tu membresía está en riesgo de suspensión por falta de pago',
+    estado: 'Pago pendiente',
+    mensaje: `Hola ${usuario.nombre},\nTe recordamos que tu membresía en CODICH se encuentra con un pago pendiente desde el ${formatFecha(membresia.fechaProximoPago)}.\nSi no realizas el pago dentro de los próximos 5 días hábiles, tu membresía será suspendida y perderás acceso a los beneficios.\nSi ya realizaste el pago, por favor ignora este mensaje. Si tienes alguna pregunta o necesitas ayuda, no dudes en contactarnos.`,
+  });
+};
+
 module.exports = {
   enviarCorreoPostulacionCreada,
   enviarCorreoPostulacionAprobada,

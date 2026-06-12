@@ -9,7 +9,7 @@ const {
 const Pago = require('../models/Pago');
 const Membresia = require('../models/Membresia');
 const Usuario = require('../models/Usuario');
-
+const generarComprobantePDF = require('../utils/crearPDF.service');
 const {
   enviarCorreoPago,
 } = require('../utils/correo.service');
@@ -189,9 +189,9 @@ const iniciarPago = async (req, res) => {
       ordenCompra,
       sessionId,
       monto: plan.monto,
-      plan: plan.planNombre,
+      montoBase: plan.monto,
+      planNombre: plan.planNombre,
       planId: plan.planId,
-      modalidad: 'contado',
       tipo: 'ALTA',
       rutSocio,
       estado: 'PENDING',
@@ -278,15 +278,13 @@ const renovarMembresia = async (req, res) => {
       recargoMora,
       porcentajeRecargo,
       esPagoConMora,
-      plan: plan.planNombre,
+      planNombre: plan.planNombre,
       planId: plan.planId,
-      modalidad: 'contado',
       tipo: 'RENOVACION',
       rutSocio: membresia.rutSocio,
       membresiaId: membresia._id,
       estado: 'PENDING',
     });
-
     console.log(
       `[PAGOS] Renovacion iniciada | Membresia: ${membresia._id} | Monto: ${montoFinal}`
     );
@@ -357,16 +355,14 @@ const confirmarPago = async (req, res) => {
           const fechaInicio = ahora;
           const fechaTermino = addMonths(fechaInicio, plan.duracionMeses);
 
+
           const membresia = await Membresia.create({
             rutSocio: pago.rutSocio,
             codigoMembresia: generarCodigoMembresia(pago.rutSocio),
             planId: plan.planId,
             planNombre: plan.planNombre,
-            modalidad: 'contado',
             duracionMeses: plan.duracionMeses,
-            totalCompromiso: plan.totalCompromiso,
-            montoCuota: plan.monto,
-            cantidadCuotas: 1,
+            montoPlan: plan.monto,
             estado: 'ACTIVA',
             fechaInicio,
             fechaTermino,
@@ -374,7 +370,6 @@ const confirmarPago = async (req, res) => {
             fechaProximoPago: subtractDays(fechaTermino, DIAS_ANTES_RENOVACION),
             recargoPendiente: false,
             porcentajeRecargo: 0,
-            pagos: [pago._id],
           });
 
           pago = await Pago.findByIdAndUpdate(
@@ -422,9 +417,7 @@ const confirmarPago = async (req, res) => {
         const { periodoDesde, periodoHasta, fechaProximoPago } =
           calcularFechasRenovacion(membresia, plan);
 
-        if (!membresia.pagos.includes(pago._id)) {
-          membresia.pagos.push(pago._id);
-        }
+
 
         membresia.estado = 'ACTIVA';
         membresia.fechaUltimoPago = ahora;
@@ -505,10 +498,15 @@ const listarMembresias = async (req, res) => {
   try {
     const filtro = req.query.rut ? { rutSocio: req.query.rut } : {};
 
-    const membresias = await Membresia.find(filtro)
-      .populate('pagos')
-      .sort({ createdAt: -1 });
-
+const membresias = await Membresia.find(filtro)
+  .populate({
+    path: 'pagos',
+    match: { estado: 'AUTHORIZED' },
+    options: {
+      sort: { fechaConfirmacion: 1, fecha: 1 },
+    },
+  })
+  .sort({ createdAt: 1 });
     const ahora = new Date();
 
     const membresiasConEstado = membresias.map((m) => {
@@ -680,6 +678,63 @@ const simularRenovacionMembresia = async (req, res) => {
   }
 };
 
+const descargarComprobantePago = async (req, res) => {
+  try {
+    const { pagoId } = req.params;
+
+    const pago = await Pago.findById(pagoId).populate('membresiaId');
+
+    if (!pago) {
+      return res.status(404).json({
+        error: 'Pago no encontrado.',
+      });
+    }
+
+    if (pago.estado !== 'AUTHORIZED') {
+      return res.status(400).json({
+        error: 'Solo se pueden descargar comprobantes de pagos autorizados.',
+      });
+    }
+
+    if (!pago.membresiaId) {
+      return res.status(404).json({
+        error: 'El pago no tiene una membresía asociada.',
+      });
+    }
+
+    const usuario = await Usuario.findOne({ rut: pago.rutSocio });
+
+    if (!usuario) {
+      return res.status(404).json({
+        error: 'Usuario asociado al pago no encontrado.',
+      });
+    }
+
+    const pdfBuffer = generarComprobantePDF({
+      usuario,
+      membresia: pago.membresiaId,
+      pago,
+    });
+
+    const nombreArchivo = `comprobante-${pago.ordenCompra}.pdf`;
+
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader(
+      'Content-Disposition',
+      `attachment; filename="${nombreArchivo}"`
+    );
+
+    return res.send(pdfBuffer);
+  } catch (error) {
+    console.error('[PDF ERROR] descargarComprobantePago:', error.message);
+
+    return res.status(500).json({
+      error: 'Error al generar comprobante PDF.',
+      detalle: error.message,
+    });
+  }
+};
+
 module.exports = {
   iniciarPago,
   renovarMembresia,
@@ -689,4 +744,5 @@ module.exports = {
   cancelarMembresia,
   simularVencimientoMembresia,
   simularRenovacionMembresia,
+  descargarComprobantePago,
 };

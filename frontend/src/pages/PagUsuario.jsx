@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { useUsuario } from '../context/usuario.context';
 import { actualizarUsuario } from '../api/usuarios';
+import Comprobantes from '../components/comprobantes.jsx';
 import { OPCIONES_MEMBRESIA, PLANES_PRINCIPALES, formatMonto } from '../data/planesMembresia';
 import '../styles/PagUsuario.css';
 import {
@@ -76,6 +77,8 @@ function PagMiembros() {
   const [showSelector, setShowSelector] = useState(false);
   const [cargandoPago, setCargandoPago] = useState(false);
   const [errorPago, setErrorPago] = useState('');
+  const [comprobanteMembresia, setComprobanteMembresia] = useState(null);
+
 
   // --- Contacto ---
   const [formContacto, setFormContacto] = useState({ asunto: '', mensaje: '' });
@@ -438,8 +441,15 @@ function PagMiembros() {
               <p className="perfil-subtitulo">Contrato vigente</p>
               <h2>Mi membresía</h2>
             </div>
+            <button
+              className="btn-renovar-membresia"
+              onClick={() => setComprobanteMembresia(membresiaActiva)}
+            >
+              Comprobantes de pago
+            </button>
             <span className={`perfil-pill ${claseEstado}`}>
               {membresiaActiva.estado}
+
             </span>
           </div>
 
@@ -483,7 +493,9 @@ function PagMiembros() {
                 </strong>
               </div>
             )}
+
           </div>
+
 
           {membresiaActiva.esPagoConMora && (
             <div className="perfil-aviso-mora">
@@ -564,105 +576,109 @@ function PagMiembros() {
 
       {/* Pagos */}
       {/* Pagos */}
-      <section className="perfil-card perfil-pagos-card">
-        <div className="perfil-section-head">
-          <div>
-            <p className="perfil-subtitulo">Membresía</p>
-            <h2>Pagos</h2>
+      {puedeCrearNuevaMembresia ? (
+        <section className="perfil-card perfil-pagos-card">
+          <div className="perfil-section-head">
+            <div>
+              <p className="perfil-subtitulo">Membresía</p>
+              <h2>Pagos</h2>
+            </div>
+            <span className="perfil-pill">WebPay Plus</span>
           </div>
-          <span className="perfil-pill">WebPay Plus</span>
-        </div>
 
-        {errorPago && <p className="perfil-error">{errorPago}</p>}
+          {errorPago && <p className="perfil-error">{errorPago}</p>}
 
-        {!puedeCrearNuevaMembresia ? (
-          <div className="perfil-aviso">
-            Ya tienes una membresía en estado <strong>{membresiaActiva.estado}</strong>.
-            No puedes crear otra membresía mientras esta siga vigente.
-            {puedeRenovar
-              ? ' Puedes renovarla desde la sección “Mi membresía”.'
-              : ' La opción de renovar aparecerá cuando llegue la fecha de próximo pago.'}
-          </div>
-        ) : (
-          <div className="perfil-pago-bloque">
-            {membresiaActiva?.estado === 'CANCELADA' && (
-              <p className="perfil-aviso">
-                Tu membresía anterior está cancelada. Puedes contratar una nueva.
-              </p>
-            )}
+          {!puedeCrearNuevaMembresia ? (
+            <div className="perfil-aviso">
+              Ya tienes una membresía en estado <strong>{membresiaActiva.estado}</strong>.
+              No puedes crear otra membresía mientras esta siga vigente.
+              {puedeRenovar
+                ? ' Puedes renovarla desde la sección “Mi membresía”.'
+                : ' La opción de renovar aparecerá cuando llegue la fecha de próximo pago.'}
+            </div>
+          ) : (
+            <div className="perfil-pago-bloque">
+              {membresiaActiva?.estado === 'CANCELADA' && (
+                <p className="perfil-aviso">
+                  Tu membresía anterior está cancelada. Puedes contratar una nueva.
+                </p>
+              )}
 
-            {!showSelector ? (
-              <button
-                className="btn-perfil-pago btn-perfil-pago-principal"
-                onClick={() => setShowSelector(true)}
-              >
-                Crear membresía
-              </button>
-            ) : (
-              <>
-                <h3>Elige tu plan</h3>
+              {!showSelector ? (
+                <button
+                  className="btn-perfil-pago btn-perfil-pago-principal"
+                  onClick={() => setShowSelector(true)}
+                >
+                  Crear membresía
+                </button>
+              ) : (
+                <>
+                  <h3>Elige tu plan</h3>
 
-                <div className="perfil-plan-tabs">
-                  {PLANES_PRINCIPALES.map((plan) => (
-                    <button
-                      key={plan.id}
-                      className={planActivo === plan.id ? 'perfil-tab activo' : 'perfil-tab'}
-                      onClick={() => setPlanActivo(plan.id)}
-                    >
-                      {plan.nombre}
-                    </button>
-                  ))}
-                </div>
-
-                {opcionSeleccionada && (
-                  <div className="perfil-resumen-pago">
-                    <div>
-                      <span>Monto</span>
-                      <strong>{formatMonto(opcionSeleccionada.monto)}</strong>
-                    </div>
-
-                    <div>
-                      <span>Duración</span>
-                      <strong>
-                        {planActivo === 'mensual'
-                          ? '1 mes'
-                          : planActivo === 'trimestral'
-                            ? '3 meses'
-                            : '12 meses'}
-                      </strong>
-                    </div>
-
-                    {opcionSeleccionada.ahorro && (
-                      <div>
-                        <span>Ahorro vs mensual</span>
-                        <strong>{formatMonto(opcionSeleccionada.ahorro)}</strong>
-                      </div>
-                    )}
+                  <div className="perfil-plan-tabs">
+                    {PLANES_PRINCIPALES.map((plan) => (
+                      <button
+                        key={plan.id}
+                        className={planActivo === plan.id ? 'perfil-tab activo' : 'perfil-tab'}
+                        onClick={() => setPlanActivo(plan.id)}
+                      >
+                        {plan.nombre}
+                      </button>
+                    ))}
                   </div>
-                )}
 
-                <div className="perfil-pago-acciones">
-                  <button
-                    className="btn-perfil-pago btn-perfil-pago-principal"
-                    onClick={() => iniciarPago(planActivo)}
-                    disabled={cargandoPago}
-                  >
-                    {cargandoPago ? 'Redirigiendo a WebPay...' : 'Pagar con WebPay'}
-                  </button>
+                  {opcionSeleccionada && (
+                    <div className="perfil-resumen-pago">
+                      <div>
+                        <span>Monto</span>
+                        <strong>{formatMonto(opcionSeleccionada.monto)}</strong>
+                      </div>
 
-                  <button
-                    className="btn-perfil-pago btn-perfil-cancelar"
-                    onClick={() => setShowSelector(false)}
-                    disabled={cargandoPago}
-                  >
-                    Cancelar
-                  </button>
-                </div>
-              </>
-            )}
-          </div>
-        )}
-      </section>
+                      <div>
+                        <span>Duración</span>
+                        <strong>
+                          {planActivo === 'mensual'
+                            ? '1 mes'
+                            : planActivo === 'trimestral'
+                              ? '3 meses'
+                              : '12 meses'}
+                        </strong>
+                      </div>
+
+                      {opcionSeleccionada.ahorro && (
+                        <div>
+                          <span>Ahorro vs mensual</span>
+                          <strong>{formatMonto(opcionSeleccionada.ahorro)}</strong>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  <div className="perfil-pago-acciones">
+                    <button
+                      className="btn-perfil-pago btn-perfil-pago-principal"
+                      onClick={() => iniciarPago(planActivo)}
+                      disabled={cargandoPago}
+                    >
+                      {cargandoPago ? 'Redirigiendo a WebPay...' : 'Pagar con WebPay'}
+                    </button>
+
+                    <button
+                      className="btn-perfil-pago btn-perfil-cancelar"
+                      onClick={() => setShowSelector(false)}
+                      disabled={cargandoPago}
+                    >
+                      Cancelar
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
+          )}
+        </section>
+      ) : (
+        <div> </div>
+      )}
       {/* Contacto */}
       <section className="perfil-card">
         <div className="perfil-section-head">
@@ -721,6 +737,13 @@ function PagMiembros() {
           </form>
         )}
       </section>
+
+     
+        <Comprobantes
+          comprobante={comprobanteMembresia}
+          cerrar={() => setComprobanteMembresia(null)}
+        />
+      
     </main>
   );
 }

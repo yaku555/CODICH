@@ -13,38 +13,6 @@ const pagoSchema = new Schema(
       required: true,
     },
 
-    monto: {
-      type: Number,
-      required: true,
-    },
-    montoBase: { type: Number, default: 0 },
-    recargoMora: { type: Number, default: 0 },
-    porcentajeRecargo: { type: Number, default: 0 },
-    esPagoConMora: { type: Boolean, default: false },
-
-    plan: {
-      type: String,
-      default: 'Sin especificar',
-    },
-
-    planId: {
-      type: String,
-      enum: ['mensual', 'trimestral', 'anual'],
-      required: true,
-    },
-
-    modalidad: {
-      type: String,
-      enum: ['contado'],
-      default: 'contado',
-    },
-
-    tipo: {
-      type: String,
-      enum: ['ALTA', 'RENOVACION'],
-      required: true,
-    },
-
     rutSocio: {
       type: String,
       required: true,
@@ -55,17 +23,65 @@ const pagoSchema = new Schema(
       type: Schema.Types.ObjectId,
       ref: 'Membresia',
       default: null,
+      index: true,
+    },
+
+    planId: {
+      type: String,
+      enum: ['mensual', 'trimestral', 'anual'],
+      required: true,
+    },
+
+    planNombre: {
+      type: String,
+      required: true,
+    },
+
+    tipo: {
+      type: String,
+      enum: ['ALTA', 'RENOVACION'],
+      required: true,
+    },
+
+    monto: {
+      type: Number,
+      required: true,
+    },
+
+    montoBase: {
+      type: Number,
+      default: 0,
+    },
+
+    recargoMora: {
+      type: Number,
+      default: 0,
+    },
+
+    porcentajeRecargo: {
+      type: Number,
+      default: 0,
+    },
+
+    esPagoConMora: {
+      type: Boolean,
+      default: false,
     },
 
     estado: {
       type: String,
       enum: ['AUTHORIZED', 'FAILED', 'CANCELLED', 'PENDING'],
-      required: true,
       default: 'PENDING',
+      required: true,
     },
 
-    periodoDesde: { type: Date },
-    periodoHasta: { type: Date },
+    periodoDesde: {
+      type: Date,
+    },
+
+    periodoHasta: {
+      type: Date,
+    },
 
     detalle: {
       type: Object,
@@ -77,10 +93,15 @@ const pagoSchema = new Schema(
       default: Date.now,
     },
 
-    fechaConfirmacion: { type: Date },
-
+    fechaConfirmacion: {
+      type: Date,
+    },
   },
-  { versionKey: false }
+  {
+    versionKey: false,
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true },
+  }
 );
 
 pagoSchema.virtual('usuario', {

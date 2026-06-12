@@ -2,7 +2,11 @@ const { Schema, model } = require('mongoose');
 
 const membresiaSchema = new Schema(
   {
-    rutSocio: { type: String, required: true, index: true },
+    rutSocio: {
+      type: String,
+      required: true,
+      index: true,
+    },
 
     codigoMembresia: {
       type: String,
@@ -16,29 +20,24 @@ const membresiaSchema = new Schema(
       enum: ['mensual', 'trimestral', 'anual'],
     },
 
-    planNombre: { type: String, required: true },
-
-    modalidad: {
+    planNombre: {
       type: String,
-      enum: ['contado'],
-      default: 'contado',
+      required: true,
     },
 
-    duracionMeses: { type: Number, required: true },
-
-    totalCompromiso: { type: Number, required: true },
-
-    montoCuota: { type: Number, required: true },
-
-    cantidadCuotas: {
+    duracionMeses: {
       type: Number,
-      default: 1,
+      required: true,
+    },
+
+    montoPlan: {
+      type: Number,
+      required: true,
     },
 
     estado: {
       type: String,
       enum: [
-        'PENDIENTE',
         'ACTIVA',
         'POR_PAGAR',
         'MOROSA',
@@ -46,36 +45,63 @@ const membresiaSchema = new Schema(
         'CANCELADA',
         'FINALIZADA',
       ],
-      default: 'PENDIENTE',
+      default: 'ACTIVA',
     },
-    fechaInicio: { type: Date },
-    fechaTermino: { type: Date },
 
-    fechaUltimoPago: { type: Date },
-    fechaProximoPago: { type: Date },
+    fechaInicio: {
+      type: Date,
+      required: true,
+    },
 
-    pagos: [
-      {
-        type: Schema.Types.ObjectId,
-        ref: 'Pago',
-      },
-    ],
+    fechaTermino: {
+      type: Date,
+      required: true,
+    },
 
-    diasGracia: { type: Number, default: 5 },
-    diasSuspension: { type: Number, default: 30 },
-    diasCancelacionAdministrativa: { type: Number, default: 60 },
+    fechaUltimoPago: {
+      type: Date,
+    },
+
+    fechaProximoPago: {
+      type: Date,
+    },
+
+    recargoPendiente: {
+      type: Boolean,
+      default: false,
+    },
+
+    porcentajeRecargo: {
+      type: Number,
+      default: 0,
+    },
 
     politicaCancelacion: {
       type: String,
       default: 'La cancelación evita futuras renovaciones. No contempla devolución parcial.',
     },
 
-    fechaCancelacion: { type: Date },
-    motivoCancelacion: { type: String, default: '' },
-    recargoPendiente: { type: Boolean, default: false },
-    porcentajeRecargo: { type: Number, default: 0 },
+    fechaCancelacion: {
+      type: Date,
+    },
+
+    motivoCancelacion: {
+      type: String,
+      default: '',
+    },
   },
-  { timestamps: true, versionKey: false }
+  {
+    timestamps: true,
+    versionKey: false,
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true },
+  }
 );
+
+membresiaSchema.virtual('pagos', {
+  ref: 'Pago',
+  localField: '_id',
+  foreignField: 'membresiaId',
+});
 
 module.exports = model('Membresia', membresiaSchema);

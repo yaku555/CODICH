@@ -36,3 +36,12 @@ export const simularRenovacionMembresia = async (membresiaId) => {
   const { data } = await api.patch(`/pagos/membresias/${membresiaId}/simular-renovacion`);
   return data;
 };
+
+
+export const descargarComprobantePago = async (pagoId) => {
+  const res = await api.get(`/pagos/comprobantes/${pagoId}`, {
+    responseType: 'blob',
+  });
+
+  return res.data;
+};
