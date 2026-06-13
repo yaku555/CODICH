@@ -16,7 +16,8 @@ const pagoRoutes = require('./routes/pago.routes');
 const contactoRoutes = require('./routes/contacto.routes');
 const estadisticasRoutes = require('./routes/estadisticas.routes');
 const soporteTecnicoRoutes = require('./routes/soporteTecnico.routes');
-
+const backupRoutes = require("./routes/backup.routes.js");
+const iniciarBackupAutomatico  = require("./jobs/backup.job.js");
 const app = express();
 
 app.set('trust proxy', true);
@@ -37,7 +38,7 @@ app.use('/api/pagos', pagoRoutes);
 app.use('/api/contacto', contactoRoutes);
 app.use('/api/estadisticas', estadisticasRoutes);
 app.use('/api/soporte-tecnico', soporteTecnicoRoutes);
-
+app.use("/api/backups", backupRoutes);
 app.use(notFound);
 app.use(errorHandler);
 
@@ -56,5 +57,7 @@ const conectarDB = async () => {
     process.exit(1);
   }
 };
+
+iniciarBackupAutomatico();
 
 conectarDB();

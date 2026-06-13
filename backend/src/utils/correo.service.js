@@ -13,6 +13,10 @@ const enviarEmailJS = async (templateId, templateParams) => {
     throw new Error('Falta EMAILJS_PRIVATE_KEY en el .env');
   }
 
+  if (!templateId) {
+    throw new Error('Falta el templateId de EmailJS');
+  }
+
   const response = await fetch(EMAILJS_URL, {
     method: 'POST',
     headers: {
@@ -35,7 +39,6 @@ const enviarEmailJS = async (templateId, templateParams) => {
   return true;
 };
 
-
 const formatMonto = (monto) => {
   return Number(monto || 0).toLocaleString('es-CL', {
     style: 'currency',
@@ -53,7 +56,6 @@ const formatFecha = (fecha) => {
   });
 };
 
-
 const enviarCorreoPostulacionCreada = async (postulacion) => {
   return enviarEmailJS(process.env.EMAILJS_TEMPLATE_POSTULACION, {
     name: `${postulacion.nombre} ${postulacion.apellido}`,
@@ -69,7 +71,14 @@ const enviarCorreoPostulacionAprobada = async (postulacion, passwordProvisoria) 
     subject: 'Hemos recibido tu solicitud de membresía en CODICH',
     titulo: '¡Tu solicitud ha sido aprobada!',
     estado: 'Aprobada',
-    mensaje: `Hola ${postulacion.nombre},\nTe informamos que tu postulacion en CODICH ha sido aprobada.\nPodras iniciar sesion en codich.cl con tu croreo y una contraseña temporal que podras cambiar una vez iniciado.\nTu contraseña temporal es: ${passwordProvisoria} \n Ademas, te dejaremos un boton de pago de tu membresia en tu perfil de socio dentro de la pagina de CODICH para que puedas elegir el plan que mas te acomode y pagar inmediatamente.\nTendras 5 dias habiles para pagar, en caso de no hacerlo, el sistema dara de baja tu membresia.`,
+    mensaje: `Hola ${postulacion.nombre},
+Te informamos que tu postulación en CODICH ha sido aprobada.
+Podrás iniciar sesión en codich.cl con tu correo y una contraseña temporal que podrás cambiar una vez iniciado.
+Tu contraseña temporal es: ${passwordProvisoria}
+
+Además, tendrás un botón de pago de tu membresía en tu perfil de socio dentro de la página de CODICH para que puedas elegir el plan que más te acomode y pagar inmediatamente.
+
+Tendrás 5 días hábiles para pagar. En caso de no hacerlo, el sistema dará de baja tu membresía.`,
   });
 };
 
@@ -80,7 +89,9 @@ const enviarCorreoPostulacionRechazada = async (postulacion) => {
     subject: 'Hemos recibido tu solicitud de membresía en CODICH',
     titulo: 'Lamentablemente tu solicitud ha sido rechazada',
     estado: 'Rechazada',
-    mensaje: `Hola ${postulacion.nombre},\nTe informamos que tu postulacion en CODICH ha sido rechazada.\nSi tienes alguna pregunta, no dudes en contactarnos.`,
+    mensaje: `Hola ${postulacion.nombre},
+Te informamos que tu postulación en CODICH ha sido rechazada.
+Si tienes alguna pregunta, no dudes en contactarnos.`,
   });
 };
 
@@ -113,8 +124,7 @@ const enviarCorreoPago = async ({ usuario, pago, membresia, detalle }) => {
     email: usuario.email,
     subject: 'Comprobante de pago de membresía CODICH',
     titulo: 'Pago de membresía confirmado',
-    mensaje:
-      `Hola ${usuario.nombre || 'socio'},
+    mensaje: `Hola ${usuario.nombre || 'socio'},
 
 Hemos recibido correctamente tu pago de membresía en CODICH.
 
@@ -137,6 +147,7 @@ Saludos,
 Equipo CODICH`,
   });
 };
+
 const enviarCorreoContacto = async ({ nombre, email, asunto, mensaje }) => {
   return enviarEmailJS(process.env.EMAILJS_TEMPLATE_CONTACTO, {
     name: nombre,
@@ -147,16 +158,24 @@ const enviarCorreoContacto = async ({ nombre, email, asunto, mensaje }) => {
   });
 };
 
-const enviarCorreoMoroso = async ({usuario, membresia}) => {
+const enviarCorreoMoroso = async ({ usuario, membresia }) => {
+  if (!usuario?.email) {
+    throw new Error('No se encontró el correo del usuario moroso.');
+  }
+
   return enviarEmailJS(process.env.EMAILJS_TEMPLATE, {
     name: `${usuario.nombre} ${usuario.apellido}`,
     email: usuario.email,
     subject: 'Recordatorio de pago pendiente en CODICH',
     titulo: 'Tu membresía está en riesgo de suspensión por falta de pago',
     estado: 'Pago pendiente',
-    mensaje: `Hola ${usuario.nombre},\nTe recordamos que tu membresía en CODICH se encuentra con un pago pendiente desde el ${formatFecha(membresia?.fechaProximoPago)}.\nSi no realizas el pago dentro de los próximos 5 días hábiles, tu membresía será suspendida y perderás acceso a los beneficios.\nSi ya realizaste el pago, por favor ignora este mensaje. Si tienes alguna pregunta o necesitas ayuda, no dudes en contactarnos.`,
+    mensaje: `Hola ${usuario.nombre},
+Te recordamos que tu membresía en CODICH se encuentra con un pago pendiente desde el ${formatFecha(membresia?.fechaProximoPago)}.
+Si no realizas el pago dentro de los próximos 5 días hábiles, tu membresía será suspendida y perderás acceso a los beneficios.
+Si ya realizaste el pago, por favor ignora este mensaje. Si tienes alguna pregunta o necesitas ayuda, no dudes en contactarnos.`,
   });
 };
+
 
 module.exports = {
   enviarCorreoPostulacionCreada,
@@ -164,5 +183,5 @@ module.exports = {
   enviarCorreoPostulacionRechazada,
   enviarCorreoPago,
   enviarCorreoContacto,
-  enviarCorreoMoroso
+  enviarCorreoMoroso,
 };
