@@ -7,6 +7,7 @@ const cors = require('cors');
 const auditoriaMiddleware = require('./middleware/auditoriaMiddleware');
 const notFound = require('./middleware/notFound');
 const errorHandler = require('./middleware/errorHandler');
+const forzarHttps = require('./middleware/forzarHttps');
 
 const usuarioRoutes = require('./routes/usuario.routes');
 const postulacionRoutes = require('./routes/postulacion.routes');
@@ -18,9 +19,12 @@ const soporteTecnicoRoutes = require('./routes/soporteTecnico.routes');
 
 const app = express();
 
+app.set('trust proxy', true);
+
 app.use(cors());
 app.use(express.json());
 app.use(auditoriaMiddleware);
+app.use(forzarHttps);
 
 app.get('/', (req, res) => {
   res.send('API de CODICH-Manager funcionando');
@@ -37,7 +41,7 @@ app.use('/api/soporte-tecnico', soporteTecnicoRoutes);
 app.use(notFound);
 app.use(errorHandler);
 
-const PORT = process.env.PORT || 6767;
+const PORT = process.env.PORT;
 
 const conectarDB = async () => {
   try {
