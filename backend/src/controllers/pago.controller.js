@@ -12,6 +12,7 @@ const Usuario = require('../models/Usuario');
 const generarComprobantePDF = require('../utils/crearPDF.service');
 const {
   enviarCorreoPago,
+  enviarCorreoMoroso
 } = require('../utils/correo.service');
 
 const tx = new WebpayPlus.Transaction(
@@ -498,15 +499,15 @@ const listarMembresias = async (req, res) => {
   try {
     const filtro = req.query.rut ? { rutSocio: req.query.rut } : {};
 
-const membresias = await Membresia.find(filtro)
-  .populate({
-    path: 'pagos',
-    match: { estado: 'AUTHORIZED' },
-    options: {
-      sort: { fechaConfirmacion: 1, fecha: 1 },
-    },
-  })
-  .sort({ createdAt: 1 });
+    const membresias = await Membresia.find(filtro)
+      .populate({
+        path: 'pagos',
+        match: { estado: 'AUTHORIZED' },
+        options: {
+          sort: { fechaConfirmacion: 1, fecha: 1 },
+        },
+      })
+      .sort({ createdAt: 1 });
     const ahora = new Date();
 
     const membresiasConEstado = membresias.map((m) => {
@@ -599,6 +600,7 @@ const simularVencimientoMembresia = async (req, res) => {
     const { id } = req.params;
 
     const membresia = await Membresia.findById(id);
+    const usuario = await Usuario.findOne({ rut: membresia.rutSocio });
 
     if (!membresia) {
       return res.status(404).json({ error: 'Membresia no encontrada' });
@@ -620,20 +622,24 @@ const simularVencimientoMembresia = async (req, res) => {
     // Mora para el próximo pago solamente
     membresia.recargoPendiente = true;
     membresia.porcentajeRecargo = PORCENTAJE_MORA;
-
-    await membresia.save();
-
-    res.json({
-      mensaje: 'Membresia marcada como vencida con recargo por mora',
+    await enviarCorreoMoroso({
+      usuario,
       membresia,
     });
-  } catch (error) {
-    console.error('[PAGOS ERROR] simularVencimientoMembresia:', error.message);
-    res.status(500).json({
-      error: 'Error al simular vencimiento',
-      detalle: error.message,
-    });
-  }
+  
+  await membresia.save();
+
+  res.json({
+    mensaje: 'Membresia marcada como vencida con recargo por mora',
+    membresia,
+  });
+} catch (error) {
+  console.error('[PAGOS ERROR] simularVencimientoMembresia:', error.message);
+  res.status(500).json({
+    error: 'Error al simular vencimiento',
+    detalle: error.message,
+  });
+}
 };
 
 const simularRenovacionMembresia = async (req, res) => {
