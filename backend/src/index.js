@@ -1,5 +1,6 @@
 const dotenv = require('dotenv');
 dotenv.config();
+const dns = require('dns');
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
@@ -38,6 +39,8 @@ app.use(notFound);
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 6767;
+
+dns.setServers(['8.8.8.8', '8.8.4.4']);
 
 const conectarDB = async () => {
   try {
