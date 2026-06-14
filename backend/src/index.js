@@ -17,7 +17,7 @@ const contactoRoutes = require('./routes/contacto.routes');
 const estadisticasRoutes = require('./routes/estadisticas.routes');
 const soporteTecnicoRoutes = require('./routes/soporteTecnico.routes');
 const backupRoutes = require("./routes/backup.routes.js");
-const iniciarBackupAutomatico  = require("./jobs/backup.job.js");
+const iniciarBackupAutomatico  = require("./utils/backup.job.js");
 const app = express();
 
 app.set('trust proxy', true);

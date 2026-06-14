@@ -1,5 +1,5 @@
 const cron = require("node-cron");
-const { crearBackup } = require("../utils/backup.service.js");
+const { crearBackup } = require("./backup.service.js");
 // const { enviarCorreoSoporte } = require("../utils/correo.service.js");
 
 const iniciarBackupAutomatico = () => {
