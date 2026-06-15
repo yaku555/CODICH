@@ -19,8 +19,9 @@ function Inicio() {
         </p>
 
         <div className="hero-actions">
-          <button className="primary-btn">Ver membresías</button>
-          <button className="secondary-btn">Conocer planes</button>
+          <a href="/membresia" className="secondary-btn">VER MEMBRESIA</a>
+
+          <a href="/postulacion" className="secondary-btn">POSTULAR</a>
 
         </div>
       </section>
@@ -43,12 +44,7 @@ function Inicio() {
           <strong>32</strong>
         </div>
 
-        <div className="stat-row">
-          <span>Usuario test</span>
-          <strong>
-            {usuarioPrueba ? usuarioPrueba.nombre : "Cargando..."}
-          </strong>
-        </div>
+
       </section>
     </main>
   );

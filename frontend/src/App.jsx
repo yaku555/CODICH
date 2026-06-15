@@ -5,7 +5,6 @@ import ProtectedRoute from "./components/ProtectedRoute";
 
 import Postulacion from "./pages/Postulacion.jsx";
 import Sobre from "./pages/Sobre.jsx";
-import Membresias from "./pages/Membresias.jsx";
 import Acceder from "./pages/Acceder.jsx";
 import PagMiembros from "./pages/PagUsuario.jsx";
 import PagAdmin from "./pages/PagAdmin.jsx";
@@ -17,7 +16,7 @@ import PagePostulacionAdmin from "./pages/PageAdminPostulaciones.jsx";
 import AdminLayout from "./components/AdminLayout.jsx";
 import AuditoriaDashboard from "./pages/AuditoriaDashboard.jsx";
 import AdminPagos from "./pages/AdminPagos.jsx";
-import Pagar from "./pages/Pagar.jsx";
+import Membresia from "./pages/Pagar.jsx";
 import ResultadoPago from "./pages/ResultadoPago.jsx";
 import AdminPostulacionDetalle from "./pages/AdminPostulacionDetalle.jsx";
 import AdminEstadisticas from "./pages/AdminEstadisticas.jsx";
@@ -39,10 +38,9 @@ function App() {
           <Route path="/" element={<Inicio />} />
           <Route path="/acceder" element={<Acceder />} />
           <Route path="/sobre" element={<Sobre />} />
-          <Route path="/membresias" element={<Membresias />} />
           <Route path="/postulacion" element={<Postulacion />} />
           <Route path="/contacto" element={<Contacto />} />
-          <Route path="/pagar" element={<Pagar />} />
+          <Route path="/membresia" element={<Membresia />} />
           <Route path="/pago/resultado" element={<ResultadoPago />} />
 
           {/* Rutas protegidas de usuario */}

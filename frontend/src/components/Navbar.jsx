@@ -38,19 +38,15 @@
                   Sobre
                 </NavLink>
               </li>
-              <li>
-                <NavLink to="/membresias" className="nav-btn">
-                  Membresías
-                </NavLink>
-              </li>
+
               <li>
                 <NavLink to="/contacto" className="nav-btn">
                   Contacto
                 </NavLink>
               </li>
               <li>
-                <NavLink to="/pagar" className="nav-btn">
-                  Pagos
+                <NavLink to="/membresia" className="nav-btn">
+                  Membresía
                 </NavLink>
               </li>
             </ul>
@@ -92,16 +88,14 @@
             Sobre
           </NavLink>
 
-          <NavLink to="/membresias" className="side-link" onClick={closeMenu}>
-            Membresías
-          </NavLink>
+
 
           <NavLink to="/contacto" className="side-link" onClick={closeMenu}>
             Contacto
           </NavLink>
 
-          <NavLink to="/pagar" className="side-link" onClick={closeMenu}>
-            Pagos
+          <NavLink to="/membresia" className="side-link" onClick={closeMenu}>
+            Membresía
           </NavLink>
 
           {usuario ? (
