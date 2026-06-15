@@ -1,6 +1,6 @@
 const Auditoria = require('../models/Auditoria');
 
-// Función interna para registrar logs (usada por el middleware)
+//Usamos una funcion para registrar los logs mediante el middleware
 const crearLog = async (datos) => {
   try {
     const { nivel, modulo, usuario, descripcion, ip } = datos;
@@ -21,7 +21,7 @@ const crearLog = async (datos) => {
   }
 };
 
-// Función para registrar logs vía API
+// Funcion para registrar los logs con la API
 const registrarLogAPI = async (req, res) => {
   try {
     const { nivel, modulo, usuario, descripcion, ip } = req.body;
@@ -42,7 +42,7 @@ const registrarLogAPI = async (req, res) => {
   }
 };
 
-const registrarLog = registrarLogAPI;  // Mantener compatibilidad con las rutas existentes
+const registrarLog = registrarLogAPI;  // mantenemos compatibilidad con la api
 
 const construirFiltrosAuditoria = (query) => {
   const { nivel, modulo, usuario, fechaDesde, fechaHasta } = query;
@@ -149,8 +149,8 @@ const limpiarLogs = async (req, res) => {
 };
 
 module.exports = {
-  crearLog,      // Para uso interno del middleware
-  registrarLog,  // Para API
+  crearLog,      // Para el uso interno del middleware
+  registrarLog,  // Para la api
   getLogs,
   getResumen,
   limpiarLogs,

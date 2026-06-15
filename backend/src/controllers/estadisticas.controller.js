@@ -1,5 +1,6 @@
 const Pago = require('../models/Pago');
 const Membresia = require('../models/Membresia');
+const Postulacion = require('../models/Postulacion');
 const generarReporteEstadisticoPDF = require('../utils/estadisticasPDF.service');
 
 const TIPOS_VALIDOS = ['todos', 'ingresos', 'inscritos', 'morosidad'];
@@ -12,31 +13,112 @@ const normalizarTipo = (tipoReporte) => {
   return TIPOS_VALIDOS.includes(tipo) ? tipo : 'todos';
 };
 
-const crearFiltroFecha = (desde, hasta, campo = 'fecha') => {
-  const filtroFecha = {};
+const normalizarFechaInput = (fecha) => {
+  if (!fecha) return null;
+
+  const valor = fecha.toString().trim();
+
+  if (/^\d{4}-\d{2}-\d{2}/.test(valor)) {
+    return valor.slice(0, 10);
+  }
+
+  const formatoChile = valor.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+
+  if (formatoChile) {
+    const [, dia, mes, anio] = formatoChile;
+    return `${anio}-${mes}-${dia}`;
+  }
+
+  return valor;
+};
+
+const crearRangoFecha = (desde, hasta) => {
+  const rangoDate = {};
+  const rangoString = {};
 
   if (desde) {
-    filtroFecha.$gte = new Date(`${desde}T00:00:00.000`);
+    const desdeNormalizado = normalizarFechaInput(desde);
+    const fechaDesde = new Date(`${desdeNormalizado}T00:00:00.000Z`);
+
+    if (!Number.isNaN(fechaDesde.getTime())) {
+      rangoDate.$gte = fechaDesde;
+      rangoString.$gte = fechaDesde.toISOString();
+    }
   }
 
   if (hasta) {
-    filtroFecha.$lte = new Date(`${hasta}T23:59:59.999`);
+    const hastaNormalizado = normalizarFechaInput(hasta);
+    const fechaHasta = new Date(`${hastaNormalizado}T23:59:59.999Z`);
+
+    if (!Number.isNaN(fechaHasta.getTime())) {
+      rangoDate.$lte = fechaHasta;
+      rangoString.$lte = fechaHasta.toISOString();
+    }
   }
 
-  return Object.keys(filtroFecha).length > 0
-    ? { [campo]: filtroFecha }
-    : {};
+  return {
+    rangoDate,
+    rangoString,
+  };
+};
+
+const crearFiltroFechaFlexible = (desde, hasta, campos = []) => {
+  const { rangoDate, rangoString } = crearRangoFecha(desde, hasta);
+
+  if (Object.keys(rangoDate).length === 0 || campos.length === 0) {
+    return {};
+  }
+
+  const condiciones = [];
+
+  campos.forEach((campo) => {
+    condiciones.push({
+      [campo]: { ...rangoDate },
+    });
+
+    condiciones.push({
+      [campo]: { ...rangoString },
+    });
+  });
+
+  return {
+    $or: condiciones,
+  };
+};
+
+const contarConAggregate = async (Modelo, filtro) => {
+  const resultado = await Modelo.aggregate([
+    { $match: filtro },
+    { $count: 'total' },
+  ]);
+
+  return resultado[0]?.total || 0;
 };
 
 const calcularReporteIngresos = async ({ desde, hasta }) => {
-  const filtroFecha = crearFiltroFecha(desde, hasta, 'fecha');
+  const filtroFecha = crearFiltroFechaFlexible(desde, hasta, [
+    'fechaConfirmacion',
+    'fecha',
+    'createdAt',
+    'updatedAt',
+  ]);
 
   const filtro = {
     estado: 'AUTHORIZED',
     ...filtroFecha,
   };
 
-  const pagos = await Pago.find(filtro).sort({ fecha: -1 }).lean();
+  const pagos = await Pago.aggregate([
+    { $match: filtro },
+    {
+      $sort: {
+        fechaConfirmacion: -1,
+        fecha: -1,
+        createdAt: -1,
+        updatedAt: -1,
+      },
+    },
+  ]);
 
   const totalIngresos = pagos.reduce(
     (acc, pago) => acc + Number(pago.monto || 0),
@@ -78,29 +160,54 @@ const calcularReporteIngresos = async ({ desde, hasta }) => {
       planNombre: pago.planNombre,
       tipo: pago.tipo,
       monto: pago.monto,
-      fecha: pago.fechaConfirmacion || pago.fecha,
+      fecha:
+        pago.fechaConfirmacion ||
+        pago.fecha ||
+        pago.createdAt ||
+        pago.updatedAt,
     })),
   };
 };
 
 const calcularReporteInscritos = async ({ desde, hasta }) => {
-  const filtroFecha = crearFiltroFecha(desde, hasta, 'fecha');
+  const filtroFecha = crearFiltroFechaFlexible(desde, hasta, [
+    'fechaRevisionAdmin',
+    'updatedAt',
+    'createdAt',
+  ]);
 
   const filtro = {
-    estado: 'AUTHORIZED',
-    tipo: 'ALTA',
+    estado: 'Aprobada',
     ...filtroFecha,
   };
 
-  const pagosAlta = await Pago.find(filtro).sort({ fecha: -1 }).lean();
+  const postulantesAprobados = await Postulacion.aggregate([
+    { $match: filtro },
+    {
+      $sort: {
+        fechaRevisionAdmin: -1,
+        updatedAt: -1,
+        createdAt: -1,
+      },
+    },
+  ]);
 
-  const rutsUnicos = new Set(pagosAlta.map((pago) => pago.rutSocio));
-
-  const inscritosPorPlan = await Pago.aggregate([
+  const aprobadosPorArea = await Postulacion.aggregate([
     { $match: filtro },
     {
       $group: {
-        _id: '$planNombre',
+        _id: '$areaFormacion',
+        cantidad: { $sum: 1 },
+      },
+    },
+    { $sort: { cantidad: -1 } },
+  ]);
+
+  const aprobadosPorProfesion = await Postulacion.aggregate([
+    { $match: filtro },
+    {
+      $group: {
+        _id: '$profesion',
         cantidad: { $sum: 1 },
       },
     },
@@ -108,33 +215,49 @@ const calcularReporteInscritos = async ({ desde, hasta }) => {
   ]);
 
   return {
-    totalNuevosInscritos: rutsUnicos.size,
-    totalAltasPagadas: pagosAlta.length,
-    inscritosPorPlan,
-    inscritos: pagosAlta.map((pago) => ({
-      rutSocio: pago.rutSocio,
-      planNombre: pago.planNombre,
-      ordenCompra: pago.ordenCompra,
-      fecha: pago.fechaConfirmacion || pago.fecha,
+    totalNuevosInscritos: postulantesAprobados.length,
+    totalAltasPagadas: postulantesAprobados.length,
+    inscritosPorPlan: aprobadosPorArea,
+    aprobadosPorArea,
+    aprobadosPorProfesion,
+
+    inscritos: postulantesAprobados.map((postulacion) => ({
+      rutSocio: postulacion.rut,
+      nombre: `${postulacion.nombre || ''} ${postulacion.apellido || ''}`.trim(),
+      email: postulacion.email,
+      profesion: postulacion.profesion,
+      areaFormacion: postulacion.areaFormacion,
+      estado: postulacion.estado,
+      fecha:
+        postulacion.fechaRevisionAdmin ||
+        postulacion.updatedAt ||
+        postulacion.createdAt,
     })),
   };
 };
 
 const calcularReporteMorosidad = async ({ desde, hasta }) => {
-  const filtroFecha = crearFiltroFecha(desde, hasta, 'createdAt');
+  const filtroFecha = crearFiltroFechaFlexible(desde, hasta, [
+    'fechaProximoPago',
+    'fechaTermino',
+    'fechaInicio',
+    'fechaUltimoPago',
+    'updatedAt',
+    'createdAt',
+  ]);
 
   const filtroBase = {
     ...filtroFecha,
   };
 
-  const totalMembresias = await Membresia.countDocuments(filtroBase);
+  const totalMembresias = await contarConAggregate(Membresia, filtroBase);
 
-  const totalMorosas = await Membresia.countDocuments({
+  const totalMorosas = await contarConAggregate(Membresia, {
     ...filtroBase,
     estado: { $in: ['MOROSA', 'SUSPENDIDA'] },
   });
 
-  const totalActivas = await Membresia.countDocuments({
+  const totalActivas = await contarConAggregate(Membresia, {
     ...filtroBase,
     estado: 'ACTIVA',
   });
@@ -155,12 +278,21 @@ const calcularReporteMorosidad = async ({ desde, hasta }) => {
     { $sort: { cantidad: -1 } },
   ]);
 
-  const membresiasMorosas = await Membresia.find({
-    ...filtroBase,
-    estado: { $in: ['MOROSA', 'SUSPENDIDA'] },
-  })
-    .sort({ fechaProximoPago: 1 })
-    .lean();
+  const membresiasMorosas = await Membresia.aggregate([
+    {
+      $match: {
+        ...filtroBase,
+        estado: { $in: ['MOROSA', 'SUSPENDIDA'] },
+      },
+    },
+    {
+      $sort: {
+        fechaProximoPago: 1,
+        fechaTermino: 1,
+        createdAt: 1,
+      },
+    },
+  ]);
 
   return {
     totalMembresias,
@@ -210,7 +342,7 @@ const construirReportes = async ({ desde, hasta, tipoReporte }) => {
 
   resultado.hayRegistros =
     Boolean(resultado.ingresos?.cantidadPagos) ||
-    Boolean(resultado.nuevosInscritos?.totalAltasPagadas) ||
+    Boolean(resultado.nuevosInscritos?.totalNuevosInscritos) ||
     Boolean(resultado.morosidad?.totalMembresias);
 
   return resultado;

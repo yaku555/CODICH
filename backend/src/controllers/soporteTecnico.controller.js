@@ -7,7 +7,7 @@ const quitarPassword = (soporte) => {
   return soporteSinPassword;
 };
 
-// Crear soporte técnico
+// crear el soporte técnico
 const crearSoporteTecnico = async (req, res) => {
   try {
     const {
@@ -71,7 +71,7 @@ const crearSoporteTecnico = async (req, res) => {
   }
 };
 
-// Obtener todos los soportes técnicos
+// para obtener todos los soportes tecnicos
 const getSoportesTecnicos = async (req, res) => {
   try {
     const soportes = await SoporteTecnico.find()
@@ -88,7 +88,7 @@ const getSoportesTecnicos = async (req, res) => {
   }
 };
 
-// Obtener soporte técnico por RUT
+// Obtener soporte tecnico mediante el rut
 const getSoporteTecnicoPorRut = async (req, res) => {
   try {
     const { rut } = req.params;
@@ -112,7 +112,7 @@ const getSoporteTecnicoPorRut = async (req, res) => {
   }
 };
 
-// Actualizar soporte técnico
+// Actualizar el soporte tecnico
 const actualizarSoporteTecnico = async (req, res) => {
   try {
     const { rut } = req.params;
@@ -177,7 +177,7 @@ const actualizarSoporteTecnico = async (req, res) => {
   }
 };
 
-// Eliminar soporte técnico
+// Eliminar el soporte técnico
 const borrarSoporteTecnico = async (req, res) => {
   try {
     const { rut } = req.params;
@@ -201,7 +201,7 @@ const borrarSoporteTecnico = async (req, res) => {
   }
 };
 
-// Login soporte técnico
+// Login para lo que es el soporte técnico
 const loginSoporteTecnico = async (req, res) => {
   try {
     const { email, password } = req.body;

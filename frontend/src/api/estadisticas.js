@@ -45,3 +45,6 @@ export const exportarEstadisticasPDFAPI = async (filtros = {}) => {
     throw error;
   }
 };
+
+// Alias para mantener compatibilidad con el componente
+export const getEstadisticas = getEstadisticasAPI;

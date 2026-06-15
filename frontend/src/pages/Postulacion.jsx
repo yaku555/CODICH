@@ -40,6 +40,14 @@ function Postulacion() {
     return /^\d{7,8}-[0-9K]$/.test(rut);
   };
 
+  const validarSoloLetras = (texto) => {
+    return /^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]+$/.test(texto.trim());
+  };
+
+  const validarTelefono = (telefono) => {
+    return /^\d{9}$/.test(telefono);
+  };
+
   const handleRutChange = (e) => {
     const rutFormateado = formatearRut(e.target.value);
 
@@ -52,9 +60,21 @@ function Postulacion() {
   const handleInputChange = (e) => {
     const { name, value } = e.target;
 
+    let nuevoValor = value;
+
+    // Nombre y apellido: solo letras y espacios
+    if (name === 'nombre' || name === 'apellido') {
+      nuevoValor = value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]/g, '');
+    }
+
+    // Teléfono: solo números y máximo 9 dígitos
+    if (name === 'telefono') {
+      nuevoValor = value.replace(/\D/g, '').slice(0, 9);
+    }
+
     setFormData((prev) => ({
       ...prev,
-      [name]: value,
+      [name]: nuevoValor,
     }));
   };
 
@@ -121,7 +141,16 @@ function Postulacion() {
 
   const validarFormulario = () => {
     if (!formData.nombre.trim()) return 'El nombre es requerido';
+
+    if (!validarSoloLetras(formData.nombre)) {
+      return 'El nombre solo puede contener letras y espacios';
+    }
+
     if (!formData.apellido.trim()) return 'El apellido es requerido';
+
+    if (!validarSoloLetras(formData.apellido)) {
+      return 'El apellido solo puede contener letras y espacios';
+    }
     if (!formData.rut.trim()) return 'El RUT es requerido';
 
     if (!validarFormatoRut(formData.rut)) {
@@ -131,6 +160,9 @@ function Postulacion() {
     if (!formData.fechaNacimiento.trim()) return 'La fecha de nacimiento es requerida';
     if (!formData.email.trim()) return 'El correo electrónico es requerido';
     if (!formData.telefono.trim()) return 'El teléfono es requerido';
+    if (!validarTelefono(formData.telefono)) {
+      return 'El teléfono debe contener exactamente 9 dígitos numéricos';
+    }
     if (!formData.residencia.trim()) return 'El lugar de residencia es requerido';
     if (!formData.profesion.trim()) return 'La profesión es requerida';
     if (!formData.areaFormacion) return 'El área de formación es requerida';
@@ -186,10 +218,10 @@ function Postulacion() {
 
       const res = await createPostulacionRequest(form);
 
-        setSuccess(
-          res.data?.message ||
-            'Postulación creada correctamente. Se ha enviado un correo de confirmación.'
-        );
+      setSuccess(
+        res.data?.message ||
+        'Postulación creada correctamente. Se ha enviado un correo de confirmación.'
+      );
 
 
       limpiarFormulario();
@@ -198,9 +230,9 @@ function Postulacion() {
 
       setError(
         'Error: ' +
-          (err.response?.data?.error ||
-            err.response?.data?.message ||
-            err.message)
+        (err.response?.data?.error ||
+          err.response?.data?.message ||
+          err.message)
       );
     } finally {
       setLoading(false);
@@ -242,7 +274,7 @@ function Postulacion() {
               required
             />
           </div>
-          
+
           <div className="form-group-custom">
             <label htmlFor="fechaNacimiento">Fecha de nacimiento</label>
             <input
@@ -317,6 +349,9 @@ function Postulacion() {
               type="text"
               value={formData.telefono}
               onChange={handleInputChange}
+              inputMode="numeric"
+              maxLength="9"
+              placeholder="Ej: 912345678"
               required
             />
           </div>

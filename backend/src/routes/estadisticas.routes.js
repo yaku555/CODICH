@@ -20,4 +20,5 @@ const validarAdmin = (req, res, next) => {
 router.get('/', validarAdmin, getReportesEstadisticos);
 router.get('/pdf', validarAdmin, exportarReportesPDF);
 
+
 module.exports = router;
