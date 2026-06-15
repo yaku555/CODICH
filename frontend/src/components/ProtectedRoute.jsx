@@ -27,7 +27,7 @@ function obtenerFuncionalidadPorRuta(pathname) {
     '/admin/auditoria': 'Logs de auditoría',
     '/admin/pagos': 'Gestión de pagos',
     '/admin/estadisticas': 'Estadísticas administrativas',
-    '/miembros': 'Panel de miembros',
+    '/perfil': 'Panel de perfil',
     '/soporte': 'Panel de soporte técnico',
     '/soporte/logs': 'Logs de soporte técnico',
     '/soporte/backups': 'Backups de soporte técnico',
@@ -63,7 +63,7 @@ function obtenerModuloPorRuta(pathname) {
   if (pathname.includes('/postulaciones')) return 'Postulaciones';
   if (pathname.includes('/pagos')) return 'Pagos';
   if (pathname.includes('/auditoria')) return 'Admin';
-  if (pathname.includes('/miembros')) return 'Socios';
+  if (pathname.includes('/perfil')) return 'Socios';
 
   return 'Admin';
 }
