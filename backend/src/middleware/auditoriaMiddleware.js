@@ -3,7 +3,7 @@
 const auditoriaMiddleware = (req, res, next) => {
   const url = req.originalUrl.toLowerCase();
 
-  // Evita que la auditoría registre sus propias peticiones
+  // evitar que la auditoria registre una operacion propia
   if (url.startsWith('/api/auditoria')) {
     return next();
   }
@@ -11,10 +11,10 @@ const auditoriaMiddleware = (req, res, next) => {
   const originalJson = res.json;
 
   res.json = function (data) {
-    // Enviar la respuesta inmediatamente
+    // Enviamos la respuesta automaticamente
     const responseResult = originalJson.call(this, data);
 
-    // Registrar en auditoría de forma asincrónica sin bloquear la respuesta
+    // Registrar en auditoria
     if (['POST', 'PUT', 'DELETE'].includes(req.method)) {
       setImmediate(() => {
         try {
