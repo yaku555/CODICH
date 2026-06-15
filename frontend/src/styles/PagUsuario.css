@@ -431,26 +431,38 @@
   letter-spacing: 0.04em;
 }
 
-.perfil-form-grupo input {
-  padding: 10px 12px;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
+.perfil-form-grupo input,
+.perfil-form-grupo select {
+  width: 100%;
+  min-height: 48px;
+  padding: 10px 14px;
+  border: 1px solid #cbd5e1;
+  border-radius: 14px;
   font-size: 0.95rem;
   color: #0f172a;
-  background: #f8fafc;
-  transition: border-color 0.15s ease;
+  background: #ffffff;
+  font-family: inherit;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
   outline: none;
 }
 
-.perfil-form-grupo input:focus {
+.perfil-form-grupo input:focus,
+.perfil-form-grupo select:focus {
   border-color: #0f172a;
-  background: #fff;
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(15, 23, 42, 0.08);
 }
 
-.perfil-input-disabled {
-  opacity: 0.5;
+.perfil-form-grupo select {
+  cursor: pointer;
+}
+.perfil-input-disabled,
+.perfil-form-grupo input:disabled,
+.perfil-form-grupo select:disabled {
+  opacity: 0.65;
   cursor: not-allowed;
-  background: #f1f5f9 !important;
+  background: #e5e7eb !important;
+  color: #64748b;
 }
 
 .perfil-label-opcional {
