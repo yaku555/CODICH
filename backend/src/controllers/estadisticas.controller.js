@@ -18,12 +18,10 @@ const normalizarFechaInput = (fecha) => {
 
   const valor = fecha.toString().trim();
 
-  // Formato normal de input date: 2026-06-15
   if (/^\d{4}-\d{2}-\d{2}/.test(valor)) {
     return valor.slice(0, 10);
   }
 
-  // Por si llega como 15/06/2026
   const formatoChile = valor.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
 
   if (formatoChile) {
@@ -67,9 +65,7 @@ const crearRangoFecha = (desde, hasta) => {
 const crearFiltroFechaFlexible = (desde, hasta, campos = []) => {
   const { rangoDate, rangoString } = crearRangoFecha(desde, hasta);
 
-  const tieneFiltroFecha = Object.keys(rangoDate).length > 0;
-
-  if (!tieneFiltroFecha || campos.length === 0) {
+  if (Object.keys(rangoDate).length === 0 || campos.length === 0) {
     return {};
   }
 
@@ -220,13 +216,8 @@ const calcularReporteInscritos = async ({ desde, hasta }) => {
 
   return {
     totalNuevosInscritos: postulantesAprobados.length,
-
-    // Se mantiene para no romper frontend o PDF si todavía usa este campo.
     totalAltasPagadas: postulantesAprobados.length,
-
-    // Se mantiene para no romper frontend anterior.
     inscritosPorPlan: aprobadosPorArea,
-
     aprobadosPorArea,
     aprobadosPorProfesion,
 
@@ -361,24 +352,10 @@ const getReportesEstadisticos = async (req, res) => {
   try {
     const { desde, hasta, tipoReporte = 'todos' } = req.query;
 
-    console.log('[ESTADISTICAS] Reporte solicitado:', {
-      desde,
-      hasta,
-      tipoReporte,
-      db: Pago.db.name,
-    });
-
     const reportes = await construirReportes({
       desde,
       hasta,
       tipoReporte,
-    });
-
-    console.log('[ESTADISTICAS] Reporte generado:', {
-      hayRegistros: reportes.hayRegistros,
-      ingresos: reportes.ingresos?.cantidadPagos || 0,
-      inscritos: reportes.nuevosInscritos?.totalNuevosInscritos || 0,
-      membresias: reportes.morosidad?.totalMembresias || 0,
     });
 
     return res.status(200).json(reportes);
