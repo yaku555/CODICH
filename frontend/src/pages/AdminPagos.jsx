@@ -5,7 +5,7 @@ const ESTADO_PAGO = {
   AUTHORIZED: { label: 'Aprobado', clase: 'rol-aprobada' },
   FAILED: { label: 'Rechazado', clase: 'rol-badge' },
   CANCELLED: { label: 'Cancelado', clase: 'rol-por-hacer' },
-  PENDING: { label: 'Pendiente', clase: 'rol-por-hacer' },
+  PENDING: { label: 'Cancelado', clase: 'rol-por-hacer' },
 };
 
 function formatMonto(monto) {

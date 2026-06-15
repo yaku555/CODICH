@@ -395,7 +395,7 @@ export default function AdminEstadisticas() {
               <table className="tabla-estadisticas">
                 <thead>
                   <tr>
-                    <th>Plan</th>
+                    <th>Profesión</th>
                     <th>Cantidad</th>
                   </tr>
                 </thead>
