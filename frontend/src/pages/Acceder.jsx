@@ -56,7 +56,7 @@ function Acceder() {
       } else if (rol === 'soporte_tecnico') {
         navigate('/soporte/logs');
       } else if (rol === 'usuario') {
-        navigate('/miembros');
+        navigate('/perfil');
       } else {
         navigate('/');
       }

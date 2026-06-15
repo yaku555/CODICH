@@ -49,14 +49,27 @@
                   Membresía
                 </NavLink>
               </li>
+              {usuario && usuario.rol === "admin" && (
+                <li>
+                  <NavLink to="/admin" className="nav-btn">
+                    Panel de administración
+                  </NavLink>
+                </li>
+              )}
             </ul>
 
             <div className="right-buttons">
               {usuario ? (
                 <>
+                {usuario.rol === 'usuario' ? (
                   <Link to="/perfil" className="access-btn">
                     Hola, {nombreUsuario}
                   </Link>
+                ) : (
+                  <Link className="access-btn">
+                    Hola, {nombreUsuario}
+                  </Link>
+                )}
 
                   <button className="access-btn" onClick={logout}>
                     Cerrar sesión
@@ -98,7 +111,7 @@
             Membresía
           </NavLink>
 
-          {usuario ? (
+          {usuario && usuario.rol === "usuario" ? (
             <>
               <NavLink to="/perfil" className="side-access-btn" onClick={closeMenu}>
                 Hola, {nombreUsuario}
