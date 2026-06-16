@@ -1,4 +1,4 @@
-
+// importaciones 
 
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
@@ -8,6 +8,7 @@ import { getUsuarios } from '../api/usuarios.js';
 import '../styles/AdminUsuarios.css';
 
 function PagAdmin() {
+  // los estados principales de la pagina
   const [usuarios, setUsuarios] = useState([]);
   const [busqueda, setBusqueda] = useState('');
   const [loading, setLoading] = useState(true);
@@ -17,6 +18,7 @@ function PagAdmin() {
   const { logout } = useUsuario();
   const navigate = useNavigate();
 
+  //el use effect
   useEffect(() => {
     const mensajeGuardado = sessionStorage.getItem('adminMensaje');
 
@@ -30,6 +32,7 @@ function PagAdmin() {
     cargarUsuarios();
   }, []);
 
+  // carga los usuarios desde el backend
   const cargarUsuarios = async () => {
     try {
       setLoading(true);
@@ -45,6 +48,7 @@ function PagAdmin() {
     }
   };
 
+  // cierra sesion y vuelve al login
   const cerrarSesion = () => {
     logout();
     navigate('/acceder', { replace: true });
@@ -62,6 +66,7 @@ function PagAdmin() {
     return 'Sin área registrada';
   };
 
+  // filtra los usuarios 
   const usuariosFiltrados = usuarios.filter((usuario) => {
     const texto = `
       ${usuario.nombre || ''}
@@ -72,9 +77,11 @@ function PagAdmin() {
       ${usuario.profesion || ''}
       ${usuario.rol || ''}
     `;
+
     return texto.toLowerCase().includes(busqueda.toLowerCase());
   });
 
+  // mensaje simple mientras llegan los datos
   if (loading) {
     return (
       <main className="admin-page">
@@ -83,6 +90,7 @@ function PagAdmin() {
     );
   }
 
+  // la interfaz principal
   return (
     <main className="admin-page">
       <section className="admin-header">
@@ -97,7 +105,6 @@ function PagAdmin() {
           <Link to="/admin/crear" className="btn-crear">
             Crear usuario
           </Link>
-
         </div>
       </section>
 

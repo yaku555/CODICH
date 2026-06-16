@@ -176,6 +176,24 @@ Si ya realizaste el pago, por favor ignora este mensaje. Si tienes alguna pregun
   });
 };
 
+const enviarCorreoSoporte = async ({ asunto, mensaje }) => {
+  const correoSoporte =
+    process.env.SOPORTE_EMAIL ||
+    process.env.ADMIN_EMAIL ||
+    'soporte@codich.cl';
+
+  return enviarEmailJS(
+    process.env.EMAILJS_TEMPLATE_SOPORTE || process.env.EMAILJS_TEMPLATE,
+    {
+      name: 'Soporte Técnico CODICH',
+      email: correoSoporte,
+      subject: asunto,
+      titulo: asunto,
+      estado: 'Notificación de respaldo',
+      mensaje,
+    }
+  );
+};
 
 module.exports = {
   enviarCorreoPostulacionCreada,
@@ -184,4 +202,5 @@ module.exports = {
   enviarCorreoPago,
   enviarCorreoContacto,
   enviarCorreoMoroso,
+  enviarCorreoSoporte,
 };

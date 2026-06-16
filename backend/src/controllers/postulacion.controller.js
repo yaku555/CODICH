@@ -1,3 +1,5 @@
+// imports de lirberias, modelos y servicios
+
 const crypto = require('crypto');
 const Postulacion = require('../models/Postulacion');
 const Usuario = require('../models/Usuario');
@@ -5,13 +7,13 @@ const supabase = require('../config/supabase');
 const bcrypt = require('bcrypt');
 const generarPasswordProvisoria = require('../utils/generarPassword');
 const evaluarPostulacion = require('../utils/evaluarPostulacion');
-
 const {
   enviarCorreoPostulacionCreada,
   enviarCorreoPostulacionAprobada,
   enviarCorreoPostulacionRechazada,
 } = require('../utils/correo.service');
 
+// sube el cv a supabase y devuelve la ruta donde quedo guardado
 const subirCVSupabase = async (archivo, rut) => {
   if (!archivo) return null;
 
@@ -43,6 +45,7 @@ const subirCVSupabase = async (archivo, rut) => {
   return rutaArchivo;
 };
 
+// crea una postulacion nueva, la evalua automaticamente y envia correo de confirmacion
 const create = async (req, res) => {
   try {
     const {
@@ -89,6 +92,7 @@ const create = async (req, res) => {
 
     const postulacionExistente = await Postulacion.findOne({ rut });
 
+    // importante por que se evalua si hay un postulante con el mismo rut
     if (postulacionExistente) {
       return res.status(400).json({
         error: 'Ya existe una postulación con ese RUT.',
@@ -155,6 +159,7 @@ const create = async (req, res) => {
   }
 };
 
+// get de las postulaciones
 const getAll = async (req, res) => {
   try {
     const postulaciones = await Postulacion.find().sort({ createdAt: -1 });
@@ -170,6 +175,7 @@ const getAll = async (req, res) => {
   }
 };
 
+// get una postulacion con el rut
 const getById = async (req, res) => {
   try {
     const { rut } = req.params;
@@ -193,6 +199,7 @@ const getById = async (req, res) => {
   }
 };
 
+// actualiza los datos de una postulacion y tambien permite cambiar el cv si viene archivo nuevo
 const update = async (req, res) => {
   try {
     const { rut } = req.params;
@@ -268,6 +275,7 @@ const update = async (req, res) => {
   }
 };
 
+// elimina una postulacion segun su rut
 const remove = async (req, res) => {
   try {
     const { rut } = req.params;
@@ -293,6 +301,7 @@ const remove = async (req, res) => {
   }
 };
 
+// genera una url temporal para poder ver el cv guardado en supabase
 const getCvUrl = async (req, res) => {
   try {
     const { rut } = req.params;
@@ -335,6 +344,7 @@ const getCvUrl = async (req, res) => {
   }
 };
 
+// aprueba una postulacion, crea el usuario y le envia su clave provisoria por correo
 const aprobar = async (req, res) => {
   try {
     const { rut } = req.params;
@@ -359,7 +369,6 @@ const aprobar = async (req, res) => {
       });
     }
 
-
     if (
       postulacion.estado !== 'Pre-Aprobada' &&
       postulacion.estado !== 'Pre-Rechazada'
@@ -372,8 +381,8 @@ const aprobar = async (req, res) => {
     const usuarioExistente = await Usuario.findOne({
       $or: [
         { rut: postulacion.rut },
-        { email: postulacion.email }
-      ]
+        { email: postulacion.email },
+      ],
     });
 
     if (usuarioExistente) {
@@ -402,6 +411,7 @@ const aprobar = async (req, res) => {
     });
 
     await nuevoUsuario.save();
+
     const estadoAnterior = postulacion.estado;
 
     postulacion.estado = 'Aprobada';
@@ -411,6 +421,7 @@ const aprobar = async (req, res) => {
       estadoAnterior === 'Pre-Rechazada'
         ? 'Postulación aprobada manualmente pese a observaciones de la evaluación automática.'
         : 'Postulación aprobada por el administrador.';
+
     await postulacion.save();
 
     try {
@@ -439,6 +450,7 @@ const aprobar = async (req, res) => {
   }
 };
 
+// rechaza una postulacion, guarda el comentario del admin y avisa por correo
 const rechazar = async (req, res) => {
   try {
     const { rut } = req.params;
@@ -476,6 +488,7 @@ const rechazar = async (req, res) => {
     }
 
     await postulacion.save();
+
     try {
       await enviarCorreoPostulacionRechazada(postulacion);
 
@@ -492,7 +505,6 @@ const rechazar = async (req, res) => {
         message: 'Postulación rechazada, pero no se pudo enviar el correo.',
       });
     }
-
   } catch (error) {
     console.error(error);
 
@@ -503,7 +515,7 @@ const rechazar = async (req, res) => {
   }
 };
 
-
+// exporta las funciones para usarlas en las rutas
 module.exports = {
   create,
   getAll,

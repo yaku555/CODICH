@@ -1,17 +1,23 @@
+// las importciones
+
 import React, { useEffect, useState } from 'react';
 import { Link, Navigate, useNavigate, useParams } from 'react-router-dom';
 import { getUsuarioPorRut, actualizarUsuario, borrarUsuario } from '../api/usuarios.js';
 import '../styles/AdminUsuarios.css';
 
+// deja la fecha en el formato que necesita el input de tipo date
 const formatearFechaInput = (fecha) => {
   if (!fecha) return '';
   return new Date(fecha).toISOString().split('T')[0];
 };
 
+
+// la funcion principal
 function AdminUsuarioDetalle() {
   const { rut } = useParams();
   const navigate = useNavigate();
 
+  // aca se guarda el usuario encontrado y los datos que se editan en el formulario
   const [usuario, setUsuario] = useState(null);
 
   const [form, setForm] = useState({
@@ -28,16 +34,19 @@ function AdminUsuarioDetalle() {
     password: '',
   });
 
+  // estados para manejar carga, guardado, eliminacion, mensajes y errores
   const [loading, setLoading] = useState(true);
   const [guardando, setGuardando] = useState(false);
   const [eliminando, setEliminando] = useState(false);
   const [mensaje, setMensaje] = useState('');
   const [error, setError] = useState('');
 
+  // cuando cambia el rut de la url, se carga el usuario correspondiente
   useEffect(() => {
     cargarUsuario();
   }, [rut]);
 
+  // busca los datos del usuario y los deja listos para mostrarlos en el formulario
   const cargarUsuario = async () => {
     try {
       setLoading(true);
@@ -72,10 +81,10 @@ function AdminUsuarioDetalle() {
     }
   };
 
+  // actualiza los campos editables 
   const handleChange = (e) => {
     const { name, value } = e.target;
 
-    // El RUT no se modifica porque es identificador único del usuario
     if (name === 'rut') return;
 
     setForm({
@@ -84,6 +93,7 @@ function AdminUsuarioDetalle() {
     });
   };
 
+  // guarda los cambios del usuario usando el rut solo para encontrarlo
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -107,8 +117,6 @@ function AdminUsuarioDetalle() {
         datosActualizados.password = form.password;
       }
 
-      // Se usa el RUT de la URL solo para encontrar al usuario.
-      // No se envía el RUT como dato editable.
       const usuarioActualizado = await actualizarUsuario(
         rut,
         datosActualizados
@@ -120,6 +128,7 @@ function AdminUsuarioDetalle() {
         nombre: usuarioActualizado.nombre || '',
         apellido: usuarioActualizado.apellido || '',
         rut: usuarioActualizado.rut || '',
+        fechaNacimiento: formatearFechaInput(usuarioActualizado.fechaNacimiento) || '',
         email: usuarioActualizado.email || '',
         telefono: usuarioActualizado.telefono || '',
         residencia: usuarioActualizado.residencia || '',
@@ -142,6 +151,7 @@ function AdminUsuarioDetalle() {
     }
   };
 
+  // se pide confirmacion antes de eliminar y luego vuelve al listado
   const handleEliminar = async () => {
     const confirmar = window.confirm(
       `¿Seguro que quieres eliminar al usuario ${form.nombre} ${form.apellido} con RUT ${form.rut}?`
@@ -154,7 +164,6 @@ function AdminUsuarioDetalle() {
       setMensaje('');
       setError('');
 
-      // Se usa el RUT de la URL como identificador seguro
       await borrarUsuario(rut);
 
       sessionStorage.setItem('adminMensaje', 'Usuario eliminado correctamente.');
@@ -174,6 +183,7 @@ function AdminUsuarioDetalle() {
     }
   };
 
+  // Se muestra mensaje de carga cuando estan cargando los datos
   if (loading) {
     return (
       <main className="admin-page">
@@ -182,10 +192,13 @@ function AdminUsuarioDetalle() {
     );
   }
 
+  // si no hay usuario cargado se vuelve al panel admin
   if (!usuario && !error) {
     return <Navigate to="/admin" replace />;
   }
 
+
+  // interfaz
   return (
     <main className="admin-page">
       <section className="admin-header">
@@ -234,7 +247,7 @@ function AdminUsuarioDetalle() {
               value={form.rut}
               readOnly
               disabled
-              className="input-bloqueado"  
+              className="input-bloqueado"
               title="El RUT no se puede modificar porque es un identificador único."
             />
             <small>El RUT no se puede modificar porque es un identificador único.</small>

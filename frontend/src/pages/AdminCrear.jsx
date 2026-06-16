@@ -4,6 +4,7 @@ import { crearUsuario } from '../api/usuarios.js';
 import '../styles/AdminUsuarios.css';
 
 function AdminCrear() {
+  // aqui se guarda todo lo que se escribe en el formulario
   const [form, setForm] = useState({
     nombre: '',
     apellido: '',
@@ -18,10 +19,12 @@ function AdminCrear() {
     password: '',
   });
 
+  // esto ayuda a saber si se esta guardando, si salio bien o si hubo error
   const [guardando, setGuardando] = useState(false);
   const [mensaje, setMensaje] = useState('');
   const [error, setError] = useState('');
 
+  // deja el rut con guion mientras se va escribiendo
   const formatearRut = (valor) => {
     const limpio = valor.replace(/[^0-9kK]/g, '').toUpperCase().slice(0, 9);
 
@@ -46,6 +49,7 @@ function AdminCrear() {
     }));
   };
 
+  // esto actualiza cualquier campo normal del formulario
   const handleChange = (e) => {
     const { name, value } = e.target;
 
@@ -55,6 +59,7 @@ function AdminCrear() {
     }));
   };
 
+  // antes de guardar, se revisa que no falte nada importante
   const validarFormulario = () => {
     if (
       !form.nombre.trim() ||
@@ -81,6 +86,7 @@ function AdminCrear() {
     return true;
   };
 
+  // cuando se envia el formulario, se manda el usuario nuevo al backend
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -136,6 +142,9 @@ function AdminCrear() {
     }
   };
 
+
+
+  // la interfaz
   return (
     <main className="admin-page">
       <header className="admin-header">
@@ -194,7 +203,7 @@ function AdminCrear() {
           </div>
 
           <div className="form-grupo">
-            <label>Fecha de nacimiento</label>
+            <label htmlFor="fechaNacimiento">Fecha de nacimiento</label>
             <input
               id="fechaNacimiento"
               name="fechaNacimiento"
@@ -240,11 +249,12 @@ function AdminCrear() {
               onChange={handleChange}
               required
             />
-          </div>  
+          </div>
 
           <div className="form-grupo">
-            <label>Área de formación</label>
+            <label htmlFor="areaFormacion">Área de formación</label>
             <select
+              id="areaFormacion"
               name="areaFormacion"
               value={form.areaFormacion}
               onChange={handleChange}

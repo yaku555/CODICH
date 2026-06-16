@@ -1,19 +1,15 @@
+// las impoortaciones
+
 import React, { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-
-import {
-  getPostulacionByRutRequest,
-  getCvPostulacionRequest,
-  aprobarPostulacionRequest,
-  rechazarPostulacionRequest,
-} from '../api/postulacion.js';
-
+import { getPostulacionByRutRequest, getCvPostulacionRequest, aprobarPostulacionRequest, rechazarPostulacionRequest,} from '../api/postulacion.js';
 import '../styles/AdminUsuarios.css';
 import '../styles/AdminPostulacionDetalle.css';
 
 function AdminPostulacionDetalle() {
+  
+  // los estados principales para guardar la postulacion y manejar la pantalla
   const { rut } = useParams();
-
   const [postulacion, setPostulacion] = useState(null);
   const [loading, setLoading] = useState(true);
   const [errorCarga, setErrorCarga] = useState('');
@@ -22,10 +18,12 @@ function AdminPostulacionDetalle() {
   const [aprobando, setAprobando] = useState(false);
   const [rechazando, setRechazando] = useState(false);
 
+  // carga los datos del postulante por rut
   useEffect(() => {
     cargarPostulacion();
   }, [rut]);
 
+  // trae los datos del backend con el get
   const cargarPostulacion = async () => {
     try {
       setLoading(true);
@@ -41,6 +39,7 @@ function AdminPostulacionDetalle() {
     }
   };
 
+  // funciones chicas para mostrar fechas, estados y areas de forma mas clara
   const formatearFecha = (fecha) => {
     if (!fecha) return 'No registrada';
 
@@ -81,6 +80,7 @@ function AdminPostulacionDetalle() {
     return motivos.join(', ');
   };
 
+  // se encarga de abrir el cv en otra ventana
   const verCV = async () => {
     const ventanaCV = window.open('', '_blank');
 
@@ -106,6 +106,7 @@ function AdminPostulacionDetalle() {
     }
   };
 
+  // funcion que aprueba la postulacion validandola primero
   const aprobarPostulacion = async () => {
     try {
       setMensaje('');
@@ -148,6 +149,7 @@ function AdminPostulacionDetalle() {
     }
   };
 
+  // funcion que rechaza la postulacion validandola primero y con opcion de comentario
   const rechazarPostulacion = async () => {
     try {
       setMensaje('');
@@ -206,6 +208,7 @@ function AdminPostulacionDetalle() {
     }
   };
 
+  // pantalla mientras cargan los datos
   if (loading) {
     return (
       <main className="admin-page">
@@ -214,6 +217,7 @@ function AdminPostulacionDetalle() {
     );
   }
 
+  // si falla la carga, se muestra el error y el boton para volver
   if (errorCarga) {
     return (
       <main className="admin-page">
@@ -226,6 +230,7 @@ function AdminPostulacionDetalle() {
     );
   }
 
+  // si no se encontro nada, tambien se permite volver al listado
   if (!postulacion) {
     return (
       <main className="admin-page">
@@ -238,10 +243,10 @@ function AdminPostulacionDetalle() {
     );
   }
 
-  const puedeAccionar =
-    postulacion.estado === 'Pre-Aprobada' ||
-    postulacion.estado === 'Pre-Rechazada';
+  // solo las postulaciones pre evaluadas pueden aprobarse o rechazarse
+  const puedeAccionar = postulacion.estado === 'Pre-Aprobada' || postulacion.estado === 'Pre-Rechazada';
 
+  // interfaz   
   return (
     <main className="admin-page">
       <section className="admin-header">
@@ -256,10 +261,6 @@ function AdminPostulacionDetalle() {
         </div>
 
         <div className="admin-acciones">
- 
-
-
-
           <Link to="/admin/postulaciones" className="btn-crear">
             Volver
           </Link>
@@ -347,11 +348,11 @@ function AdminPostulacionDetalle() {
 
           <div className="detalle-item">
             {postulacion.documentoPath && (
-                <button type="button" className="btn-guardar" onClick={verCV}>
-                  Ver CV
-                </button>
-              )}
-              {!postulacion.documentoPath && <span>CV no disponible</span>}
+              <button type="button" className="btn-guardar" onClick={verCV}>
+                Ver CV
+              </button>
+            )}
+            {!postulacion.documentoPath && <span>CV no disponible</span>}
           </div>
 
           <div className="form-acciones">
@@ -376,7 +377,7 @@ function AdminPostulacionDetalle() {
             >
               {rechazando
                 ? 'Rechazando...'
-                : postulacion.estado === 'Rechazar'
+                : postulacion.estado === 'Rechazada'
                   ? 'Rechazada'
                   : 'Rechazar'}
             </button>

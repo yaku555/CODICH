@@ -1,11 +1,15 @@
+
+// se definen las reglas para evaluar una postulacion
 const MINIMO_ANIOS_EXPERIENCIA = 2;
 const MINIMO_CARACTERES_EXPERIENCIA = 30;
 const EDAD_MINIMA = 18;
 
+// reglas base que se usan para evaluar la postulacion
 const textoVacio = (valor) => {
   return !valor || String(valor).trim() === '';
 };
 
+// calcula la edad del postulante usando su fecha de nacimiento
 const calcularEdad = (fechaNacimiento) => {
   const nacimiento = new Date(fechaNacimiento);
 
@@ -25,6 +29,7 @@ const calcularEdad = (fechaNacimiento) => {
   return edad;
 };
 
+// revisa los datos de la postulacion y junta los motivos si algo no cumple
 const evaluarPostulacion = (datos) => {
   const motivos = [];
 
@@ -39,6 +44,7 @@ const evaluarPostulacion = (datos) => {
     motivos.push('Datos personales incompletos');
   }
 
+  // se valida que la fecha exista y que cumpla con la edad minima
   const edad = calcularEdad(datos.fechaNacimiento);
 
   if (edad === null) {
@@ -47,6 +53,7 @@ const evaluarPostulacion = (datos) => {
     motivos.push('Edad insuficiente');
   }
 
+  // se revisa que tenga informacion academica y que sea del area esperada
   if (textoVacio(datos.profesion) || textoVacio(datos.areaFormacion)) {
     motivos.push('Información académica incompleta');
   }
@@ -57,6 +64,7 @@ const evaluarPostulacion = (datos) => {
     );
   }
 
+  // se valida que la experiencia tenga contenido suficiente
   if (textoVacio(datos.experiencia)) {
     motivos.push('Información laboral incompleta');
   } else if (
@@ -65,6 +73,7 @@ const evaluarPostulacion = (datos) => {
     motivos.push('Descripción de experiencia insuficiente');
   }
 
+  // se revisa que los años de experiencia sean validos y cumplan el minimo
   const aniosExperiencia = Number(datos.aniosExperiencia);
 
   if (
@@ -78,10 +87,12 @@ const evaluarPostulacion = (datos) => {
     motivos.push('Experiencia insuficiente');
   }
 
+  // se exige que exista un documento de respaldo cargado
   if (textoVacio(datos.documentoPath)) {
     motivos.push('Falta documento de respaldo');
   }
 
+  // si no hay motivos de rechazo, queda pre aprobada; si hay motivos, queda pre rechazada
   return {
     estado: motivos.length === 0 ? 'Pre-Aprobada' : 'Pre-Rechazada',
     motivoRechazo: motivos,

@@ -1,15 +1,19 @@
+// importacioness
 import { useState } from 'react';
 import { createPostulacionRequest } from '../api/postulacion';
 import '../styles/Postulacion.css';
 
 function Postulacion() {
+  // los estados para controlar la carga, errores y mensaje de exito
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
+  // el limite permitido para el pdf
   const LIMITE_ARCHIVO_MB = 5;
   const LIMITE_ARCHIVO_BYTES = LIMITE_ARCHIVO_MB * 1024 * 1024;
 
+  // aca se guardan todos los datos que va ingresando el postulante
   const [formData, setFormData] = useState({
     nombre: '',
     apellido: '',
@@ -25,6 +29,7 @@ function Postulacion() {
     documento: null,
   });
 
+  // funciones para dejar los campos con el formato valido
   const formatearRut = (valor) => {
     const limpio = valor.replace(/[^0-9kK]/g, '').toUpperCase().slice(0, 9);
 
@@ -48,6 +53,7 @@ function Postulacion() {
     return /^\d{9}$/.test(telefono);
   };
 
+  // handle que deja el rut con guion
   const handleRutChange = (e) => {
     const rutFormateado = formatearRut(e.target.value);
 
@@ -57,17 +63,16 @@ function Postulacion() {
     }));
   };
 
+  // actualiza los campos normales y limpia algunos datos mientras se escriben
   const handleInputChange = (e) => {
     const { name, value } = e.target;
 
     let nuevoValor = value;
 
-    // Nombre y apellido: solo letras y espacios
     if (name === 'nombre' || name === 'apellido') {
       nuevoValor = value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]/g, '');
     }
 
-    // Teléfono: solo números y máximo 9 dígitos
     if (name === 'telefono') {
       nuevoValor = value.replace(/\D/g, '').slice(0, 9);
     }
@@ -78,6 +83,7 @@ function Postulacion() {
     }));
   };
 
+  // handle que revisa que el archivo sea pdf y no supere el limite
   const handleFileChange = (e) => {
     const archivoSeleccionado = e.target.files[0];
 
@@ -119,6 +125,7 @@ function Postulacion() {
     }));
   };
 
+  // variable que limpia el formulario despues de enviar la postulacion
   const limpiarFormulario = () => {
     setFormData({
       nombre: '',
@@ -139,6 +146,7 @@ function Postulacion() {
     if (fileInput) fileInput.value = '';
   };
 
+  // variable que valida los campos antes de mandar la postulacion al backend
   const validarFormulario = () => {
     if (!formData.nombre.trim()) return 'El nombre es requerido';
 
@@ -151,6 +159,7 @@ function Postulacion() {
     if (!validarSoloLetras(formData.apellido)) {
       return 'El apellido solo puede contener letras y espacios';
     }
+
     if (!formData.rut.trim()) return 'El RUT es requerido';
 
     if (!validarFormatoRut(formData.rut)) {
@@ -160,9 +169,11 @@ function Postulacion() {
     if (!formData.fechaNacimiento.trim()) return 'La fecha de nacimiento es requerida';
     if (!formData.email.trim()) return 'El correo electrónico es requerido';
     if (!formData.telefono.trim()) return 'El teléfono es requerido';
+
     if (!validarTelefono(formData.telefono)) {
       return 'El teléfono debe contener exactamente 9 dígitos numéricos';
     }
+
     if (!formData.residencia.trim()) return 'El lugar de residencia es requerido';
     if (!formData.profesion.trim()) return 'La profesión es requerida';
     if (!formData.areaFormacion) return 'El área de formación es requerida';
@@ -185,6 +196,7 @@ function Postulacion() {
     return '';
   };
 
+  // handle que arma el formdata con texto y archivo para enviar la postulacion
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -223,7 +235,6 @@ function Postulacion() {
         'Postulación creada correctamente. Se ha enviado un correo de confirmación.'
       );
 
-
       limpiarFormulario();
     } catch (err) {
       console.error(err);
@@ -239,6 +250,7 @@ function Postulacion() {
     }
   };
 
+  // la interfaz
   return (
     <>
       <div className="form-header-banner">

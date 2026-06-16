@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-
 import { getPostulacionesRequest } from '../api/postulacion.js';
-
 import '../styles/AdminUsuarios.css';
 
 function PagAdminPostulaciones() {
+
+  // estados principales para la lista, buscador, carga y errores
   const [postulaciones, setPostulaciones] = useState([]);
   const [busqueda, setBusqueda] = useState('');
   const [loading, setLoading] = useState(true);
@@ -15,6 +15,7 @@ function PagAdminPostulaciones() {
     cargarPostulaciones();
   }, []);
 
+  // carga las postulaciones desde el backend con el get
   const cargarPostulaciones = async () => {
     try {
       setLoading(true);
@@ -30,6 +31,7 @@ function PagAdminPostulaciones() {
     }
   };
 
+  // prepara el area de formacion para mostrarla de forma correcta
   const obtenerTextoArea = (areaFormacion) => {
     if (areaFormacion === 'educacion_pedagogia') {
       return 'Educación / Pedagogía';
@@ -48,6 +50,7 @@ function PagAdminPostulaciones() {
       .replaceAll(' ', '-');
   };
 
+  // filtra las postulaciones segun lo ingresado    
   const postulacionesFiltradas = postulaciones.filter((postulacion) => {
     const texto = `
       ${postulacion.nombre || ''}
@@ -66,6 +69,7 @@ function PagAdminPostulaciones() {
     return texto.toLowerCase().includes(busqueda.toLowerCase());
   });
 
+  // un mensaje simple mientras llegan los datos
   if (loading) {
     return (
       <main className="admin-page">
@@ -74,6 +78,7 @@ function PagAdminPostulaciones() {
     );
   }
 
+  // la interfaz
   return (
     <main className="admin-page admin-page-postulaciones">
       <section className="admin-header">
