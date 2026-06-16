@@ -235,9 +235,24 @@ function PagMiembros() {
     navigate('/acceder', { replace: true });
   };
 
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
+const handleChange = (e) => {
+  const { name, value } = e.target;
+
+  let nuevoValor = value;
+
+  if (name === 'nombre' || name === 'apellido'  || name === 'profesion') {
+    nuevoValor = value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]/g, '');
+  }
+
+  if (name === 'telefono') {
+    nuevoValor = value.replace(/\D/g, '').slice(0, 9);
+  }
+
+  setForm({
+    ...form,
+    [name]: nuevoValor,
+  });
+};
 
   const handleGuardar = async (e) => {
     e.preventDefault();
@@ -654,10 +669,13 @@ function PagMiembros() {
               <div className="perfil-form-grupo">
                 <label>Teléfono</label>
                 <input
-                  name="telefono"
-                  value={form.telefono}
-                  onChange={handleChange}
-                />
+  name="telefono"
+  value={form.telefono}
+  onChange={handleChange}
+  inputMode="numeric"
+  maxLength="9"
+  placeholder="Ej: 912345678"
+/>
               </div>
             </div>
 
