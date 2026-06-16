@@ -7,12 +7,14 @@ import {
 import "../styles/SoporteBackups.css";
 
 function SoporteBackups() {
+  // estados principales para manejar el historial, la carga y los mensajes
   const [backups, setBackups] = useState([]);
   const [loading, setLoading] = useState(true);
   const [procesando, setProcesando] = useState(false);
   const [mensaje, setMensaje] = useState("");
   const [error, setError] = useState("");
 
+  // carga el historial de backups desde el backend
   const cargarBackups = async () => {
     try {
       setLoading(true);
@@ -28,10 +30,12 @@ function SoporteBackups() {
     }
   };
 
+  // al entrar a la pagina se muestra el historial actual
   useEffect(() => {
     cargarBackups();
   }, []);
 
+  // crea un backup manual y muestra si tambien se pudo enviar el correo
   const crearBackup = async () => {
     try {
       setProcesando(true);
@@ -63,6 +67,7 @@ function SoporteBackups() {
     }
   };
 
+  // pide doble confirmacion antes de restaurar, porque reemplaza los datos actuales
   const restaurarBackup = async (backup) => {
     const primeraConfirmacion = window.confirm(
       "Esto reemplazará la información actual. ¿Deseas continuar?"
@@ -96,6 +101,7 @@ function SoporteBackups() {
     }
   };
 
+  // deja la fecha en un formato mas facil de leer
   const formatearFecha = (fecha) => {
     if (!fecha) return "No disponible";
 
@@ -108,6 +114,7 @@ function SoporteBackups() {
     });
   };
 
+  // muestra el tamaño del archivo en b, kb o mb segun corresponda
   const formatearTamano = (bytes) => {
     const valor = Number(bytes || 0);
 

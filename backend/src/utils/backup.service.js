@@ -6,12 +6,14 @@ const BackupHistorial = require("../models/BackupHistorial.js");
 const BACKUP_DIR = path.join(process.cwd(), "backups");
 const MAX_BACKUPS = 30;
 
+// revisa que exista la carpeta donde se guardaran los backups
 const asegurarCarpetaBackups = () => {
   if (!fs.existsSync(BACKUP_DIR)) {
     fs.mkdirSync(BACKUP_DIR, { recursive: true });
   }
 };
 
+// genera un nombre unico para cada backup usando la fecha y hora actual
 const generarNombreBackup = () => {
   const fecha = new Date()
     .toISOString()
@@ -21,6 +23,7 @@ const generarNombreBackup = () => {
   return `backup-${fecha}.json`;
 };
 
+// mantiene solo los ultimos 30 backups y elimina los mas antiguos
 const rotarBackups = async () => {
   const backups = await BackupHistorial.find()
     .sort({ createdAt: -1 });
@@ -36,6 +39,7 @@ const rotarBackups = async () => {
   }
 };
 
+// crea un respaldo completo de las colecciones de la base de datos
 const crearBackup = async (ejecutadoPor = "Sistema automático") => {
   asegurarCarpetaBackups();
 
@@ -51,6 +55,7 @@ const crearBackup = async (ejecutadoPor = "Sistema automático") => {
       colecciones: {},
     };
 
+    // recorre las colecciones y guarda sus documentos dentro del archivo json
     for (const coleccion of colecciones) {
       const nombreColeccion = coleccion.name;
 
@@ -73,6 +78,7 @@ const crearBackup = async (ejecutadoPor = "Sistema automático") => {
 
     const stats = fs.statSync(rutaArchivo);
 
+    // guarda en el historial que el backup se creo correctamente
     const registro = await BackupHistorial.create({
       nombreArchivo,
       rutaArchivo,
@@ -86,6 +92,7 @@ const crearBackup = async (ejecutadoPor = "Sistema automático") => {
 
     return registro;
   } catch (error) {
+    // si algo falla, igual se registra el intento en el historial
     const registro = await BackupHistorial.create({
       nombreArchivo,
       rutaArchivo,
@@ -101,6 +108,7 @@ const crearBackup = async (ejecutadoPor = "Sistema automático") => {
   }
 };
 
+// lista los backups disponibles, mostrando solo los ultimos 30
 const listarBackups = async () => {
   await rotarBackups();
 
@@ -109,6 +117,7 @@ const listarBackups = async () => {
     .limit(MAX_BACKUPS);
 };
 
+// restaura la base de datos usando el archivo de respaldo seleccionado
 const restaurarBackup = async (backupId) => {
   const backup = await BackupHistorial.findById(backupId);
 
@@ -129,6 +138,7 @@ const restaurarBackup = async (backupId) => {
 
   const colecciones = respaldo.colecciones || {};
 
+  // vacia cada coleccion y luego vuelve a insertar los datos guardados
   for (const nombreColeccion of Object.keys(colecciones)) {
     await mongoose.connection.db.collection(nombreColeccion).deleteMany({});
 
