@@ -69,7 +69,13 @@ function Postulacion() {
 
     let nuevoValor = value;
 
-    if (name === 'nombre' || name === 'apellido') {
+    // estos campos solo aceptan letras y espacios
+    if (
+      name === 'nombre' ||
+      name === 'apellido' ||
+      name === 'residencia' ||
+      name === 'profesion'
+    ) {
       nuevoValor = value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]/g, '');
     }
 
@@ -167,7 +173,9 @@ function Postulacion() {
     }
 
     if (!formData.fechaNacimiento.trim()) return 'La fecha de nacimiento es requerida';
+
     if (!formData.email.trim()) return 'El correo electrónico es requerido';
+
     if (!formData.telefono.trim()) return 'El teléfono es requerido';
 
     if (!validarTelefono(formData.telefono)) {
@@ -175,8 +183,19 @@ function Postulacion() {
     }
 
     if (!formData.residencia.trim()) return 'El lugar de residencia es requerido';
+
+    if (!validarSoloLetras(formData.residencia)) {
+      return 'El lugar de residencia solo puede contener letras y espacios';
+    }
+
     if (!formData.profesion.trim()) return 'La profesión es requerida';
+
+    if (!validarSoloLetras(formData.profesion)) {
+      return 'La profesión solo puede contener letras y espacios';
+    }
+
     if (!formData.areaFormacion) return 'El área de formación es requerida';
+
     if (!formData.experiencia.trim()) return 'La experiencia es requerida';
 
     if (
@@ -232,7 +251,7 @@ function Postulacion() {
 
       setSuccess(
         res.data?.message ||
-        'Postulación creada correctamente. Se ha enviado un correo de confirmación.'
+          'Postulación creada correctamente. Se ha enviado un correo de confirmación.'
       );
 
       limpiarFormulario();
@@ -241,9 +260,9 @@ function Postulacion() {
 
       setError(
         'Error: ' +
-        (err.response?.data?.error ||
-          err.response?.data?.message ||
-          err.message)
+          (err.response?.data?.error ||
+            err.response?.data?.message ||
+            err.message)
       );
     } finally {
       setLoading(false);

@@ -236,7 +236,24 @@ function PagMiembros() {
   };
 
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+
+    let nuevoValor = value;
+
+    // Teléfono: solo permite números y máximo 9 dígitos
+    if (name === 'telefono') {
+      nuevoValor = value.replace(/\D/g, '').slice(0, 9);
+    }
+
+    // Profesión y residencia: no permite números
+    if (name === 'profesion' || name === 'residencia') {
+      nuevoValor = value.replace(/[0-9]/g, '');
+    }
+
+    setForm((prev) => ({
+      ...prev,
+      [name]: nuevoValor,
+    }));
   };
 
   const handleGuardar = async (e) => {
@@ -327,7 +344,7 @@ function PagMiembros() {
     } catch (err) {
       setErrorPago(
         err.response?.data?.error ||
-        'Error de conexión con el servidor. Verifica que el backend esté activo.'
+          'Error de conexión con el servidor. Verifica que el backend esté activo.'
       );
     } finally {
       setCargandoPago(false);
@@ -352,7 +369,7 @@ function PagMiembros() {
     } catch (err) {
       setErrorPago(
         err.response?.data?.error ||
-        'No se pudo renovar la membresía.'
+          'No se pudo renovar la membresía.'
       );
     } finally {
       setCargandoPago(false);
@@ -373,7 +390,7 @@ function PagMiembros() {
     } catch (err) {
       setErrorPago(
         err.response?.data?.error ||
-        'No se pudo simular el vencimiento.'
+          'No se pudo simular el vencimiento.'
       );
     } finally {
       setCargandoPago(false);
@@ -394,7 +411,7 @@ function PagMiembros() {
     } catch (err) {
       setErrorPago(
         err.response?.data?.error ||
-        'No se pudo simular la renovación.'
+          'No se pudo simular la renovación.'
       );
     } finally {
       setCargandoPago(false);
@@ -641,7 +658,9 @@ function PagMiembros() {
               </div>
 
               <div className="perfil-form-grupo">
-                <label>Nueva contraseña <span className="perfil-label-opcional">(opcional)</span></label>
+                <label>
+                  Nueva contraseña <span className="perfil-label-opcional">(opcional)</span>
+                </label>
                 <input
                   name="password"
                   type="password"
@@ -655,8 +674,12 @@ function PagMiembros() {
                 <label>Teléfono</label>
                 <input
                   name="telefono"
+                  type="text"
                   value={form.telefono}
                   onChange={handleChange}
+                  inputMode="numeric"
+                  maxLength="9"
+                  placeholder="Ej: 912345678"
                 />
               </div>
             </div>

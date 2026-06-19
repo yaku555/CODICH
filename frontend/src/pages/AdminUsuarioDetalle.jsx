@@ -11,7 +11,6 @@ const formatearFechaInput = (fecha) => {
   return new Date(fecha).toISOString().split('T')[0];
 };
 
-
 // la funcion principal
 function AdminUsuarioDetalle() {
   const { rut } = useParams();
@@ -73,23 +72,35 @@ function AdminUsuarioDetalle() {
       console.error(error);
       setError(
         error.response?.data?.error ||
-        error.response?.data?.message ||
-        'No se pudo cargar el usuario.'
+          error.response?.data?.message ||
+          'No se pudo cargar el usuario.'
       );
     } finally {
       setLoading(false);
     }
   };
 
-  // actualiza los campos editables 
+  // actualiza los campos editables
   const handleChange = (e) => {
     const { name, value } = e.target;
 
     if (name === 'rut') return;
 
+    let nuevoValor = value;
+
+    // telefono: solo numeros, sin letras
+    if (name === 'telefono') {
+      nuevoValor = value.replace(/\D/g, '').slice(0, 9);
+    }
+
+    // profesion y residencia: no permite numeros
+    if (name === 'profesion' || name === 'residencia') {
+      nuevoValor = value.replace(/[0-9]/g, '');
+    }
+
     setForm({
       ...form,
-      [name]: value,
+      [name]: nuevoValor,
     });
   };
 
@@ -143,8 +154,8 @@ function AdminUsuarioDetalle() {
       console.error(error);
       setError(
         error.response?.data?.error ||
-        error.response?.data?.message ||
-        'No se pudo actualizar el usuario.'
+          error.response?.data?.message ||
+          'No se pudo actualizar el usuario.'
       );
     } finally {
       setGuardando(false);
@@ -175,8 +186,8 @@ function AdminUsuarioDetalle() {
       console.error(error);
       setError(
         error.response?.data?.error ||
-        error.response?.data?.message ||
-        'No se pudo eliminar el usuario.'
+          error.response?.data?.message ||
+          'No se pudo eliminar el usuario.'
       );
     } finally {
       setEliminando(false);
@@ -196,7 +207,6 @@ function AdminUsuarioDetalle() {
   if (!usuario && !error) {
     return <Navigate to="/admin" replace />;
   }
-
 
   // interfaz
   return (
@@ -348,6 +358,9 @@ function AdminUsuarioDetalle() {
               name="telefono"
               value={form.telefono}
               onChange={handleChange}
+              inputMode="numeric"
+              maxLength="9"
+              placeholder="Ej: 912345678"
               required
             />
           </div>
