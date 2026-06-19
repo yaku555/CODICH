@@ -40,6 +40,10 @@ function AdminCrear() {
     return /^\d{7,8}-[0-9K]$/.test(rut);
   };
 
+  const validarTelefono = (telefono) => {
+    return /^\d{9}$/.test(telefono);
+  };
+
   const handleRutChange = (e) => {
     const rutFormateado = formatearRut(e.target.value);
 
@@ -53,9 +57,21 @@ function AdminCrear() {
   const handleChange = (e) => {
     const { name, value } = e.target;
 
+    let nuevoValor = value;
+
+    // telefono: solo números y máximo 9 dígitos
+    if (name === 'telefono') {
+      nuevoValor = value.replace(/\D/g, '').slice(0, 9);
+    }
+
+    // residencia y profesion: no permite números
+    if (name === 'residencia' || name === 'profesion') {
+      nuevoValor = value.replace(/[0-9]/g, '');
+    }
+
     setForm((prev) => ({
       ...prev,
-      [name]: value,
+      [name]: nuevoValor,
     }));
   };
 
@@ -80,6 +96,21 @@ function AdminCrear() {
 
     if (!validarFormatoRut(form.rut)) {
       setError('El RUT debe tener el formato 12345678-5, sin puntos y con guion.');
+      return false;
+    }
+
+    if (!validarTelefono(form.telefono)) {
+      setError('El teléfono debe contener exactamente 9 dígitos numéricos.');
+      return false;
+    }
+
+    if (/[0-9]/.test(form.residencia)) {
+      setError('La residencia no puede contener números.');
+      return false;
+    }
+
+    if (/[0-9]/.test(form.profesion)) {
+      setError('La profesión no puede contener números.');
       return false;
     }
 
@@ -141,8 +172,6 @@ function AdminCrear() {
       setGuardando(false);
     }
   };
-
-
 
   // la interfaz
   return (
@@ -234,7 +263,9 @@ function AdminCrear() {
               type="text"
               value={form.telefono}
               onChange={handleChange}
-              placeholder="Ej: +56 9 1234 5678"
+              inputMode="numeric"
+              maxLength="9"
+              placeholder="Ej: 912345678"
               required
             />
           </div>
